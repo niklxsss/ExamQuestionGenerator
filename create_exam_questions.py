@@ -1,0 +1,2 @@
+# skript
+print("hello")
