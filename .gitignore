@@ -1,4 +1,4 @@
-config.py
+Config.py
 .idea/
 *.xml
 __pycache__/

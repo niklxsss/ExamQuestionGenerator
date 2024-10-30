@@ -5,8 +5,8 @@ import os
 import openai
 from openai import OpenAI
 
-from config import API_KEY
-from const import GPT_MODEL, MAX_TOKENS, TEMPERATURE
+from Config import API_KEY
+from Const import GPT_MODEL, MAX_TOKENS, TEMPERATURE
 
 
 def parse_arguments():

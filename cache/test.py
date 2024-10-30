@@ -5,8 +5,8 @@ import argparse
 
 from openai import OpenAI
 
-from config import API_KEY
-from const import TEMPERATURE, MAX_TOKENS
+from Config import API_KEY
+from Const import TEMPERATURE, MAX_TOKENS
 
 
 def parse_arguments():
