@@ -11,7 +11,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 
 from Config import API_KEY
 from Const import *
-from Prompt import PROMPT
+from PromptBuilder import PROMPT
 
 
 def parse_arguments():

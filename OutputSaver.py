@@ -4,6 +4,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate
 from QuestionFormatter import *
 
+
 class OutputSaver:
 
     @staticmethod
@@ -60,4 +61,3 @@ class OutputSaver:
                 OutputSaver.save_output_to_pdf(QuestionFormatter.format_output_for_pdf(output), filename)
 
             print(f"Output saved to {filename}")
-
