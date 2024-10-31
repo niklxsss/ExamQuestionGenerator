@@ -1,8 +1,7 @@
 import json
 
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate
 from QuestionFormatter import *
 
 class OutputSaver:
@@ -18,17 +17,9 @@ class OutputSaver:
             file.write(output)
 
     @staticmethod
-    def save_output_to_pdf(output_text, filename):
+    def save_output_to_pdf(formatted_content, filename):
         doc = SimpleDocTemplate(filename, pagesize=A4, leftMargin=50, rightMargin=50, topMargin=50, bottomMargin=50)
-        styles = getSampleStyleSheet()
-        style = styles["BodyText"]
-        content = []
-
-        for line in output_text.splitlines():
-            content.append(Paragraph(line, style))
-            content.append(Spacer(1, 12))
-
-        doc.build(content)
+        doc.build(formatted_content)
 
     @staticmethod
     def save_output_to_file(output, file_type, separate_answers=False):

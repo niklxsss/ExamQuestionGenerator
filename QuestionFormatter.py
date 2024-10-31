@@ -1,5 +1,6 @@
 from datetime import datetime
-
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import Paragraph, Spacer
 from Const import *
 
 
@@ -30,7 +31,33 @@ class QuestionFormatter:
 
     @staticmethod
     def format_output_for_pdf(output, content_type=None):
-        return QuestionFormatter.format_output_for_txt(output, content_type)
+        doc_content = []
+        styles = getSampleStyleSheet()
+
+        heading_style = ParagraphStyle(name='HeadingStyle', parent=styles['Heading2'], fontSize=16, leading=20,
+                                       spaceAfter=15)
+
+        label_style = ParagraphStyle(name='LabelStyle', parent=styles['Heading4'], fontSize=12, leading=14,
+                                     spaceBefore=25)
+
+        question_style = ParagraphStyle(name='QuestionStyle', parent=styles['BodyText'], fontSize=12, leading=14,
+                                        spaceBefore=6, spaceAfter=6)
+
+        for q in output[SECTION_QUESTIONS]:
+            doc_content.append(Paragraph(f"Aufgabe: {q[SECTION_ID]}", heading_style))
+            if content_type in [None, SECTION_QUESTIONS]:
+                doc_content.append(Paragraph("Question:", label_style))
+                doc_content.append(Paragraph(q[SECTION_QUESTION], question_style))
+                doc_content.append(Paragraph("Example:", label_style))
+                doc_content.append(Paragraph(q[SECTION_EXAMPLE], question_style))
+
+            if content_type in [None, SECTION_ANSWERS] and SECTION_ANSWER in q:
+                doc_content.append(Paragraph("Answer:", label_style))
+                doc_content.append(Paragraph(q[SECTION_ANSWER], question_style))
+
+            doc_content.append(Spacer(1, 16))
+
+        return doc_content
 
     @staticmethod
     def format_output_for_json(output, content_type=None):
