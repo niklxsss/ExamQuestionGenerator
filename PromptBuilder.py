@@ -33,7 +33,8 @@ class PromptBuilder:
     @staticmethod
     def getBasePrompt(num_questions):
         return f"Sie sind KI-Lehrassistent mit Schwerpunkt Informatik. Generieren Sie genau {num_questions} " \
-               f"anspruchsvolle, anwendungsbezogene Prüfungsaufgaben zu Turingmaschinen mit jeweils dem angegebenen Format:"""
+               f"anspruchsvolle, anwendungsbezogene Prüfungsaufgaben zu Turingmaschinen mit jeweils dem angegebenen " \
+               f"Format:"
 
     @staticmethod
     def get_attachment_prompt(datei_name, files):
