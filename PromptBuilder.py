@@ -34,7 +34,15 @@ class PromptBuilder:
     def getBasePrompt(num_questions):
         return f"Sie sind KI-Lehrassistent mit Schwerpunkt Informatik. Generieren Sie genau {num_questions} " \
                f"anspruchsvolle, anwendungsbezogene Prüfungsaufgaben zu Turingmaschinen mit jeweils dem angegebenen " \
-               f"Format:"
+               f"Format." \
+               f"Wenn eine Frage oder Lösung keine zusätzlichen Hinweise oder schrittweisen Anweisungen benötigt, " \
+               f"lassen Sie diese Felder leer." \
+               f"Format:" \
+               f"- question: [Die eigentliche Frage]" \
+               f"- additional_infos (optional): [Nur falls benötigt]" \
+               f"- example (optional): [Nur falls notwendig für das Verständnis]" \
+               f"- solution: [Die Lösung]" \
+               f"- step_by_step_solution (optional): [Nur falls benötigt]"
 
     @staticmethod
     def get_attachment_prompt(datei_name, files):
@@ -42,3 +50,7 @@ class PromptBuilder:
             return f"Die angehängte(n) {datei_name} enthalten zusätzliche Inhalte zur Turingmaschine. " \
                    f"Nutzen Sie diese Inhalte, um die Übungen entsprechend zu gestalten.\n\n"
         return ""
+
+# Format definieren
+# Nutzung des Formates
+#Bei aufzählungen keine nummern angeben

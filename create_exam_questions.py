@@ -32,4 +32,6 @@ if __name__ == "__main__":
 # https://platform.openai.com/docs/guides/vision
 # https://platform.openai.com/docs/guides/structured-outputs/how-to-use?context=ex2
 
+# create_exam_questions --output TXT --files_pdf gie-informatik_uebung_08.pdf --num_questions 5
+
 # create_exam_questions --output PDF --files_images AblaufGrafik.png --files_txt Unit05.txt --files_pdf gie-informatik_uebung_08.pdf --num_questions 15

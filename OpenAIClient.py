@@ -3,7 +3,7 @@ import openai
 from openai import OpenAI
 from Config import *
 from Const import *
-from ExamQuestions import ExamQuestions
+from Questions import ExamQuestions
 
 
 class OpenAIClient:
