@@ -16,7 +16,7 @@
 class PromptBuilder:
 
     @staticmethod
-    def create_prompt(num_questions, files_txt, files_images, files_pdf):
+    def create_prompt(num_questions, difficulty, files_txt, files_images, files_pdf):
         prompt = PromptBuilder.getBasePrompt(num_questions)
 
         attachment_prompt = ""
