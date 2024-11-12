@@ -33,8 +33,16 @@ class QuestionFormatter:
         if additional_infos:
             infos_text = "\n".join([f"- {info}" for info in additional_infos])
             content += f"{LABEL_ADDITIONAL_INFOS}{COLON}\n{infos_text}\n\n"
+
+        tables = question[SECTION_QUESTION_CONTENT].get(SECTION_QUESTION_TABLES)
+        if tables:
+            for table in tables:
+                content += f"{LABEL_TABLE}{COLON}{table[SECTION_TABLES_TITLE]}\n"
+                content += QuestionFormatter.format_table_txt(table)
+
         if question.get(SECTION_EXAMPLE):
             content += f"{LABEL_EXAMPLE}{COLON}\n{question[SECTION_EXAMPLE]}\n\n"
+
         return content
 
     @staticmethod
@@ -54,15 +62,15 @@ class QuestionFormatter:
         tables = question[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_TABLES)
         if tables:
             for table in tables:
-                content += f"{LABEL_TABLE}{COLON}{table[SECTION_SOLUTION_TABLES_TITLE]}\n"
+                content += f"{LABEL_TABLE}{COLON}{table[SECTION_TABLES_TITLE]}\n"
                 content += QuestionFormatter.format_table_txt(table)
 
         return content
 
     @staticmethod
     def format_table_txt(table):
-        headers = table[SECTION_SOLUTION_TABLES_HEADERS]
-        rows = table[SECTION_SOLUTION_TABLES_ROWS]
+        headers = table[SECTION_TABLES_HEADERS]
+        rows = table[SECTION_TABLES_ROWS]
         table_text = tabulate(rows, headers=headers, tablefmt="grid")
         return table_text + "\n\n"
 
@@ -110,9 +118,16 @@ class QuestionFormatter:
             content.append(Paragraph(f"{LABEL_ADDITIONAL_INFOS}{COLON}", styles['label_style']))
             for info in additional_infos:
                 content.append(Paragraph(f"• {info}", styles['bullet_style']))
+
+        tables = question[SECTION_QUESTION_CONTENT].get(SECTION_QUESTION_TABLES)
+        if tables:
+            for table in tables:
+                content.extend(QuestionFormatter._format_table_pdf(table, styles))
+
         if question.get(SECTION_EXAMPLE):
             content.append(Paragraph(f"{LABEL_EXAMPLE}{COLON}", styles['label_style']))
             content.append(Paragraph(question[SECTION_EXAMPLE], styles['content_style']))
+
         return content
 
     @staticmethod
@@ -143,8 +158,8 @@ class QuestionFormatter:
 
     @staticmethod
     def _format_table_pdf(table, styles):
-        content = [Paragraph(f"{LABEL_TABLE}{COLON}{table[SECTION_SOLUTION_TABLES_TITLE]}", styles['label_style'])]
-        data = [table[SECTION_SOLUTION_TABLES_HEADERS]] + table[SECTION_SOLUTION_TABLES_ROWS]
+        content = [Paragraph(f"{LABEL_TABLE}{COLON}{table[SECTION_TABLES_TITLE]}", styles['label_style'])]
+        data = [table[SECTION_TABLES_HEADERS]] + table[SECTION_TABLES_ROWS]
         table_obj = Table(data)
         table_obj.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
@@ -178,6 +193,7 @@ class QuestionFormatter:
                 entry.update({
                     SECTION_QUESTION: q[SECTION_QUESTION_CONTENT][SECTION_QUESTION],
                     SECTION_QUESTION_ADDITIONAL_INFOS: q[SECTION_QUESTION_CONTENT].get(SECTION_QUESTION_ADDITIONAL_INFOS),
+                    SECTION_QUESTION_TABLES: q[SECTION_QUESTION_CONTENT].get(SECTION_QUESTION_TABLES),
                     SECTION_EXAMPLE: q.get(SECTION_EXAMPLE)
                 })
 
@@ -199,6 +215,9 @@ class QuestionFormatter:
 
             if not question[SECTION_QUESTION_CONTENT].get(SECTION_QUESTION_ADDITIONAL_INFOS):
                 question[SECTION_QUESTION_CONTENT].pop(SECTION_QUESTION_ADDITIONAL_INFOS, None)
+
+            if not question[SECTION_QUESTION_CONTENT].get(SECTION_QUESTION_TABLES):
+                question[SECTION_QUESTION_CONTENT].pop(SECTION_QUESTION_TABLES, None)
 
             if not question.get(SECTION_EXAMPLE):
                 question.pop(SECTION_EXAMPLE, None)

@@ -15,9 +15,13 @@ def main():
     separate_answers = args.separate_answers
     output_format = args.output
     difficulty = args.difficulty
+    task_type = args.task_type
 
     info_texts, encoded_base64_data, pdf_texts = FileProcessor.process_files(files_txt, files_images, files_pdf)
-    prompt_text = PromptBuilder.create_prompt(num_questions, difficulty, info_texts, encoded_base64_data, pdf_texts)
+
+    prompt_text = PromptBuilder.create_prompt(num_questions, difficulty, task_type,info_texts, encoded_base64_data,
+                                              pdf_texts)
+
     print(prompt_text)
     message = MessageBuilder.build_message(prompt_text, info_texts, encoded_base64_data, pdf_texts)
     result = OpenAIClient.send_request(message)

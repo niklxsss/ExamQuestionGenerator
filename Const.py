@@ -8,29 +8,30 @@ JSON_FORMAT = "JSON"
 
 UNDERSCORE = "_"
 COLON = ": "
+
 FILE_NAME_PREFIX = "TuringMaschine"
 FILE_NAME_QUESTIONS = "Aufgaben"
 FILE_NAME_SOLUTIONS = "Lösungen"
 FILE_NAME_QUESTIONS_AND_SOLUTIONS = FILE_NAME_QUESTIONS + UNDERSCORE + FILE_NAME_SOLUTIONS
 
 SECTION_QUESTIONS = "questions"
-SECTION_QUESTION = "question"
-SECTION_QUESTION_ADDITIONAL_INFOS = "additional_infos"
 SECTION_QUESTION_CONTENT = "question_content"
+SECTION_QUESTION = "question"
+SECTION_QUESTION_ADDITIONAL_INFOS = "optional_question_additional_infos"
+SECTION_QUESTION_TABLES = "optional_question_tables"
 
 SECTION_SOLUTIONS = "solutions"
-SECTION_SOLUTION = "solution"
-SECTION_SOLUTION_STEP_BY_STEP = "step_by_step_solution"
 SECTION_SOLUTION_CONTENT = "solution_content"
-SECTION_SOLUTION_ADDITIONAL_INFOS = "additional_solution_infos"
-SECTION_SOLUTION_TABLES = "tables"
-SECTION_SOLUTION_TABLES_TITLE = "title"
-SECTION_SOLUTION_TABLES_HEADERS = "headers"
-SECTION_SOLUTION_TABLES_ROWS = "rows"
+SECTION_SOLUTION = "solution"
+SECTION_SOLUTION_STEP_BY_STEP = "optional_solution_step_by_step"
+SECTION_SOLUTION_ADDITIONAL_INFOS = "optional_solution_additional_infos"
+SECTION_SOLUTION_TABLES = "optional_solution_tables"
 
-SECTION_EXAMPLES = "examples"
-SECTION_EXAMPLE = "example"
+SECTION_TABLES_TITLE = "title"
+SECTION_TABLES_HEADERS = "headers"
+SECTION_TABLES_ROWS = "rows"
 
+SECTION_EXAMPLE = "optional_example"
 SECTION_ID = "id"
 
 LABEL_TASK = "Aufgabe"
