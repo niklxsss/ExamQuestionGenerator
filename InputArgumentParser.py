@@ -13,7 +13,7 @@ class InputArgumentParser:
         parser.add_argument('--files_txt', type=str, nargs='+', default=[], help="Paths to text files")
         parser.add_argument('--files_pdf', type=str, nargs='+', default=[], help="Paths to pdf files")
         parser.add_argument('--separate_answers', action='store_true', help="Save answers in a separate file")
-        parser.add_argument('--difficulty', type=str, choices=['leicht', 'mittel', 'schwer'], required=True,
+        parser.add_argument('--difficulty', type=str, choices=['leicht', 'mittel', 'schwer'],
                             help="Difficulty level of the questions")
         parser.add_argument('--output', type=str, required=True, choices=[TXT_FORMAT, PDF_FORMAT, JSON_FORMAT],
                             help="Output format for questions")
