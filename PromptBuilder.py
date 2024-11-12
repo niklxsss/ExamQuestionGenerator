@@ -42,7 +42,9 @@ class PromptBuilder:
                f"- additional_infos (optional): [Nur falls benötigt]" \
                f"- example (optional): [Nur falls notwendig für das Verständnis]" \
                f"- solution: [Die Lösung]" \
-               f"- step_by_step_solution (optional): [Nur falls benötigt]"
+               f"- additional_solution_infos: (optional): [Nur falls benötigt]" \
+               f"- step_by_step_solution (optional): [Nur falls benötigt]" \
+               f"- tables (optional): [Nur falls benötigt für Zustandstabelle]"
 
     @staticmethod
     def get_attachment_prompt(datei_name, files):

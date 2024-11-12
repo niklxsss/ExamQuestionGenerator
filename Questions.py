@@ -7,9 +7,17 @@ class QuestionContent(BaseModel):
     additional_infos: Optional[List[str]] = None
 
 
+class TableContent(BaseModel):
+    title: str
+    headers: List[str]
+    rows: List[List[str]]
+
+
 class SolutionContent(BaseModel):
     solution: str
+    additional_solution_infos: Optional[List[str]] = None
     step_by_step_solution: Optional[List[str]] = None
+    tables: Optional[List[TableContent]]
 
 
 class ExamQuestion(BaseModel):

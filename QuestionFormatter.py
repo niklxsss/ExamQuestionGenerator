@@ -1,6 +1,8 @@
 from datetime import datetime
+from tabulate import tabulate
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import Paragraph, Spacer
+from reportlab.platypus import Paragraph, Spacer, Table, TableStyle
+from reportlab.lib import colors
 from Const import *
 
 
@@ -37,12 +39,32 @@ class QuestionFormatter:
 
     @staticmethod
     def _format_solution_txt(question):
-        content = f"{LABEL_SOLUTION}{COLON}{question[SECTION_SOLUTION_CONTENT][SECTION_SOLUTION]}\n\n"
+        content = f"{LABEL_SOLUTION}{COLON}\n{question[SECTION_SOLUTION_CONTENT][SECTION_SOLUTION]}\n\n"
+
+        additional_infos = question[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_ADDITIONAL_INFOS)
+        if additional_infos:
+            infos_text = "\n".join([f"• {info}" for info in additional_infos])
+            content += f"{LABEL_ADDITIONAL_SOLUTION_INFOS}{COLON}\n{infos_text}\n\n"
+
         steps = question[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_STEP_BY_STEP)
         if steps:
             steps_text = "\n".join([f"{idx + 1}. {step}" for idx, step in enumerate(steps)])
             content += f"{LABEL_SOLUTION_STEP_BY_STEP}{COLON}\n{steps_text}\n\n"
+
+        tables = question[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_TABLES)
+        if tables:
+            for table in tables:
+                content += f"{LABEL_TABLE}{COLON}{table[SECTION_SOLUTION_TABLES_TITLE]}\n"
+                content += QuestionFormatter.format_table_txt(table)
+
         return content
+
+    @staticmethod
+    def format_table_txt(table):
+        headers = table[SECTION_SOLUTION_TABLES_HEADERS]
+        rows = table[SECTION_SOLUTION_TABLES_ROWS]
+        table_text = tabulate(rows, headers=headers, tablefmt="grid")
+        return table_text + "\n\n"
 
     # PDF
 
@@ -99,11 +121,48 @@ class QuestionFormatter:
             Paragraph(f"{LABEL_SOLUTION}{COLON}", styles['label_style']),
             Paragraph(question[SECTION_SOLUTION_CONTENT][SECTION_SOLUTION], styles['content_style'])
         ]
+
+        additional_infos = question[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_ADDITIONAL_INFOS)
+        if additional_infos:
+            content.append(Paragraph(f"{LABEL_ADDITIONAL_SOLUTION_INFOS}{COLON}", styles['label_style']))
+            for info in additional_infos:
+                content.append(Paragraph(f"• {info}", styles['bullet_style']))
+
         steps = question[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_STEP_BY_STEP)
         if steps:
             content.append(Paragraph(f"{LABEL_SOLUTION_STEP_BY_STEP}{COLON}", styles['label_style']))
             for idx, step in enumerate(steps):
                 content.append(Paragraph(f"{idx + 1}. {step}", styles['step_style']))
+
+        tables = question[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_TABLES)
+        if tables:
+            for table in tables:
+                content.extend(QuestionFormatter._format_table_pdf(table, styles))
+
+        return content
+
+    @staticmethod
+    def _format_table_pdf(table, styles):
+        content = [Paragraph(f"{LABEL_TABLE}{COLON}{table[SECTION_SOLUTION_TABLES_TITLE]}", styles['label_style'])]
+        data = [table[SECTION_SOLUTION_TABLES_HEADERS]] + table[SECTION_SOLUTION_TABLES_ROWS]
+        table_obj = Table(data)
+        table_obj.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6)
+        ]))
+        content.append(table_obj)
+        content.append(Spacer(1, 10))
+
         return content
 
     # JSON
@@ -125,7 +184,9 @@ class QuestionFormatter:
             if content_type in [None, SECTION_SOLUTIONS]:
                 entry.update({
                     SECTION_SOLUTION: q[SECTION_SOLUTION_CONTENT][SECTION_SOLUTION],
-                    SECTION_SOLUTION_STEP_BY_STEP: q[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_STEP_BY_STEP)
+                    SECTION_SOLUTION_ADDITIONAL_INFOS: q[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_ADDITIONAL_INFOS),
+                    SECTION_SOLUTION_STEP_BY_STEP: q[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_STEP_BY_STEP),
+                    SECTION_SOLUTION_TABLES: q[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_TABLES)
                 })
 
             formatted_json.append(entry)
@@ -142,8 +203,14 @@ class QuestionFormatter:
             if not question.get(SECTION_EXAMPLE):
                 question.pop(SECTION_EXAMPLE, None)
 
+            if not question[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_ADDITIONAL_INFOS):
+                question[SECTION_SOLUTION_CONTENT].pop(SECTION_SOLUTION_ADDITIONAL_INFOS, None)
+
             if not question[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_STEP_BY_STEP):
                 question[SECTION_SOLUTION_CONTENT].pop(SECTION_SOLUTION_STEP_BY_STEP, None)
+
+            if not question[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_TABLES):
+                question[SECTION_SOLUTION_CONTENT].pop(SECTION_SOLUTION_TABLES, None)
 
         return data
 
