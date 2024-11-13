@@ -12,7 +12,6 @@ class QuestionContent(BaseModel):
     question: str
     optional_question_additional_infos: Optional[List[str]] = None
     optional_question_tables: Optional[List[TableContent]]
-    # // relevant für fehlerhafte turingmaschinen
 
 
 class SolutionContent(BaseModel):
