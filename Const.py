@@ -42,3 +42,11 @@ LABEL_ADDITIONAL_INFOS = "Zusatzinformationen"
 LABEL_SOLUTION_STEP_BY_STEP = "Lösungsweg"
 LABEL_ADDITIONAL_SOLUTION_INFOS = "Zusatzinformationen"
 LABEL_TABLE = "Tabelle"
+
+DIFFICULTY_EASY = 'leicht'
+DIFFICULTY_MEDIUM = 'mittel'
+DIFFICULTY_CHALLENGING = 'anspruchsvoll'
+DIFFICULTY_ADVANCED = 'fortgeschritten'
+DIFFICULTY_EXTREME = 'extrem schwierig'
+
+TASK_TYPE_INCORRECT_TASK = 'incorrect_tasks'

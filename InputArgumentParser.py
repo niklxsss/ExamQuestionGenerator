@@ -1,6 +1,6 @@
 import argparse
 
-from Const import TXT_FORMAT, PDF_FORMAT, JSON_FORMAT
+from Const import *
 
 
 class InputArgumentParser:
@@ -13,9 +13,11 @@ class InputArgumentParser:
         parser.add_argument('--files_txt', type=str, nargs='+', default=[], help="Paths to text files")
         parser.add_argument('--files_pdf', type=str, nargs='+', default=[], help="Paths to pdf files")
         parser.add_argument('--separate_answers', action='store_true', help="Save answers in a separate file")
-        parser.add_argument('--difficulty', type=str, choices=['leicht', 'mittel', 'schwer'],
+        parser.add_argument('--difficulty', type=str, choices=[DIFFICULTY_EASY, DIFFICULTY_MEDIUM,
+                                                               DIFFICULTY_CHALLENGING, DIFFICULTY_ADVANCED,
+                                                               DIFFICULTY_EXTREME],
                             help="Difficulty level of the questions")
-        parser.add_argument('--task_type', type=str, choices=['incorrect_tasks', '', ''],
+        parser.add_argument('--task_type', type=str, choices=[TASK_TYPE_INCORRECT_TASK],
                             help="Difficulty level of the questions")
         parser.add_argument('--output', type=str, required=True, choices=[TXT_FORMAT, PDF_FORMAT, JSON_FORMAT],
                             help="Output format for questions")
