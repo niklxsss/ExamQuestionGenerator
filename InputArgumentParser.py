@@ -18,7 +18,7 @@ class InputArgumentParser:
                                                                DIFFICULTY_EXTREME],
                             help="Difficulty level of the questions")
         parser.add_argument('--task_type', type=str, choices=[TASK_TYPE_INCORRECT_TASK],
-                            help="Difficulty level of the questions")
+                            help="")
         parser.add_argument('--output', type=str, required=True, choices=[TXT_FORMAT, PDF_FORMAT, JSON_FORMAT],
                             help="Output format for questions")
         return parser.parse_args()

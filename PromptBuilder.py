@@ -26,6 +26,7 @@ class PromptBuilder:
     # difficulty anpassen und spezifische Aufgabentypen definieren
     # zustände in zusatndstabelle sind oft unvollständig
     # Lösungen oft fehlerhaft
+    # keine Lücken
 
     @staticmethod
     def get_base_prompt(num_questions):
@@ -41,13 +42,19 @@ class PromptBuilder:
         return (
             "Ablauf der Prüfungsfrage-Generierung:\n"
             "1. Wählen Sie die Art der Aufgabe, falls nicht vorgegeben und stellen Sie sicher, dass die "
-            "Aufgabenstellung vollständig, präzise und klar ist.\n"
-            "2. Generieren Sie ein Beispiel nur, wenn es die Lösung verdeutlicht, und stellen Sie sicher, dass es korrekt ist.\n"
+            "Aufgabenstellung vollständig, präzise und klar ist. Zudem sollen die Aufgaben auf realistischen umsetzbare"
+            " Operationen einer Turingmaschine basiern!\n"
+            "2. Generieren Sie ein Beispiel nur, wenn es die Lösung verdeutlicht, und stellen Sie sicher, dass es "
+            "korrekt ist.\n"
             "3. Formulieren Sie eine klare und vollständige Lösung, die genau zur Aufgabenstellung passt.\n"
             "4. Generieren Sie eine Zustandsübergangstabelle (falls erforderlich) und stellen Sie sicher, dass sie "
-            "KOMPLETT vollständig ist.\n"
-            "5. Führen Sie eine Selbstprüfung für jede Aufgabe durch und stellen Sie sicher, dass diese vollständig "
-            "und korrekt ist, bevor die nächste Aufgabe generiert wird\n\n"
+            "KOMPLETT VOLLSTÄNDIG ist.\n"
+            "6. Überprüfen Sie am Ende nochmals, dass **alle Übergänge in den Zustandstabellen vollständig und klar "
+            "beschrieben** sind. **Unvollständige Übergänge** gefährden die Prüfungsqualität und sind daher **streng "
+            "zu vermeiden**.\n\n"
+            "6. Führen Sie eine Selbstprüfung für jede Aufgabe durch und stellen Sie sicher, dass diese vollständig "
+            "und korrekt ist, bevor die nächste Aufgabe generiert wird. Stelle sicher, dass der Lösungsweg OHNE LÜCKEN"
+            "komplett nachvollziehbar ist!!!\n\n"
         )
 
     # @staticmethod
@@ -278,7 +285,7 @@ class PromptBuilder:
             "Stellen Sie sicher, dass die Inhalte in den Spalten vollständig und korrekt strukturiert sind, ohne "
             "Verschiebungen zwischen den Einträgen.\n\n"
 
-            "Generieren Sie die Aufgaben und Lösungen im zuvor beschriebenen Format!!!\n\n"
+            "Generieren Sie die Aufgaben und Lösungen im beschriebenen Format!!!\n\n"
         )
 
     @staticmethod
@@ -304,10 +311,10 @@ class PromptBuilder:
             "Lösung die Frage exakt und vollständig beantwortet, ohne dass Informationen fehlen oder inkorrekt "
             "dargestellt sind.\n\n"
 
-            "Prüfen Sie jede Aufgabe und Lösung auf Vollständigkeit und Korrektheit. Stellen Sie sicher, dass alle "
-            "möglichen Bandzustände, Funktionen und Übergänge korrekt abgedeckt sind und dass keine Endlosschleifen oder "
-            "unvollständigen Übergänge entstehen. Falls eine Tabelle verwendet wird, soll sie die komplette Funktion "
-            "der Maschine darstellen.\n\n"
+            "Prüfen Sie jede Aufgabe und Lösung auf **vollständige Übergänge** und stellen Sie sicher, dass alle "
+            "möglichen Bandzustände, Funktionen und Übergänge korrekt abgedeckt sind und dass keine Endlosschleifen "
+            "oder unvollständigen Übergänge entstehen. **Falls eine Tabelle verwendet wird, soll sie die komplette Funktion "
+            "der Maschine darstellen und darf keine Schritte auslassen.**\n\n"
 
             "Jegliche Missachtung dieser Anweisung führt zu falschen und verwirrenden Aufgabenstellungen und soll "
             "daher strikt vermieden werden!!! Diese Regeln sind für die Klarheit der Aufgabenstruktur entscheidend "
