@@ -5,25 +5,26 @@ class PromptBuilder:
 
     @staticmethod
     def create_prompt(num_questions, difficulty, task_type, files_txt, files_images, files_pdf):
-        prompt = PromptBuilder.get_base_prompt(num_questions, DIFFICULTY_WORDING_MAP.get(difficulty),
-                                               DIFFICULTY_EXPLANATION_MAP.get(difficulty))
-        prompt += PromptBuilder.get_process_steps()
-
+        prompt_parts = [PromptBuilder.get_base_prompt(num_questions, DIFFICULTY_WORDING_MAP.get(difficulty),
+                                                      DIFFICULTY_EXPLANATION_MAP.get(difficulty))]
         if task_type:
-            prompt += PromptBuilder.get_task_type_prompt(task_type)
+            prompt_parts.append(PromptBuilder.get_task_type_prompt(task_type))
 
         if any([files_txt, files_images, files_pdf]):
-            prompt += PromptBuilder.get_attachments_prompt(files_txt, files_images, files_pdf)
+            prompt_parts.append(PromptBuilder.get_attachments_prompt(files_txt, files_images, files_pdf))
 
-        prompt += PromptBuilder.get_general_guidelines()
-        prompt += PromptBuilder.get_structure_instructions()
-        prompt += PromptBuilder.get_final_reminder()
+        prompt_parts.append(PromptBuilder.get_general_guidelines())
+        prompt_parts.append(PromptBuilder.get_process_steps())
+        prompt_parts.append(PromptBuilder.get_structure_instructions())
+        prompt_parts.append(PromptBuilder.get_final_reminder())
 
-        return prompt
+        return prompt_parts
 
     @staticmethod
     def get_base_prompt(num_questions, difficulty, difficulty_explanation):
         return (
+            "# Aufgabenbeschreibung und Zielsetzung:\n\n"
+            
             f"Sie sind KI-Lehrassistent mit Schwerpunkt Informatik. Generieren Sie genau **{num_questions}** "
             f"{difficulty} Prüfungsaufgaben zu Turingmaschinen. Die Aufgaben sollen speziell "
             f"für Studierende im Bereich Informatik konzipiert sein und deren Verständnis sowie die "
@@ -37,7 +38,8 @@ class PromptBuilder:
     @staticmethod
     def get_process_steps():
         return (
-            "Ablauf der Prüfungsfrage-Generierung:\n"
+             "# Ablauf der Prüfungsfrage-Generierung:\n\n"
+             
             "1. Wählen Sie die Art der Aufgabe, falls nicht vorgegeben, und stellen Sie sicher, dass die "
             "Aufgabenstellung vollständig, präzise und klar ist. Zudem müssen die Aufgaben auf realistisch umsetzbaren "
             "Operationen einer Turingmaschine basieren\n. "
@@ -72,24 +74,25 @@ class PromptBuilder:
 
     @staticmethod
     def get_attachments_prompt(files_txt, files_images, files_pdf):
-        attachment_prompt = ""
-        attachment_prompt += PromptBuilder.get_attachment_prompt("Info-Text", files_txt)
-        attachment_prompt += PromptBuilder.get_attachment_prompt("Info-Text", files_pdf)
-        attachment_prompt += PromptBuilder.get_attachment_prompt("Bild-Datei", files_images)
-        attachment_prompt_prefix = "Zusätzliche Informationen zu den Aufgaben:\n\n"
-        return attachment_prompt_prefix + attachment_prompt
+        attachments = ""
+        attachments += PromptBuilder.get_attachment_prompt("Text", files_txt)
+        attachments += PromptBuilder.get_attachment_prompt("PDF", files_pdf)
+        attachments += PromptBuilder.get_attachment_prompt("Bild", files_images)
+        return f"# Zusätzliche Informationen:\n\n{attachments}"
+
 
     @staticmethod
     def get_attachment_prompt(datei_name, files):
         if files:
-            return f"Die angehängte(n) {datei_name} enthalten zusätzliche Inhalte zur Turingmaschine. " \
+            return f"Die angehängte {datei_name} enthält zusätzliche Inhalte zur Turingmaschine. " \
                    f"Nutzen Sie diese Inhalte, um die Aufgaben entsprechend zu gestalten.\n\n"
         return ""
 
     @staticmethod
     def get_general_guidelines():
         return (
-            "### Grundlegende Anforderungen:\n\n"
+            "# Grundlegende Anforderungen:\n\n"
+            
             "- Alle Inhalte sollen auf Deutsch verfasst werden.\n"
             "- Stellen Sie sicher, dass die Aufgaben und Lösungen korrekt und präzise sind.\n"
             "- Vermeiden Sie Unklarheiten und stellen Sie sicher, dass die Aufgaben in sich schlüssig und vollständig "
@@ -127,6 +130,7 @@ class PromptBuilder:
 
     @staticmethod
     def get_structure_instructions():
+        header = "# Struktur der Prüfungsaufgaben und Lösungen:\n\n"
 
         general_instructions = (
             "Die Prüfungsaufgaben und Lösungen sollen im `ExamQuestions`-Response-Format strukturiert sein. "
@@ -134,7 +138,7 @@ class PromptBuilder:
         )
 
         structure_overview = (
-            "### `ExamQuestions` Format Übersicht:\n"
+            "## `ExamQuestions` Format Übersicht:\n"
 
             "`ExamQuestions` besteht aus einer Liste von Prüfungsfragen (`questions`). "
             "Jede Prüfungsfrage ist vom Typ `ExamQuestion` und umfasst:\n\n"
@@ -150,7 +154,7 @@ class PromptBuilder:
         )
 
         question_content_details = (
-            "#### Struktur von `question_content`:\n"
+            "### Struktur von `question_content`:\n"
 
             "- **question (str)**: "
             "Die Hauptfrage, die immer erforderlich ist.\n"
@@ -170,7 +174,7 @@ class PromptBuilder:
         )
 
         example_details = (
-            "#### `optional_example`:\n"
+            "### `optional_example`:\n"
             "- **optional_example (str, optional)**: Generieren Sie ein Beispiel nur, wenn es zur Klarheit der "
             "Aufgabenstellung beiträgt und das erwartete Verhalten der Lösung deutlich darstellt. "
             "Falls ein Beispiel enthalten ist, muss es die Anforderungen der Aufgabenstellung exakt erfüllen "
@@ -182,7 +186,7 @@ class PromptBuilder:
         )
 
         solution_content_details = (
-            "#### Struktur von `solution_content`:\n"
+            "### Struktur von `solution_content`:\n"
 
             "- **solution (str)**: Die Hauptlösung, die immer erforderlich ist.\n"
 
@@ -201,7 +205,7 @@ class PromptBuilder:
         )
 
         additional_guidelines = (
-            "#### Zusätzliche Hinweise zur Formatnutzung:\n"
+            "### Zusätzliche Hinweise zur Formatnutzung:\n"
 
             "- Verwenden Sie optionale Felder ausschließlich, wenn sie die Aufgabe oder Lösung klarer und "
             "verständlicher machen. Eine minimale Aufgabe besteht aus einer `question` und einer `solution`.\n"
@@ -223,6 +227,7 @@ class PromptBuilder:
         )
 
         return (
+                header +
                 general_instructions +
                 structure_overview +
                 question_content_details +
@@ -273,7 +278,7 @@ class PromptBuilder:
     @staticmethod
     def get_final_reminder():
         return (
-            "**Wichtiger abschließender Hinweis:**\n\n"
+            "# Wichtiger abschließender Hinweis:\n\n"
 
             "- Überprüfen Sie jede Aufgabe auf Konsistenz mit der angegebenen Schwierigkeitsstufe.\n"
 
@@ -310,15 +315,28 @@ class PromptBuilder:
 
     @staticmethod
     def create_validation_prompt():
-        validation_prompt = (
+        prompt_parts = [PromptBuilder.get_validation_base_prompt(), PromptBuilder.get_validation_prompt(),
+                        PromptBuilder.get_structure_instructions()]
+        return prompt_parts
+
+    @staticmethod
+    def get_validation_base_prompt():
+        return (
+            "# Aufgabenbeschreibung und Zielsetzung:\n\n"
+            
             "Sie sind ein KI-Validierungsassistent mit Schwerpunkt Informatik. Ihr Ziel ist es, die Qualität, Genauigkeit "
             "und Umsetzbarkeit von Prüfungsaufgaben zu Turingmaschinen sicherzustellen. Überprüfen Sie die übergebenen Aufgaben "
             "und Lösungen auf Korrektheit, Vollständigkeit, logische Konsistenz und Umsetzbarkeit. Die Aufgaben sind für die "
             "Nutzung in Prüfungen vorgesehen und müssen den höchsten Ansprüchen an Qualität, Klarheit und Genauigkeit genügen. "
             "Jede Aufgabe muss mit einer Standard-Turingmaschine umsetzbar sein und darf keine logischen Widersprüche oder "
             "Fehler enthalten.\n\n"
+        )
 
-            "### Anforderungen an die Validierung:\n"
+    @staticmethod
+    def get_validation_prompt():
+        return (
+            "# Anforderungen an den Validierungsprozess:\n\n"
+            
             "1. **Korrektheit der Aufgabenstellung:**\n"
             "- Stellen Sie sicher, dass die Aufgabenstellung präzise, klar und vollständig ist.\n"
             "- Vermeiden Sie logische Widersprüche, mehrdeutige Formulierungen oder unklare Anforderungen.\n\n"
@@ -376,8 +394,4 @@ class PromptBuilder:
 
             "**Geben Sie die validierten und ggf. verbesserten Aufgaben im ursprünglichen Format zurück.**\n\n"
         )
-
-        # validation_prompt += PromptBuilder.get_structure_instructions()
-
-        return validation_prompt
 
