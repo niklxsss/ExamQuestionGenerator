@@ -1,3 +1,5 @@
+import json
+
 import openai
 
 from openai import OpenAI
@@ -9,17 +11,16 @@ from Questions import ExamQuestions
 class OpenAIClient:
 
     @staticmethod
-    def send_request(message) -> ExamQuestions:
+    def send_request(message, temperature) -> ExamQuestions:
         client = OpenAI(api_key=API_KEY)
 
         try:
             response = client.beta.chat.completions.parse(
                 model=GPT_MODEL,
                 max_tokens=MAX_TOKENS,
-                temperature=TEMPERATURE,
+                temperature=temperature,
                 messages=message,
                 response_format=ExamQuestions,
-
             )
             return response.choices[0].message.content
 

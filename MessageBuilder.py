@@ -23,3 +23,10 @@ class MessageBuilder:
             message[0]["content"].append(MessageBuilder.add_txt_to_message(pdf_text))
 
         return message
+
+    @staticmethod
+    def build_validation_message(prompt_text, result):
+        message = [{"role": "user", "content": []}]
+        message[0]["content"].append(MessageBuilder.add_txt_to_message(prompt_text))
+        message[0]["content"].append(MessageBuilder.add_txt_to_message(result))
+        return message
