@@ -77,8 +77,8 @@ class PromptBuilder:
             "Unvollständige Tabellen oder fehlende Zustände sind nicht zulässig und gefährden die Qualität der Aufgabe.\n\n"
 
             "7. **Beispielablauftabelle ergänzen:**\n"
-            "   Generieren Sie eine Beispielablauftabelle, die für eine Beispiel-Eingabe alle Schritte der Maschine darstellt. "
-            "Zeigen Sie den Bandzustand, die Kopfposition und den aktuellen Zustand für jeden Schritt an. "
+            "   Generieren Sie immer eine detaillierte **Beispielablauftabelle, die jeden Schritt der Maschine darstellt, basierend auf einer Beispiel-Eingabe**. "
+            "Die Tabelle muss den Bandzustand, die Kopfposition und den aktuellen Zustand für jeden Schritt zeigen."
             "Die Tabelle muss nachvollziehbar und fehlerfrei sein.\n\n"
 
             "8. **Validierung der Aufgaben:**\n"
@@ -123,7 +123,8 @@ class PromptBuilder:
             "## Spezifische Anforderungen an die Aufgaben:\n"
             "- **Alphabet:** Geben Sie das verwendete Alphabet explizit an, wenn es für die Aufgabe relevant ist (z.B. {0, 1, ⋄}).\n"
             "- **Bewegungsrichtung und Endzustand:** Beschreiben Sie klar, wie sich die Turingmaschine über das Band bewegt (z.B. von links nach rechts) und wo sie nach Abschluss stehen bleibt. Diese Informationen sollten in den Zusatzinformationen der Aufgabenstellung enthalten sein.\n"
-            "- **Zustandsübergangstabellen:** Falls erforderlich, müssen Zustandsübergangstabellen alle möglichen Zustände und Übergänge abdecken, einschließlich Anfangs- und Endzuständen. **Unvollständige Tabellen oder fehlende Zustände sind nicht akzeptabel.**\n\n"
+            "- **Zustandsübergangstabellen:** Falls erforderlich, müssen Zustandsübergangstabellen alle möglichen Zustände und Übergänge abdecken, einschließlich Anfangs- und Endzuständen. **Unvollständige Tabellen oder fehlende Zustände sind nicht akzeptabel.**\n"
+            "- **Beispielablauftabelle:** Jede Aufgabe **MUSS** eine Beispielablauftabelle enthalten, die den Ablauf der Turingmaschine Schritt für Schritt anhand des Beispiels zeigt.\n\n"
 
             "## Einschränkungen und Komplexität:\n"
             "- **Turingmaschinen-Kompatibilität:** Aufgaben müssen realistisch mit einer Standard-Turingmaschine lösbar sein und dürfen keine zusätzlichen Speicher- oder Zählmechanismen voraussetzen, die über den Rahmen einer einbandigen Turingmaschine hinausgehen.\n"
@@ -330,50 +331,56 @@ class PromptBuilder:
             "- Vermeiden Sie logische Widersprüche, mehrdeutige Formulierungen oder unklare Anforderungen.\n\n"
 
             "2. **Korrektheit und Vollständigkeit der Lösung:**\n"
-            "- Überprüfen Sie, ob die Lösung der Aufgabenstellung entspricht und alle geforderten Schritte klar und "
-            "vollständig dokumentiert sind.\n"
+            "- Überprüfen Sie, ob die Lösung der Aufgabenstellung entspricht und alle geforderten Schritte klar und vollständig dokumentiert sind.\n"
             "- Stellen Sie sicher, dass die Lösung nachvollziehbar und frei von Lücken oder Fehlern ist.\n\n"
 
-            "3. **Vollständigkeit der Tabellen:**\n"
-            "- Prüfen Sie, ob die Zustandsübergangstabellen vorhanden ist und alle möglichen Übergänge, "
-            "Zustände und Eingaben vollständig abdecken.\n"
-            "- Achten Sie darauf, dass keine Zustände oder Übergänge fehlen und dass die Tabellen korrekt formatiert "
-            "und logisch konsistent sind.\n"
+            "3. **Zustandsübergangstabellen:**\n"
+            "- Prüfen Sie, ob die Zustandsübergangstabellen vorhanden ist und alle möglichen Übergänge, Zustände und Eingaben vollständig abdecken.\n"
+            "- Achten Sie darauf, dass keine Zustände oder Übergänge fehlen und dass die Tabellen korrekt formatiert und logisch konsistent sind.\n"
             "- Unvollständige oder fehlerhafte Übergangstabellen sind für Prüfungsaufgaben nicht akzeptabel.\n"
-            "- Ergänzen Sie, falls sinnvoll, eine oder mehrere **Beispielablauftabellen** am Ende der Lösung, "
-            "um die Schritte besser nachvollziehbar zu machen und die Lösung zu überprüfen.\n"
+            
+            "4. **Beispielablauftabellen:**\n"
+            "- Ergänzen Sie, falls sinnvoll, eine oder mehrere **Beispielablauftabellen** am Ende der Lösung, um die Schritte besser nachvollziehbar zu machen und die Lösung zu überprüfen.\n"
             "- Die Tabelle muss den Bandzustand, die Kopfposition und den aktuellen Zustand in jedem Schritt dokumentieren.\n"
             "- Falls Beispielablauftabellen fehlen, erstellen Sie diese basierend auf der Zustandsübergangstabelle und der Beispiel-Eingabe.\n\n"
 
-            "4. **Simulationsprüfung:**\n"
-            "- Simulieren Sie jede Aufgabe Schritt für Schritt gedanklich oder systematisch, um die Zustandsübergänge "
-            "und die Funktionsweise zu überprüfen.\n"
-            "- Stellen Sie sicher, dass die Turingmaschine das erwartete Ergebnis liefert und dass keine Endlosschleifen "
-            "oder fehlerhaften Ergebnisse auftreten.\n\n"
+            "5. **Simulationsprüfung:**\n"
+            "- Simulieren Sie jede Aufgabe Schritt für Schritt gedanklich oder systematisch, um die Zustandsübergänge und die Funktionsweise zu überprüfen.\n"
+            "- Stellen Sie sicher, dass die Turingmaschine das erwartete Ergebnis liefert und dass keine Endlosschleifen oder fehlerhaften Ergebnisse auftreten.\n\n"
             
-            "5. **Grenzfallabdeckung:**\n"
+            "6. **Grenzfallabdeckung:**\n"
             "- Überprüfen Sie, ob alle denkbaren Eingaben (inklusive Grenzfällen) zu einem definierten Ergebnis führen.\n"
             "- Stellen Sie sicher, dass die Turingmaschine bei maximal zulässigen Eingaben nicht in Endlosschleifen gerät oder fehlerhafte Ergebnisse liefert.\n\n"
 
-            "6. **Verbesserungen bei Mängeln:**\n"
+            "7. **Verbesserungen bei Mängeln:**\n"
             "- Falls Fehler, Lücken oder Inkonsistenzen gefunden werden:\n"
-            "  - Korrigieren Sie die Aufgabenstellung, Lösung oder Zustandsübergangstabellen.\n"
-            "  - Ergänzen Sie fehlende Informationen oder Übergänge, um Vollständigkeit zu gewährleisten.\n"
-            "  - Erstellen Sie eine konsistente und korrekte Lösung, die den Prüfungsanforderungen entspricht.\n\n"
+            "- Korrigieren Sie die Aufgabenstellung, Lösung oder Zustandsübergangstabellen.\n"
+            "- Ergänzen Sie fehlende Informationen oder Übergänge, um Vollständigkeit zu gewährleisten.\n"
+            "- Erstellen Sie eine konsistente und korrekte Lösung, die den Prüfungsanforderungen entspricht.\n\n"
 
             "### Vorgehen bei der Validierung und Verbesserung:\n"
+            
             "1. **Aufgabenstellung prüfen:**\n"
             "- Lesen Sie die Aufgabenstellung sorgfältig und stellen Sie sicher, dass sie alle Anforderungen erfüllt.\n\n"
+            
             "2. **Lösungsprüfung:**\n"
-            "- Vergleichen Sie die Lösung mit der Aufgabenstellung, um sicherzustellen, dass sie korrekt, vollständig "
-            "und nachvollziehbar ist.\n\n"
+            "- Vergleichen Sie die Lösung mit der Aufgabenstellung, um sicherzustellen, dass sie korrekt, vollständig und nachvollziehbar ist.\n\n"
+            
             "3. **Zustandsübergangstabellen validieren:**\n"
             "- Überprüfen Sie jede Tabelle auf Vollständigkeit, Konsistenz und Richtigkeit.\n"
             "- Ergänzen Sie fehlende Übergänge und korrigieren Sie fehlerhafte Einträge.\n\n"
+            
             "4. **Simulationsprüfung durchführen:**\n"
             "- Prüfen Sie, ob die Zustandsübergänge korrekt implementiert sind und ob die Maschine wie erwartet funktioniert.\n\n"
+            
+            "5. **Beispielabläufe validieren und ergänzen:**\n"
+            "- Überprüfen Sie, ob für jede Aufgabe eine oder mehrere Beispielablauftabellen vorhanden sind, die den Bandzustand, die Kopfposition und den aktuellen Zustand für jeden Schritt der Verarbeitung darstellen.\n"
+            "- Falls Beispielabläufe fehlen, ergänzen Sie diese, um die Schritte der Maschine nachvollziehbar zu machen.\n"
+            "  Jede Beispielablauftabelle muss die korrekte Funktion der Zustandsübergänge mit einer Beispiel-Eingabe vollständig dokumentieren.\n"
+            "- Stellen Sie sicher, dass die Beispielabläufe mit den Zustandsübergangstabellen übereinstimmen und keine Inkonsistenzen enthalten.\n\n"
 
             "### Abschlussprüfung:\n"
+            
             "Führen Sie nach der Überprüfung und Verbesserung eine abschließende Prüfung durch, um sicherzustellen, dass:\n"
             "- Jede Aufgabe logisch konsistent, korrekt und vollständig ist.\n"
             "- Alle Lösungen präzise und nachvollziehbar sind.\n"
