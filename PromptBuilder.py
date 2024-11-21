@@ -4,11 +4,12 @@ from Const import *
 class PromptBuilder:
 
     @staticmethod
-    def create_prompt(num_questions, difficulty, task_type, files_txt, files_images, files_pdf):
+    def create_prompt(num_questions, difficulty, incorrect_task, files_txt, files_images, files_pdf):
+
         prompt_parts = [PromptBuilder.get_base_prompt(num_questions, difficulty,
                                                       DIFFICULTY_EXPLANATION_MAP.get(difficulty))]
-        if task_type:
-            prompt_parts.append(PromptBuilder.get_task_type_prompt(task_type))
+        if incorrect_task:
+            prompt_parts.append(PromptBuilder.get_incorrect_task_prompt())
 
         if any([files_txt, files_images, files_pdf]):
             prompt_parts.append(PromptBuilder.get_attachments_prompt(files_txt, files_images, files_pdf))
@@ -24,16 +25,16 @@ class PromptBuilder:
     def get_base_prompt(num_questions, difficulty, difficulty_explanation):
         return (
             "# Ziel der Aufgabe:\n\n"
-            
+
             f"Generieren Sie genau **{num_questions}** Prüfungsaufgaben zu Turingmaschinen.\n\n"
             f"### Zielgruppe und Anforderungen:\n"
             f"Diese Aufgaben sollen speziell für Studierende der Informatik erstellt werden, um deren "
             f"Verständnis und Anwendungskompetenz zu überprüfen.\n\n"
-            
+
             f"### Schwierigkeitsgrad:\n"
             f"Die Aufgaben sind auf dem Schwierigkeitsgrad '**{difficulty}**' zu halten:\n"
             f"{difficulty_explanation}\n\n"
-            
+
             f"### Qualitätskriterien:\n"
             f"Die Aufgaben müssen realistisch, fehlerfrei und mit einer Standard-Turingmaschine umsetzbar sein. "
             f"Sie sind direkt für Prüfungszwecke vorgesehen und müssen höchsten Ansprüchen an Richtigkeit, "
@@ -62,7 +63,7 @@ class PromptBuilder:
             "4. **Beispiele hinzufügen:**\n"
             "   Generieren Sie optional ein Beispiel, falls es zur Verdeutlichung der Aufgabenstellung beiträgt. "
             "Stellen Sie sicher, dass das Beispiel korrekt ist und die Anforderungen der Aufgabenstellung erfüllt.\n\n"
-            
+
             "5. **Lösung entwickeln:**\n"
             "   Formulieren Sie eine klare und vollständige Lösung, die direkt zur Aufgabenstellung passt. "
             "Erklären Sie alle Schritte nachvollziehbar, falls es der Aufgabentyp erfordert und achten Sie darauf, dass die Lösung alle Anforderungen abdeckt.\n\n"
@@ -77,14 +78,14 @@ class PromptBuilder:
             "Unvollständige Tabellen oder fehlende Zustände sind nicht zulässig und gefährden die Qualität der Aufgabe.\n\n"
 
             "7. **Beispielablauftabelle ergänzen:**\n"
-            "   Generieren Sie immer eine detaillierte **Beispielablauftabelle, die jeden Schritt der Maschine darstellt, basierend auf einer Beispiel-Eingabe**. "
+            "   **Generieren Sie immer eine detaillierte **Beispielablauftabelle**, die jeden Schritt der Maschine darstellt, basierend auf einer Beispiel-Eingabe**. "
             "Die Tabelle muss den Bandzustand, die Kopfposition und den aktuellen Zustand für jeden Schritt zeigen."
             "Die Tabelle muss nachvollziehbar und fehlerfrei sein.\n\n"
 
             "8. **Validierung der Aufgaben:**\n"
             "   Prüfen Sie jede Aufgabe anhand gedanklicher Tests oder Simulationen. Stellen Sie sicher, dass die Zustandsübergänge korrekt sind "
             "und die Maschine das erwartete Ergebnis liefert. Fehlerhafte Ergebnisse oder Endlosschleifen müssen vor der Ausgabe behoben werden.\n\n"
-            
+
             "9. **Grenzfälle testen:**\n"
             "   Überprüfen Sie die Maschine mit Grenzfällen wie leeren Eingaben, maximaler Eingabelänge oder ungewöhnlichen Kombinationen, um sicherzustellen, dass "
             "alle möglichen Szenarien abgedeckt sind.\n\n"
@@ -96,17 +97,23 @@ class PromptBuilder:
 
     @staticmethod
     def get_attachments_prompt(files_txt, files_images, files_pdf):
-        attachments = ""
-        attachments += PromptBuilder.get_attachment_prompt("Text", files_txt)
-        attachments += PromptBuilder.get_attachment_prompt("PDF", files_pdf)
-        attachments += PromptBuilder.get_attachment_prompt("Bild", files_images)
-        return f"# Zusätzliche Informationen:\n\n{attachments}"
+        attachments = (
+            "# Zusätzliche Informationen:\n\n"
+            "Als Hilfsmittel für die Erstellung von Aufgaben zu Turingmaschinen wurden folgende Inhalte dem Prompt angehängt:\n\n"
+        )
+        attachments += PromptBuilder.get_attachment_prompt("Textdatei", files_txt)
+        attachments += PromptBuilder.get_attachment_prompt("PDF-Datei", files_pdf)
+        attachments += PromptBuilder.get_attachment_prompt("Bilddatei", files_images)
+        return attachments
 
     @staticmethod
-    def get_attachment_prompt(datei_name, files):
+    def get_attachment_prompt(datei_typ, files):
         if files:
-            return f"Die angehängte {datei_name} enthält zusätzliche Inhalte zur Turingmaschine. " \
-                   f"Nutzen Sie diese Inhalte, um die Aufgaben entsprechend zu gestalten.\n\n"
+            return (
+                f"- **{datei_typ}:**\n"
+                f"  Es wurden {len(files)} {datei_typ.lower()}(en) beigefügt.\n"
+                f"  Nutzen Sie die Inhalte aus der {datei_typ.lower()}, um die Aufgaben entsprechend zu gestalten.\n\n"
+            )
         return ""
 
     @staticmethod
@@ -124,7 +131,7 @@ class PromptBuilder:
             "- **Alphabet:** Geben Sie das verwendete Alphabet explizit an, wenn es für die Aufgabe relevant ist (z.B. {0, 1, ⋄}).\n"
             "- **Bewegungsrichtung und Endzustand:** Beschreiben Sie klar, wie sich die Turingmaschine über das Band bewegt (z.B. von links nach rechts) und wo sie nach Abschluss stehen bleibt. Diese Informationen sollten in den Zusatzinformationen der Aufgabenstellung enthalten sein.\n"
             "- **Zustandsübergangstabellen:** Falls erforderlich, müssen Zustandsübergangstabellen alle möglichen Zustände und Übergänge abdecken, einschließlich Anfangs- und Endzuständen. **Unvollständige Tabellen oder fehlende Zustände sind nicht akzeptabel.**\n"
-            "- **Beispielablauftabelle:** Jede Aufgabe **MUSS** eine Beispielablauftabelle enthalten, die den Ablauf der Turingmaschine Schritt für Schritt anhand des Beispiels zeigt.\n\n"
+            "- **Beispielablauftabelle:** Jede Aufgabe **MUSS** eine **Beispielablauftabelle** enthalten, die den Ablauf der Turingmaschine Schritt für Schritt anhand des Beispiels zeigt.\n\n"
 
             "## Einschränkungen und Komplexität:\n"
             "- **Turingmaschinen-Kompatibilität:** Aufgaben müssen realistisch mit einer Standard-Turingmaschine lösbar sein und dürfen keine zusätzlichen Speicher- oder Zählmechanismen voraussetzen, die über den Rahmen einer einbandigen Turingmaschine hinausgehen.\n"
@@ -206,17 +213,7 @@ class PromptBuilder:
         )
 
     @staticmethod
-    def get_task_type_prompt(task_type):
-        if task_type == TASK_TYPE_INCORRECT_TASK:
-            return PromptBuilder.get_faulty_task_prompt()
-
-        return (
-            f"Erstellen Sie Aufgaben des Typs: **{task_type.upper()}**. "
-            f"Stellen Sie sicher, dass die generierten Aufgaben diesem Typ entsprechen.\n\n"
-        )
-
-    @staticmethod
-    def get_faulty_task_prompt():
+    def get_incorrect_task_prompt():
         return (
             "# Zusätzlicher Informationen zum Auftrag:\n "
             "Generieren Sie nur Aufgaben mit fehlerhaften Turingmaschinen. Der Zweck dieser Aufgaben "
@@ -273,8 +270,8 @@ class PromptBuilder:
         validation_reminder = (
             "## Aufgabenvalidierung:\n"
             "- Validieren Sie jede Aufgabe mit gedanklichen Tests oder Standard-Testfällen, bevor Sie die nächste Aufgabe generieren.\n"
-            "- Stellen Sie sicher, dass die Übergangstabellen vollständig und korrekt sind und keine Lücken enthalten.\n"
-            "- Ergänzen Sie Beispielablauftabellen, um die Funktionalität der Zustandsübergangstabelle zu überprüfen und die Abläufe nachvollziehbar zu machen. "
+            "- **Stellen Sie sicher, dass die Übergangstabellen vollständig und korrekt sind und keine Lücken enthalten**.\n"
+            "- **Ergänzen Sie Beispielablauftabellen, um die Funktionalität der Zustandsübergangstabelle zu überprüfen und die Abläufe nachvollziehbar zu machen**.\n"
             "- Jede Aufgabe muss logisch konsistent sein, und alle Schritte der Lösung müssen umsetzbar sein.\n\n"
         )
 
@@ -338,7 +335,7 @@ class PromptBuilder:
             "- Prüfen Sie, ob die Zustandsübergangstabellen vorhanden ist und alle möglichen Übergänge, Zustände und Eingaben vollständig abdecken.\n"
             "- Achten Sie darauf, dass keine Zustände oder Übergänge fehlen und dass die Tabellen korrekt formatiert und logisch konsistent sind.\n"
             "- Unvollständige oder fehlerhafte Übergangstabellen sind für Prüfungsaufgaben nicht akzeptabel.\n"
-            
+
             "4. **Beispielablauftabellen:**\n"
             "- Ergänzen Sie, falls sinnvoll, eine oder mehrere **Beispielablauftabellen** am Ende der Lösung, um die Schritte besser nachvollziehbar zu machen und die Lösung zu überprüfen.\n"
             "- Die Tabelle muss den Bandzustand, die Kopfposition und den aktuellen Zustand in jedem Schritt dokumentieren.\n"
@@ -347,7 +344,7 @@ class PromptBuilder:
             "5. **Simulationsprüfung:**\n"
             "- Simulieren Sie jede Aufgabe Schritt für Schritt gedanklich oder systematisch, um die Zustandsübergänge und die Funktionsweise zu überprüfen.\n"
             "- Stellen Sie sicher, dass die Turingmaschine das erwartete Ergebnis liefert und dass keine Endlosschleifen oder fehlerhaften Ergebnisse auftreten.\n\n"
-            
+
             "6. **Grenzfallabdeckung:**\n"
             "- Überprüfen Sie, ob alle denkbaren Eingaben (inklusive Grenzfällen) zu einem definierten Ergebnis führen.\n"
             "- Stellen Sie sicher, dass die Turingmaschine bei maximal zulässigen Eingaben nicht in Endlosschleifen gerät oder fehlerhafte Ergebnisse liefert.\n\n"
@@ -359,28 +356,28 @@ class PromptBuilder:
             "- Erstellen Sie eine konsistente und korrekte Lösung, die den Prüfungsanforderungen entspricht.\n\n"
 
             "### Vorgehen bei der Validierung und Verbesserung:\n"
-            
+
             "1. **Aufgabenstellung prüfen:**\n"
             "- Lesen Sie die Aufgabenstellung sorgfältig und stellen Sie sicher, dass sie alle Anforderungen erfüllt.\n\n"
-            
+
             "2. **Lösungsprüfung:**\n"
             "- Vergleichen Sie die Lösung mit der Aufgabenstellung, um sicherzustellen, dass sie korrekt, vollständig und nachvollziehbar ist.\n\n"
-            
+
             "3. **Zustandsübergangstabellen validieren:**\n"
             "- Überprüfen Sie jede Tabelle auf Vollständigkeit, Konsistenz und Richtigkeit.\n"
             "- Ergänzen Sie fehlende Übergänge und korrigieren Sie fehlerhafte Einträge.\n\n"
-            
+
             "4. **Simulationsprüfung durchführen:**\n"
             "- Prüfen Sie, ob die Zustandsübergänge korrekt implementiert sind und ob die Maschine wie erwartet funktioniert.\n\n"
-            
+
             "5. **Beispielabläufe validieren und ergänzen:**\n"
             "- Überprüfen Sie, ob für jede Aufgabe eine oder mehrere Beispielablauftabellen vorhanden sind, die den Bandzustand, die Kopfposition und den aktuellen Zustand für jeden Schritt der Verarbeitung darstellen.\n"
-            "- Falls Beispielabläufe fehlen, ergänzen Sie diese, um die Schritte der Maschine nachvollziehbar zu machen.\n"
+            "- **Falls Beispielabläufe fehlen, ergänzen Sie diese, um die Schritte der Maschine nachvollziehbar zu machen**.\n"
             "  Jede Beispielablauftabelle muss die korrekte Funktion der Zustandsübergänge mit einer Beispiel-Eingabe vollständig dokumentieren.\n"
             "- Stellen Sie sicher, dass die Beispielabläufe mit den Zustandsübergangstabellen übereinstimmen und keine Inkonsistenzen enthalten.\n\n"
 
             "### Abschlussprüfung:\n"
-            
+
             "Führen Sie nach der Überprüfung und Verbesserung eine abschließende Prüfung durch, um sicherzustellen, dass:\n"
             "- Jede Aufgabe logisch konsistent, korrekt und vollständig ist.\n"
             "- Alle Lösungen präzise und nachvollziehbar sind.\n"

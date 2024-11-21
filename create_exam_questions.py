@@ -16,11 +16,11 @@ def main():
     separate_answers = args.separate_answers
     output_format = args.output
     difficulty = args.difficulty
-    task_type = args.task_type
+    incorrect_task = args.incorrect_task
 
     print(f"[INFO] Number of questions to generate: {num_questions}")
     print(f"[INFO] Difficulty level: {difficulty}")
-    print(f"[INFO] Task type: {task_type}")
+    print(f"[INFO] incorrect task: {incorrect_task}")
     print(f"[INFO] Output format: {output_format}")
 
     if any([files_txt, files_images, files_pdf]):
@@ -34,7 +34,7 @@ def main():
 
     # Create prompt
     print("[INFO] Creating prompt for question generation...")
-    prompt_parts = PromptBuilder.create_prompt(num_questions, difficulty, task_type, info_texts, encoded_base64_data,
+    prompt_parts = PromptBuilder.create_prompt(num_questions, difficulty, incorrect_task, info_texts, encoded_base64_data,
                                                pdf_texts)
     print("[INFO] Prompt created successfully.")
 

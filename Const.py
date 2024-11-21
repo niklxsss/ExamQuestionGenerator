@@ -44,8 +44,6 @@ LABEL_SOLUTION_STEP_BY_STEP = "Lösungsweg"
 LABEL_ADDITIONAL_SOLUTION_INFOS = "Zusatzinformationen"
 LABEL_TABLE = "Tabelle"
 
-TASK_TYPE_INCORRECT_TASK = 'incorrect_tasks'
-
 DIFFICULTY_EASY = 'leicht'
 DIFFICULTY_MEDIUM = 'mittel'
 DIFFICULTY_CHALLENGING = 'anspruchsvoll'
@@ -67,18 +65,5 @@ DIFFICULTY_EXPLANATION_MAP = {
     #     "Problemstellungen.",
     # DIFFICULTY_EXTREME:
     #     "Erzeuge Aufgaben auf höchstem Schwierigkeitsniveau, die intensive Analyse, strategische Planung und "
-    #     "mehrschrittige Lösungsansätze erfordern. "
-}
-
-DIFFICULTY_WORDING_MAP = {
-    DIFFICULTY_EASY:
-        "leichte",
-    DIFFICULTY_MEDIUM:
-        "moderate",
-    DIFFICULTY_CHALLENGING:
-        "anspruchsvolle",
-    # DIFFICULTY_ADVANCED:
-    #     "",
-    # DIFFICULTY_EXTREME:
     #     "mehrschrittige Lösungsansätze erfordern. "
 }
