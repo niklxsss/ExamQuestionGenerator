@@ -17,7 +17,6 @@ class PromptBuilder:
         prompt_parts.append(PromptBuilder.get_general_guidelines(difficulty))
         prompt_parts.append(PromptBuilder.get_process_steps(difficulty))
         prompt_parts.append(PromptBuilder.get_structure_instructions())
-        prompt_parts.append(PromptBuilder.get_final_reminder_table())
         prompt_parts.append(PromptBuilder.get_final_reminder(difficulty, difficulty_explanation))
 
         return prompt_parts
@@ -66,7 +65,7 @@ class PromptBuilder:
             "Die Komplexität sollte so gehalten werden, dass die Aufgabe korrekt gelöst werden kann.\n\n"
 
             "4. **Beispiele hinzufügen:**\n"
-            "   Generieren Sie optional ein Beispiel, falls es zur Verdeutlichung der Aufgabenstellung beiträgt. "
+            "   Generieren Sie ein Beispiel, welches zur Verdeutlichung der Aufgabenstellung dient. "
             "Stellen Sie sicher, dass das Beispiel korrekt ist und die Anforderungen der Aufgabenstellung erfüllt.\n\n"
 
             "5. **Lösung entwickeln:**\n"
@@ -86,16 +85,20 @@ class PromptBuilder:
             "   **Generieren Sie **IMMER** eine detaillierte **Beispielablauftabelle**, die jeden Schritt der Maschine darstellt, basierend auf einer Beispiel-Eingabe!!!** "
             "Die Tabelle muss den Bandzustand, die Kopfposition und den aktuellen Zustand für jeden Schritt zeigen."
             "**Die Tabelle MUSS für jede Aufgabe korrekt und nachvollziehbar sein, um die Übergänge und Ergebnisse der Maschine klar darzustellen.**\n\n"
+            
+            "9. **Weitere Tabellen ergänzen wenn nötig:**\n"
+             "   Falls zu den bestehenden Tabellen zusätzliche Tabellen für die Lösung erforderlich sind, ergänzen Sie diese unter `optional_additional_solution_tables`. "
+             "Stellen Sie sicher, dass alle zusätzlichen Tabellen korrekt, vollständig und konsistent mit den Haupttabellen sind.\n\n"
 
-            "9. **Validierung der Aufgaben:**\n"
+            "10. **Validierung der Aufgaben:**\n"
             "   Prüfen Sie jede Aufgabe anhand gedanklicher Tests oder Simulationen. Stellen Sie sicher, dass die Zustandsübergänge korrekt sind "
             "und die Maschine das erwartete Ergebnis liefert. Fehlerhafte Ergebnisse oder Endlosschleifen müssen vor der Ausgabe behoben werden.\n\n"
 
-            "10. **Grenzfälle testen:**\n"
+            "11. **Grenzfälle testen:**\n"
             "   Überprüfen Sie die Maschine mit Grenzfällen wie leeren Eingaben, maximaler Eingabelänge oder ungewöhnlichen Kombinationen, um sicherzustellen, dass "
             "alle möglichen Szenarien abgedeckt sind. Verifizieren Sie, dass alle Übergänge am Bandende vollständig definiert sind und keine Fehler entstehen.\n\n"
 
-            "11. **Simulation und abschließende Prüfung:**\n"
+            "12. **Simulation und abschließende Prüfung:**\n"
             "   Simulieren Sie jede Aufgabe Schritt für Schritt, bevor sie als korrekt betrachtet wird. "
             "Validieren Sie, dass alle Vorgaben der Aufgabenstellung erfüllt sind und die Lösung den Prüfungsanforderungen entspricht.\n\n"
         )
@@ -164,7 +167,7 @@ class PromptBuilder:
             "- `ExamQuestions` ist eine Liste von Prüfungsfragen (`questions`).\n"
             "- Jede Prüfungsfrage ist vom Typ `ExamQuestion` und enthält die folgenden Felder:\n"
             "  1. **question_content** (erforderlich): Die Hauptfrage und optionale Informationen.\n"
-            "  2. **optional_example** (optional): Ein Beispiel zur Verdeutlichung der Aufgabenstellung.\n"
+            "  2. **example** (erforderlich): Ein Beispiel zur Verdeutlichung der Aufgabenstellung.\n"
             "  3. **solution_content** (erforderlich): Die Hauptlösung und optionale Details zur Lösung.\n\n"
         )
 
@@ -181,7 +184,7 @@ class PromptBuilder:
         )
 
         example_details = (
-            "### Details zu `optional_example`:\n"
+            "### Details zu `example`:\n"
             "- Verwenden Sie dieses Feld, um ein Beispiel bereitzustellen, das das erwartete Verhalten der Lösung verdeutlicht.\n"
             "- Beispiele müssen korrekt, vollständig und direkt relevant für die Aufgabenstellung sein.\n\n"
         )
@@ -191,7 +194,9 @@ class PromptBuilder:
             "- **solution (str)**: Die Hauptlösung. Dieses Feld ist immer erforderlich.\n"
             "- **optional_solution_additional_infos (List[str], optional)**: Zusätzliche Hinweise, die das Verständnis der Lösung verbessern.\n"
             "- **optional_solution_step_by_step (List[str], optional)**: Schritt-für-Schritt-Anleitung der Lösung. Verwenden Sie keine Nummerierung! Die Nummerierung erfolgt automatisch.\n"
-            "- **optional_solution_tables (List[TableContent], optional)**: Tabellen zur Unterstützung der Lösung (z. B. Zustandsübergänge und Beispielablauftabellen ).\n"
+            "- **solution_state_transition_table (TableContent)**: Die Zustandsübergangstabelle, die alle möglichen Zustände und Übergänge der Lösung vollständig beschreibt. Dieses Feld ist verpflichtend.\n"
+            "- **solution_example_flow_table (TableContent)**: Die Beispielablauftabelle, die den Ablauf der Turingmaschine für das Beispiel dokumentiert. Dieses Feld ist verpflichtend.\n"
+            "- **optional_additional_solution_tables (List[TableContent], optional)**: Weitere optionale Tabellen zur Unterstützung der Lösung (nur falls erforderlich).\n"
             "  - Struktur der Tabellen:\n"
             "    - **title (str)**: Titel der Tabelle.\n"
             "    - **headers (List[str])**: Spaltenüberschriften.\n"
@@ -316,24 +321,6 @@ class PromptBuilder:
         )
 
     @staticmethod
-    def get_final_reminder_table():
-        header = "# Dringender letzter Hinweis zu Tabellen:\n\n"
-
-        table_addition_reminder = (
-            "## Zustandsübergangstabellen und Beispielablauftabellen hinzufügen:\n"
-            "- **Stellen Sie sicher, dass jede generierte Aufgabe eine vollständige und korrekte Zustandsübergangstabelle enthält.**\n"
-            "- **Ergänzen Sie IMMER eine Beispielablauftabelle, die den Bandzustand, die Kopfposition und den aktuellen Zustand für jeden Schritt dokumentiert.**\n"
-            "- **Fügen Sie diese Tabellen unbedingt hinzu!!!**\n"
-            "- **Überprüfen Sie, dass beide Tabellen vollständig, korrekt und logisch konsistent sind.**\n"
-            "- Falls diese Tabellen fehlen oder unvollständig sind, ist die Aufgabe automatisch fehlerhaft und kann NICHT für Prüfungszwecke verwendet werden!!!\n\n"
-        )
-
-        return (
-                header +
-                table_addition_reminder
-        )
-
-    @staticmethod
     def create_validation_prompt():
         prompt_parts = [
             PromptBuilder.get_validation_base_prompt(),
@@ -394,7 +381,7 @@ class PromptBuilder:
             "- **Falls eine Beispielablauftabelle fehlt, erstellen Sie diese vollständig neu.** Jede Tabelle muss alle Schritte der Verarbeitung dokumentieren, einschließlich:\n"
             "  - Bandzustand, Kopfposition und aktueller Zustand für jeden Schritt.\n"
             "- **Validieren Sie, dass die Beispielausgabe (Eingabe und erwartete Ausgabe) mit dem letzten Zustand und Bandinhalt der "
-            "Beispielablauftabelle übereinstimmt.**\n"
+            "Beispielablauftabelle übereinstimmt. FALLS NICHT, PASSE DIE AUFGABE ERNEUT AN UND BESSERE DIE FEHLER AUS**\n"
             "- Falls Diskrepanzen zwischen der erwarteten Ausgabe und der Beispielablauftabelle auftreten, korrigieren Sie die Aufgabe und Tabelle vollständig.\n"
             "- Jede Tabelle muss detailliert dokumentiert sein, mit vollständigen Schritten für jeden Zustand, Kopfposition und Bandinhalt.\n\n"
 
@@ -463,7 +450,7 @@ class PromptBuilder:
             "- **Überprüfen Sie, ob jede Aufgabe eine Zustandsübergangstabellen und eine Beispielablauftabelle enthält.Falls keine vorhanden ist, ergänzen Sie diese vor der Rückgabe und testen Sie diese nochmals.**\n"
             "- **Vergleichen Sie die erwartete Beispielausgabe mit dem Endzustand der Beispielablauftabelle, um "
             "- **Ersetzen Sie die ursprünglichen Aufgaben vollständig durch die korrigierten und verbesserten Versionen.**\n"
-            "- Geben Sie ausschließlich die überarbeiteten Aufgaben zurück. Eine Rückgabe unveränderter Aufgaben ist nicht zulässig.\n\n"
+            "- Geben Sie ausschließlich die überarbeiteten Aufgaben zurück. Eine Rückgabe unveränderter falscher Aufgaben ist nicht zulässig.\n\n"
             
             "**Wichtige Hinweise:**\n"
             "- Jede Aufgabe MUSS ZWINGEND vollständig fehlerfrei, in sich schlüssig, klar formuliert und logisch konsistent sein.\n"

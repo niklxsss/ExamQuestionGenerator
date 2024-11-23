@@ -40,8 +40,7 @@ class QuestionFormatter:
                 content += f"{LABEL_TABLE}{COLON}{table[SECTION_TABLES_TITLE]}\n"
                 content += QuestionFormatter.format_table_txt(table)
 
-        if question.get(SECTION_EXAMPLE):
-            content += f"{LABEL_EXAMPLE}{COLON}\n{question[SECTION_EXAMPLE]}\n\n"
+        content += f"{LABEL_EXAMPLE}{COLON}\n{question[SECTION_EXAMPLE]}\n\n"
 
         return content
 
@@ -59,7 +58,15 @@ class QuestionFormatter:
             steps_text = "\n".join([f"{idx + 1}. {step}" for idx, step in enumerate(steps)])
             content += f"{LABEL_SOLUTION_STEP_BY_STEP}{COLON}\n{steps_text}\n\n"
 
-        tables = question[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_TABLES)
+        state_table = question[SECTION_SOLUTION_CONTENT][SECTION_SOLUTION_STATE_TRANSITION_TABLE]
+        content += f"{LABEL_TABLE}{COLON}{state_table[SECTION_TABLES_TITLE]}\n"
+        content += QuestionFormatter.format_table_txt(state_table)
+
+        example_flow_table = question[SECTION_SOLUTION_CONTENT][SECTION_SOLUTION_EXAMPLE_FLOW_TABLE]
+        content += f"{LABEL_TABLE}{COLON}{example_flow_table[SECTION_TABLES_TITLE]}\n"
+        content += QuestionFormatter.format_table_txt(example_flow_table)
+
+        tables = question[SECTION_SOLUTION_CONTENT].get(SECTION_ADDITIONAL_SOLUTION_TABLES)
         if tables:
             for table in tables:
                 content += f"{LABEL_TABLE}{COLON}{table[SECTION_TABLES_TITLE]}\n"
@@ -124,9 +131,8 @@ class QuestionFormatter:
             for table in tables:
                 content.extend(QuestionFormatter._format_table_pdf(table, styles))
 
-        if question.get(SECTION_EXAMPLE):
-            content.append(Paragraph(f"{LABEL_EXAMPLE}{COLON}", styles['label_style']))
-            content.append(Paragraph(question[SECTION_EXAMPLE], styles['content_style']))
+        content.append(Paragraph(f"{LABEL_EXAMPLE}{COLON}", styles['label_style']))
+        content.append(Paragraph(question[SECTION_EXAMPLE], styles['content_style']))
 
         return content
 
@@ -149,7 +155,13 @@ class QuestionFormatter:
             for idx, step in enumerate(steps):
                 content.append(Paragraph(f"{idx + 1}. {step}", styles['step_style']))
 
-        tables = question[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_TABLES)
+        state_table = question[SECTION_SOLUTION_CONTENT][SECTION_SOLUTION_STATE_TRANSITION_TABLE]
+        content.extend(QuestionFormatter._format_table_pdf(state_table, styles))
+
+        example_flow_table = question[SECTION_SOLUTION_CONTENT][SECTION_SOLUTION_EXAMPLE_FLOW_TABLE]
+        content.extend(QuestionFormatter._format_table_pdf(example_flow_table, styles))
+
+        tables = question[SECTION_SOLUTION_CONTENT].get(SECTION_ADDITIONAL_SOLUTION_TABLES)
         if tables:
             for table in tables:
                 content.extend(QuestionFormatter._format_table_pdf(table, styles))
@@ -192,17 +204,24 @@ class QuestionFormatter:
             if content_type in [None, SECTION_QUESTIONS]:
                 entry.update({
                     SECTION_QUESTION: q[SECTION_QUESTION_CONTENT][SECTION_QUESTION],
-                    SECTION_QUESTION_ADDITIONAL_INFOS: q[SECTION_QUESTION_CONTENT].get(SECTION_QUESTION_ADDITIONAL_INFOS),
+                    SECTION_QUESTION_ADDITIONAL_INFOS: q[SECTION_QUESTION_CONTENT].get(
+                        SECTION_QUESTION_ADDITIONAL_INFOS),
                     SECTION_QUESTION_TABLES: q[SECTION_QUESTION_CONTENT].get(SECTION_QUESTION_TABLES),
-                    SECTION_EXAMPLE: q.get(SECTION_EXAMPLE)
+                    SECTION_EXAMPLE: q[SECTION_EXAMPLE]
                 })
 
             if content_type in [None, SECTION_SOLUTIONS]:
                 entry.update({
                     SECTION_SOLUTION: q[SECTION_SOLUTION_CONTENT][SECTION_SOLUTION],
-                    SECTION_SOLUTION_ADDITIONAL_INFOS: q[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_ADDITIONAL_INFOS),
+                    SECTION_SOLUTION_ADDITIONAL_INFOS: q[SECTION_SOLUTION_CONTENT].get(
+                        SECTION_SOLUTION_ADDITIONAL_INFOS),
                     SECTION_SOLUTION_STEP_BY_STEP: q[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_STEP_BY_STEP),
-                    SECTION_SOLUTION_TABLES: q[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_TABLES)
+                    SECTION_SOLUTION_STATE_TRANSITION_TABLE: q[SECTION_SOLUTION_CONTENT][
+                        SECTION_SOLUTION_STATE_TRANSITION_TABLE],
+                    SECTION_SOLUTION_EXAMPLE_FLOW_TABLE: q[SECTION_SOLUTION_CONTENT][
+                        SECTION_SOLUTION_EXAMPLE_FLOW_TABLE],
+                    SECTION_ADDITIONAL_SOLUTION_TABLES: q[SECTION_SOLUTION_CONTENT].get(
+                        SECTION_ADDITIONAL_SOLUTION_TABLES)
                 })
 
             formatted_json.append(entry)
@@ -219,17 +238,14 @@ class QuestionFormatter:
             if not question[SECTION_QUESTION_CONTENT].get(SECTION_QUESTION_TABLES):
                 question[SECTION_QUESTION_CONTENT].pop(SECTION_QUESTION_TABLES, None)
 
-            if not question.get(SECTION_EXAMPLE):
-                question.pop(SECTION_EXAMPLE, None)
-
             if not question[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_ADDITIONAL_INFOS):
                 question[SECTION_SOLUTION_CONTENT].pop(SECTION_SOLUTION_ADDITIONAL_INFOS, None)
 
             if not question[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_STEP_BY_STEP):
                 question[SECTION_SOLUTION_CONTENT].pop(SECTION_SOLUTION_STEP_BY_STEP, None)
 
-            if not question[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_TABLES):
-                question[SECTION_SOLUTION_CONTENT].pop(SECTION_SOLUTION_TABLES, None)
+            if not question[SECTION_SOLUTION_CONTENT].get(SECTION_ADDITIONAL_SOLUTION_TABLES):
+                question[SECTION_SOLUTION_CONTENT].pop(SECTION_ADDITIONAL_SOLUTION_TABLES, None)
 
         return data
 

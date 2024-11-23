@@ -18,12 +18,14 @@ class SolutionContent(BaseModel):
     solution: str
     optional_solution_additional_infos: Optional[List[str]] = None
     optional_solution_step_by_step: Optional[List[str]] = None
-    optional_solution_tables: Optional[List[TableContent]]
+    solution_state_transition_table: TableContent
+    solution_example_flow_table: TableContent
+    optional_additional_solution_tables: Optional[List[TableContent]] = None
 
 
 class ExamQuestion(BaseModel):
     question_content: QuestionContent
-    optional_example: Optional[str] = None
+    example: str
     solution_content: SolutionContent
 
 

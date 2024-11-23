@@ -26,13 +26,15 @@ SECTION_SOLUTION_CONTENT = "solution_content"
 SECTION_SOLUTION = "solution"
 SECTION_SOLUTION_STEP_BY_STEP = "optional_solution_step_by_step"
 SECTION_SOLUTION_ADDITIONAL_INFOS = "optional_solution_additional_infos"
-SECTION_SOLUTION_TABLES = "optional_solution_tables"
+SECTION_ADDITIONAL_SOLUTION_TABLES = "optional_additional_solution_tables"
+SECTION_SOLUTION_STATE_TRANSITION_TABLE = "solution_state_transition_table"
+SECTION_SOLUTION_EXAMPLE_FLOW_TABLE = "solution_example_flow_table"
 
 SECTION_TABLES_TITLE = "title"
 SECTION_TABLES_HEADERS = "headers"
 SECTION_TABLES_ROWS = "rows"
 
-SECTION_EXAMPLE = "optional_example"
+SECTION_EXAMPLE = "example"
 SECTION_ID = "id"
 
 LABEL_TASK = "Aufgabe"
