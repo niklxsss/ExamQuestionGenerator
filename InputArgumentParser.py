@@ -15,8 +15,7 @@ class InputArgumentParser:
         parser.add_argument('--separate_answers', action='store_true', help="Save answers in a separate file")
         parser.add_argument('--difficulty', type=str, choices=[DIFFICULTY_EASY, DIFFICULTY_MEDIUM,
                                                                DIFFICULTY_CHALLENGING,
-                                                               # DIFFICULTY_ADVANCED, DIFFICULTY_EXTREME
-                                                               ],
+                                                               DIFFICULTY_ADVANCED, DIFFICULTY_EXTREME],
                             default=DIFFICULTY_MEDIUM, help="Difficulty level of the questions")
         parser.add_argument('--incorrect_task', action='store_true', help="create incorrect tasks")
         parser.add_argument('--output', type=str, required=True, choices=[TXT_FORMAT, PDF_FORMAT, JSON_FORMAT],

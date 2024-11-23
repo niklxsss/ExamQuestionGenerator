@@ -69,9 +69,16 @@ def main():
 
     print("[INFO] Process completed successfully.")
 
-    # print(result)
-    # print("-------------------------------------------------------------------------------------------------")
-    # print(result_final)
+
+    if result == result_final:
+        print("No changes detected. Validation process may not be effective.")
+    else:
+        print("Differences found. Validation made adjustments.")
+
+    print("--output, nach erstem durchlauf-----------------------------------------------------------")
+    print(result)
+    print("--output nach validation prompt--------------------------------------------------------------------")
+    print(result_final)
 
 
 if __name__ == "__main__":
@@ -84,3 +91,7 @@ if __name__ == "__main__":
 # create_exam_questions --output TXT --files_pdf gie-informatik_uebung_08.pdf --num_questions 5
 
 # create_exam_questions --output PDF --files_images AblaufGrafik.png --files_txt Unit05.txt --files_pdf gie-informatik_uebung_08.pdf --num_questions 15
+
+# JSON compare:
+# https://jsonviewer.stack.hu/
+# https://jsondiff.com/

@@ -5,9 +5,9 @@ class PromptBuilder:
 
     @staticmethod
     def create_prompt(num_questions, difficulty, incorrect_task, files_txt, files_images, files_pdf):
+        difficulty_explanation = DIFFICULTY_EXPLANATION_MAP.get(difficulty)
 
-        prompt_parts = [PromptBuilder.get_base_prompt(num_questions, difficulty,
-                                                      DIFFICULTY_EXPLANATION_MAP.get(difficulty))]
+        prompt_parts = [PromptBuilder.get_base_prompt(num_questions, difficulty, difficulty_explanation)]
         if incorrect_task:
             prompt_parts.append(PromptBuilder.get_incorrect_task_prompt())
 
@@ -17,7 +17,8 @@ class PromptBuilder:
         prompt_parts.append(PromptBuilder.get_general_guidelines(difficulty))
         prompt_parts.append(PromptBuilder.get_process_steps(difficulty))
         prompt_parts.append(PromptBuilder.get_structure_instructions())
-        prompt_parts.append(PromptBuilder.get_final_reminder(difficulty))
+        prompt_parts.append(PromptBuilder.get_final_reminder_table())
+        prompt_parts.append(PromptBuilder.get_final_reminder(difficulty, difficulty_explanation))
 
         return prompt_parts
 
@@ -46,7 +47,11 @@ class PromptBuilder:
         return (
             "# Ablauf der Prüfungsfrage-Generierung:\n\n"
 
-            "Der folgende Ablauf gewährleistet, dass die generierten Prüfungsaufgaben korrekt, vollständig und für Prüfungen geeignet sind:\n\n"
+             "## Wichtiger Hinweis:\n"
+             "- **Halten Sie sich strikt an die unten angegebene Abfolge der Schritte, um sicherzustellen, dass keine Fehler oder Unvollständigkeiten auftreten.**\n"
+             "- **Jeder Schritt muss vollständig abgeschlossen sein, bevor mit dem nächsten fortgefahren wird.**\n\n"
+     
+             "Der folgende Ablauf gewährleistet, dass die generierten Prüfungsaufgaben korrekt, vollständig und für Prüfungen geeignet sind:\n\n"
 
             "1. **Aufgabenart bestimmen:**\n"
             "   Wählen Sie die Art der Aufgabe, falls nicht vorgegeben, und stellen Sie sicher, dass die Aufgabenstellung vollständig, präzise und klar ist. "
@@ -70,27 +75,27 @@ class PromptBuilder:
 
             "6. **Zustandsübergangstabelle erstellen:**\n"
             "   Falls es die Lösung erfordert, erstellen Sie eine Zustandsübergangstabelle. Stellen Sie sicher, dass die Tabelle **vollständig ist, "
-            "keine Zustände oder Übergänge auslässt** und die Lösung präzise unterstützt. Tabellen dürfen keine inkonsistenten oder unvollständigen "
-            "Daten enthalten.\n\n"
+            "keine Zustände oder Übergänge auslässt** (einschließlich der Übergänge für das Bandende ⋄) und die Lösung präzise unterstützt. "
+            "Tabellen dürfen keine inkonsistenten oder unvollständigen Daten enthalten.\n\n"
 
-            "6. **Überprüfung der Zustandsübergangstabelle:**\n"
+            "7. **Überprüfung der Zustandsübergangstabelle:**\n"
             "   Validieren Sie, dass alle Übergänge in den Zustandstabellen vollständig und klar beschrieben sind. "
             "Unvollständige Tabellen oder fehlende Zustände sind nicht zulässig und gefährden die Qualität der Aufgabe.\n\n"
 
-            "7. **Beispielablauftabelle ergänzen:**\n"
-            "   **Generieren Sie immer eine detaillierte **Beispielablauftabelle**, die jeden Schritt der Maschine darstellt, basierend auf einer Beispiel-Eingabe**. "
+            "8. **Beispielablauftabelle ergänzen:**\n"
+            "   **Generieren Sie **IMMER** eine detaillierte **Beispielablauftabelle**, die jeden Schritt der Maschine darstellt, basierend auf einer Beispiel-Eingabe!!!** "
             "Die Tabelle muss den Bandzustand, die Kopfposition und den aktuellen Zustand für jeden Schritt zeigen."
-            "Die Tabelle muss nachvollziehbar und fehlerfrei sein.\n\n"
+            "**Die Tabelle MUSS für jede Aufgabe korrekt und nachvollziehbar sein, um die Übergänge und Ergebnisse der Maschine klar darzustellen.**\n\n"
 
-            "8. **Validierung der Aufgaben:**\n"
+            "9. **Validierung der Aufgaben:**\n"
             "   Prüfen Sie jede Aufgabe anhand gedanklicher Tests oder Simulationen. Stellen Sie sicher, dass die Zustandsübergänge korrekt sind "
             "und die Maschine das erwartete Ergebnis liefert. Fehlerhafte Ergebnisse oder Endlosschleifen müssen vor der Ausgabe behoben werden.\n\n"
 
-            "9. **Grenzfälle testen:**\n"
+            "10. **Grenzfälle testen:**\n"
             "   Überprüfen Sie die Maschine mit Grenzfällen wie leeren Eingaben, maximaler Eingabelänge oder ungewöhnlichen Kombinationen, um sicherzustellen, dass "
-            "alle möglichen Szenarien abgedeckt sind.\n\n"
+            "alle möglichen Szenarien abgedeckt sind. Verifizieren Sie, dass alle Übergänge am Bandende vollständig definiert sind und keine Fehler entstehen.\n\n"
 
-            "10. **Simulation und abschließende Prüfung:**\n"
+            "11. **Simulation und abschließende Prüfung:**\n"
             "   Simulieren Sie jede Aufgabe Schritt für Schritt, bevor sie als korrekt betrachtet wird. "
             "Validieren Sie, dass alle Vorgaben der Aufgabenstellung erfüllt sind und die Lösung den Prüfungsanforderungen entspricht.\n\n"
         )
@@ -112,7 +117,7 @@ class PromptBuilder:
             return (
                 f"- **{datei_typ}:**\n"
                 f"  Es wurden {len(files)} {datei_typ.lower()}(en) beigefügt.\n"
-                f"  Nutzen Sie die Inhalte aus der {datei_typ.lower()}, um die Aufgaben entsprechend zu gestalten.\n\n"
+                f"  Nutzen Sie die Inhalte aus der beigefügten {datei_typ.lower()}, um die Aufgaben entsprechend zu gestalten.\n\n"
             )
         return ""
 
@@ -130,7 +135,7 @@ class PromptBuilder:
             "## Spezifische Anforderungen an die Aufgaben:\n"
             "- **Alphabet:** Geben Sie das verwendete Alphabet explizit an, wenn es für die Aufgabe relevant ist (z.B. {0, 1, ⋄}).\n"
             "- **Bewegungsrichtung und Endzustand:** Beschreiben Sie klar, wie sich die Turingmaschine über das Band bewegt (z.B. von links nach rechts) und wo sie nach Abschluss stehen bleibt. Diese Informationen sollten in den Zusatzinformationen der Aufgabenstellung enthalten sein.\n"
-            "- **Zustandsübergangstabellen:** Falls erforderlich, müssen Zustandsübergangstabellen alle möglichen Zustände und Übergänge abdecken, einschließlich Anfangs- und Endzuständen. **Unvollständige Tabellen oder fehlende Zustände sind nicht akzeptabel.**\n"
+            "- **Zustandsübergangstabellen:** Zustandsübergangstabellen müssen alle möglichen Zustände und Übergänge abdecken, einschließlich Anfangs- und Endzuständen. **Unvollständige Tabellen oder fehlende Zustände sind nicht akzeptabel.**\n"
             "- **Beispielablauftabelle:** Jede Aufgabe **MUSS** eine **Beispielablauftabelle** enthalten, die den Ablauf der Turingmaschine Schritt für Schritt anhand des Beispiels zeigt.\n\n"
 
             "## Einschränkungen und Komplexität:\n"
@@ -215,40 +220,47 @@ class PromptBuilder:
     @staticmethod
     def get_incorrect_task_prompt():
         return (
-            "# Zusätzlicher Informationen zum Auftrag:\n "
-            "Generieren Sie nur Aufgaben mit fehlerhaften Turingmaschinen. Der Zweck dieser Aufgaben "
-            "ist es, das Fehlersuch- und Korrekturvermögen von Studierenden gezielt zu überprüfen.\n\n"
+            "# Zusätzliche Informationen zum Auftrag:\n\n"
+            
+            "Generieren Sie nur Aufgaben mit absichtlich fehlerhaften Turingmaschinen. Ziel dieser Aufgaben ist es, das "
+            "Fehlersuch- und Korrekturvermögen der Studierenden gezielt zu überprüfen.\n\n"
 
-            "### Aufgabentyp:\n"
-            "- Die Turingmaschine soll absichtlich einen oder mehrere Fehler enthalten, die den gewünschten Output "
-            "verhindern oder zu einem falschen Output führen.\n"
-            "- Diese Fehler sollen so gestaltet sein, dass Studierende durch sorgfältige Analyse der Zustände und "
-            "Übergänge in der Lage sein müssen, die Ursache der Fehlfunktion zu identifizieren und zu korrigieren.\n\n"
+            "## Anforderungen an die Fehlerstruktur:\n"
+            "- Die Turingmaschine soll mindestens einen Fehler enthalten, der den gewünschten Output verhindert oder zu einem falschen Ergebnis führt.\n"
+            "- Die Fehler müssen so eingebaut sein, dass sie logisch nachvollziehbar sind, aber eine sorgfältige Analyse erfordern, um identifiziert und behoben zu werden.\n"
+            "- Fehler können auftreten in:\n"
+            "   ⦁ **Zustandsübergängen** (z. B. fehlerhafte Übergangsregeln),\n"
+            "   ⦁ **Lese- oder Schreibaktionen** (z. B. falsches Band-Symbol),\n"
+            "   ⦁ **Bandbewegungen** (z. B. falsche Kopfbewegung).\n\n"
 
-            "### Vorgaben für die Fehlerstruktur:\n"
-            "- Fehler können in den Zustandsübergängen, Lese- und Schreibaktionen oder in der Bandpositionierung "
-            "auftreten.\n"
-            "- Die Fehler sollen so eingebaut sein, dass sie plausibel und nicht offensichtlich sind, um eine "
-            "Herausforderung für Studierende zu bieten.\n\n"
+            "## Hinweise für die Gestaltung:\n"
+            "- Fügen Sie Hinweise oder zusätzliche Informationen hinzu, um den Studierenden bei der Fehlersuche zu helfen, falls erforderlich.\n"
+            "- Verwenden Sie Tabellen, um die fehlerhafte Zustandstabelle klar und präzise zu visualisieren. Achten Sie darauf, dass alle Spalten und Zeilen korrekt formatiert und vollständig sind.\n"
+            "- Fehler dürfen nicht trivial oder zu leicht zu erkennen sein, um eine angemessene Herausforderung zu gewährleisten.\n\n"
 
-            "### Beachten Sie:\n"
-            "- Geben Sie klare Hinweise oder Erklärungen, wie der Studierende den Fehler identifizieren kann, falls "
-            "zusätzliche Informationen erforderlich sind.\n"
-            "- Optional können Tabellen verwendet werden, um die fehlerhafte Zustandstabelle zu visualisieren. "
-            "Stellen Sie sicher, dass die Inhalte in den Spalten vollständig und korrekt strukturiert sind, ohne "
-            "Verschiebungen zwischen den Einträgen.\n\n"
+            "## Ergebnisformat:\n"
+            "Stellen Sie sicher, dass die Aufgaben und Lösungen im vorgeschriebenen Format generiert werden. Jede Aufgabe muss:\n"
+            "- **Klar formuliert** sein, um Missverständnisse zu vermeiden.\n"
+            "- **Eine vollständige Lösung** enthalten, die den Fehler aufzeigt und korrigiert (inkl.  Korrigierte Zustandsübergangstabelle und korrekter Beispielablauftabelle).\n\n"
 
-            "Generieren Sie die Aufgaben und Lösungen im beschriebenen Format!!!\n\n"
+            "Beachten Sie, dass diese Aufgaben speziell darauf abzielen, die Analyse- und Problemlösungsfähigkeiten der Studierenden zu überprüfen.\n\n"
         )
 
     @staticmethod
-    def get_final_reminder(difficulty):
+    def get_final_reminder(difficulty, difficulty_explanation):
         header = "# Wichtiger abschließender Hinweis:\n\n"
+
+        question_count_reminder = (
+            "## Anzahl der Fragen sicherstellen:\n"
+            "- **Überprüfen Sie, ob genau die vorgegebene Anzahl von Fragen ({num_questions}) generiert wurde.**\n"
+            "- Stellen Sie sicher, dass keine Fragen fehlen!\n\n"
+        )
 
         consistency_reminder = (
             "## Konsistenz prüfen:\n"
             "- Überprüfen Sie jede Aufgabe auf Konsistenz mit der angegebenen Schwierigkeitsstufe.\n"
-            f"- Stellen Sie sicher, dass keine Aufgabe die Komplexität der gewählten Schwierigkeitsstufe '**{difficulty}**' überschreitet.\n\n"
+            f"- Stellen Sie sicher, dass keine Aufgabe die Komplexität der gewählten Schwierigkeitsstufe '**{difficulty}**' überschreitet.\n"
+            f"- Schwierigkeitsgrad '**{difficulty}**' Erklärung: {difficulty_explanation}\n\n"
         )
 
         solution_separation_reminder = (
@@ -271,8 +283,11 @@ class PromptBuilder:
             "## Aufgabenvalidierung:\n"
             "- Validieren Sie jede Aufgabe mit gedanklichen Tests oder Standard-Testfällen, bevor Sie die nächste Aufgabe generieren.\n"
             "- **Stellen Sie sicher, dass die Übergangstabellen vollständig und korrekt sind und keine Lücken enthalten**.\n"
-            "- **Ergänzen Sie Beispielablauftabellen, um die Funktionalität der Zustandsübergangstabelle zu überprüfen und die Abläufe nachvollziehbar zu machen**.\n"
-            "- Jede Aufgabe muss logisch konsistent sein, und alle Schritte der Lösung müssen umsetzbar sein.\n\n"
+            "- **Ergänzen Sie Beispielablauftabellen, um die Funktionalität der Zustandsübergangstabelle zu überprüfen "
+            "und die Abläufe nachvollziehbar zu machen**. Diese Tabelle muss den Bandzustand, die Kopfposition und den "
+            "aktuellen Zustand für jeden Schritt der Verarbeitung dokumentieren.\n"
+            "- Jede Aufgabe muss logisch konsistent sein, und alle Schritte der Lösung müssen umsetzbar sein.\n"
+            "- Überprüfen Sie, ob die Maschine korrekt auf Grenzfälle wie leere Eingaben oder unerwartete Zeichen reagiert.\n\n"
         )
 
         quality_warning = (
@@ -280,7 +295,7 @@ class PromptBuilder:
             "- **Unvollständige oder inkonsistente Aufgaben sind streng zu vermeiden.** Jede Aufgabe muss logisch und vollständig sein.\n"
             "- **Unvollständige Zustandsübergänge oder unklare Beschreibungen** gefährden die Qualität der Aufgabe und sind nicht akzeptabel.\n"
             "- Achten Sie darauf, dass die Aufgabenstellung alle Vorgaben einer Turingmaschine erfüllt und realistisch ist.\n"
-            "- Alle möglichen Eingabefälle müssen abgedeckt sein.\n\n"
+            "- Alle möglichen Eingabefälle müssen abgedeckt sein, einschließlich Grenzfällen wie leere Eingaben oder Eingaben mit zusätzlichen Zeichen.\n\n"
         )
 
         consequences_reminder = (
@@ -291,6 +306,7 @@ class PromptBuilder:
 
         return (
                 header +
+                question_count_reminder +
                 consistency_reminder +
                 solution_separation_reminder +
                 table_mapping_reminder +
@@ -300,95 +316,156 @@ class PromptBuilder:
         )
 
     @staticmethod
+    def get_final_reminder_table():
+        header = "# Dringender letzter Hinweis zu Tabellen:\n\n"
+
+        table_addition_reminder = (
+            "## Zustandsübergangstabellen und Beispielablauftabellen hinzufügen:\n"
+            "- **Stellen Sie sicher, dass jede generierte Aufgabe eine vollständige und korrekte Zustandsübergangstabelle enthält.**\n"
+            "- **Ergänzen Sie IMMER eine Beispielablauftabelle, die den Bandzustand, die Kopfposition und den aktuellen Zustand für jeden Schritt dokumentiert.**\n"
+            "- **Fügen Sie diese Tabellen unbedingt hinzu!!!**\n"
+            "- **Überprüfen Sie, dass beide Tabellen vollständig, korrekt und logisch konsistent sind.**\n"
+            "- Falls diese Tabellen fehlen oder unvollständig sind, ist die Aufgabe automatisch fehlerhaft und kann NICHT für Prüfungszwecke verwendet werden!!!\n\n"
+        )
+
+        return (
+                header +
+                table_addition_reminder
+        )
+
+    @staticmethod
     def create_validation_prompt():
-        prompt_parts = [PromptBuilder.get_validation_base_prompt(), PromptBuilder.get_validation_prompt(),
-                        PromptBuilder.get_structure_instructions()]
+        prompt_parts = [
+            PromptBuilder.get_validation_base_prompt(),
+            PromptBuilder.get_requirements_validation_process_prompt(),
+            PromptBuilder.get_validation_process_prompt(),
+            PromptBuilder.get_final_test_prompt(),
+            # PromptBuilder.get_structure_instructions()
+            ]
         return prompt_parts
 
     @staticmethod
     def get_validation_base_prompt():
         return (
             "# Aufgabenbeschreibung und Zielsetzung:\n\n"
-
-            "Sie sind ein KI-Validierungsassistent mit Schwerpunkt Informatik. Ihr Ziel ist es, die Qualität, Genauigkeit "
-            "und Umsetzbarkeit von Prüfungsaufgaben zu Turingmaschinen sicherzustellen. Überprüfen Sie die übergebenen Aufgaben "
-            "und Lösungen auf Korrektheit, Vollständigkeit, logische Konsistenz und Umsetzbarkeit. Die Aufgaben sind für die "
-            "Nutzung in Prüfungen vorgesehen und müssen den höchsten Ansprüchen an Qualität, Klarheit und Genauigkeit genügen. "
-            "Jede Aufgabe muss mit einer Standard-Turingmaschine umsetzbar sein und darf keine logischen Widersprüche oder "
-            "Fehler enthalten.\n\n"
+            
+            "Sie sind ein hochpräziser KI-Validierungsassistent mit Schwerpunkt Informatik. Ihr Ziel ist es, die Qualität, Genauigkeit "
+            "und Umsetzbarkeit von Prüfungsaufgaben zu Turingmaschinen sicherzustellen. Jede Aufgabe muss vollständig korrekt, logisch "
+            "konsistent und in ihrer Gesamtheit fehlerfrei sein. **Es wird erwartet, dass jede Aufgabe nach Ihrer Validierung ohne Ausnahme den höchsten "
+            "Ansprüchen an Prüfungsaufgaben entspricht.**\n\n"
+            
+            "**Falls Fehler oder fehlende Inhalte identifiziert werden:**\n"
+            "- **Korrigieren Sie diese vollständig.**\n"
+            "- **Stellen Sie sicher, dass die korrigierten Aufgaben anstelle der ursprünglichen Aufgaben zurückgegeben werden.**\n"
+            "- **Überprüfen Sie, dass alle Teile der Aufgabe, einschließlich Beispiele und Tabellen, perfekt aufeinander abgestimmt sind.**\n\n"
+            
+            "**Verhindern Sie:**\n"
+            "- Jegliche Rückgabe der ursprünglichen, unkorrigierten Aufgaben.\n"
+            "- Fehlerhafte oder unvollständige Anpassungen, die neue Fehler einführen könnten.\n"
+            "- Dass aufgrund von Mapping- oder Verarbeitungsfehlern die ursprünglichen, unkorrigierten Aufgaben zurückgesendet werden.\n\n"
         )
 
     @staticmethod
-    def get_validation_prompt():
+    def get_requirements_validation_process_prompt():
         return (
             "# Anforderungen an den Validierungsprozess:\n\n"
+            
+            "## Konsistenz und Vollständigkeit der gesamten Aufgabe:\n"
+            "- **Stellen Sie sicher, dass alle Teile der Aufgabe logisch konsistent sind und sich gegenseitig ergänzen.**\n"
+            "- Überprüfen Sie, dass die Aufgabenstellung, Lösung, Zustandsübergangstabellen, und Beispielablauftabellen inhaltlich "
+            "perfekt zusammenpassen.\n"
+            "- **Validieren Sie, dass das Beispiel (erwartete Ausgabe) mit dem Endzustand der Beispielablauftabelle übereinstimmt.**\n\n"
 
-            "1. **Korrektheit der Aufgabenstellung:**\n"
+            "## Korrektheit der Aufgabenstellung:\n"
             "- Stellen Sie sicher, dass die Aufgabenstellung präzise, klar und vollständig ist.\n"
             "- Vermeiden Sie logische Widersprüche, mehrdeutige Formulierungen oder unklare Anforderungen.\n\n"
 
-            "2. **Korrektheit und Vollständigkeit der Lösung:**\n"
-            "- Überprüfen Sie, ob die Lösung der Aufgabenstellung entspricht und alle geforderten Schritte klar und vollständig dokumentiert sind.\n"
-            "- Stellen Sie sicher, dass die Lösung nachvollziehbar und frei von Lücken oder Fehlern ist.\n\n"
+            "## Korrektheit und Vollständigkeit der Lösung:\n"
+            "- Überprüfen Sie, ob die Lösung die Aufgabenstellung korrekt erfüllt.\n"
+            "- Validieren Sie, dass alle Lösungsschritte detailliert, nachvollziehbar und frei von Fehlern sind.\n"
+            "- Sicherstellen, dass Grenzfälle und mögliche Abweichungen abgedeckt sind.\n\n"
 
-            "3. **Zustandsübergangstabellen:**\n"
-            "- Prüfen Sie, ob die Zustandsübergangstabellen vorhanden ist und alle möglichen Übergänge, Zustände und Eingaben vollständig abdecken.\n"
-            "- Achten Sie darauf, dass keine Zustände oder Übergänge fehlen und dass die Tabellen korrekt formatiert und logisch konsistent sind.\n"
-            "- Unvollständige oder fehlerhafte Übergangstabellen sind für Prüfungsaufgaben nicht akzeptabel.\n"
+            "## Zustandsübergangstabellen:\n"
+            "- Prüfen Sie, ob die Zustandsübergangstabellen komplett vollständig, konsistent und korrekt sind.\n"
+            "- Ergänzen Sie fehlende Zustände oder Übergänge und korrigieren Sie inkonsistente Einträge.\n\n"
 
-            "4. **Beispielablauftabellen:**\n"
-            "- Ergänzen Sie, falls sinnvoll, eine oder mehrere **Beispielablauftabellen** am Ende der Lösung, um die Schritte besser nachvollziehbar zu machen und die Lösung zu überprüfen.\n"
-            "- Die Tabelle muss den Bandzustand, die Kopfposition und den aktuellen Zustand in jedem Schritt dokumentieren.\n"
-            "- Falls Beispielablauftabellen fehlen, erstellen Sie diese basierend auf der Zustandsübergangstabelle und der Beispiel-Eingabe.\n\n"
+            "## Beispielablauftabellen und Beispielausgaben:\n"
+            "- **Überprüfen Sie, ob jede Aufgabe eine Beispielablauftabelle enthält.**\n"
+            "- **Falls eine Beispielablauftabelle fehlt, erstellen Sie diese vollständig neu.** Jede Tabelle muss alle Schritte der Verarbeitung dokumentieren, einschließlich:\n"
+            "  - Bandzustand, Kopfposition und aktueller Zustand für jeden Schritt.\n"
+            "- **Validieren Sie, dass die Beispielausgabe (Eingabe und erwartete Ausgabe) mit dem letzten Zustand und Bandinhalt der "
+            "Beispielablauftabelle übereinstimmt.**\n"
+            "- Falls Diskrepanzen zwischen der erwarteten Ausgabe und der Beispielablauftabelle auftreten, korrigieren Sie die Aufgabe und Tabelle vollständig.\n"
+            "- Jede Tabelle muss detailliert dokumentiert sein, mit vollständigen Schritten für jeden Zustand, Kopfposition und Bandinhalt.\n\n"
 
-            "5. **Simulationsprüfung:**\n"
-            "- Simulieren Sie jede Aufgabe Schritt für Schritt gedanklich oder systematisch, um die Zustandsübergänge und die Funktionsweise zu überprüfen.\n"
-            "- Stellen Sie sicher, dass die Turingmaschine das erwartete Ergebnis liefert und dass keine Endlosschleifen oder fehlerhaften Ergebnisse auftreten.\n\n"
+            "## Simulationsprüfung:\n"
+            "- Führen Sie eine gedankliche Simulation durch, um sicherzustellen, dass die Aufgabe und alle zugehörigen Tabellen "
+            "und Beispiele korrekt umgesetzt wurden.\n"
+            "- **Verifizieren Sie das Endergebnis durch eine vollständige Nachverfolgung aller Übergänge und Abläufe.**\n"
+            "- Falls Endlosschleifen, fehlerhafte Ergebnisse oder unklare Zustandsübergänge auftreten, beheben Sie diese vollständig.\n\n"
 
-            "6. **Grenzfallabdeckung:**\n"
-            "- Überprüfen Sie, ob alle denkbaren Eingaben (inklusive Grenzfällen) zu einem definierten Ergebnis führen.\n"
-            "- Stellen Sie sicher, dass die Turingmaschine bei maximal zulässigen Eingaben nicht in Endlosschleifen gerät oder fehlerhafte Ergebnisse liefert.\n\n"
+            "## Grenzfallabdeckung:\n"
+            "- **Testen Sie die Aufgabe auf Grenzfälle wie leere Eingaben, unübliche Zeichen oder andere Szenarien, die das Verhalten der Turingmaschine prüfen.**\n"
+            "- Stellen Sie sicher, dass die Maschine für jeden Eingabefall ein korrekt definiertes Ergebnis liefert.\n\n"
 
-            "7. **Verbesserungen bei Mängeln:**\n"
-            "- Falls Fehler, Lücken oder Inkonsistenzen gefunden werden:\n"
-            "- Korrigieren Sie die Aufgabenstellung, Lösung oder Zustandsübergangstabellen.\n"
-            "- Ergänzen Sie fehlende Informationen oder Übergänge, um Vollständigkeit zu gewährleisten.\n"
-            "- Erstellen Sie eine konsistente und korrekte Lösung, die den Prüfungsanforderungen entspricht.\n\n"
+            "## Verbesserungen bei Mängeln:\n"
+            "- **Jede identifizierte Schwachstelle, jeder Fehler oder jede Lücke muss vollständig behoben werden.**\n"
+            "- Ergänzen oder überarbeiten Sie Aufgabenstellung, Lösung, Zustandsübergangstabellen und Beispielabläufe, um die Anforderungen vollständig zu erfüllen.\n\n"
+        )
 
-            "### Vorgehen bei der Validierung und Verbesserung:\n"
-
+    @staticmethod
+    def get_validation_process_prompt():
+        return (
+            "# Vorgehen bei der Validierung und Verbesserung:\n\n"
+            
+            "## Allgemeiner Hinweis:\n"
+            "- **Bearbeiten und prüfen Sie jede Aufgabe vollständig und nacheinander, bevor Sie zur nächsten übergehen.**\n"
+            "- Stellen Sie sicher, dass keine Aufgabe übersprungen oder unvollständig bearbeitet wird.\n\n"
+            
             "1. **Aufgabenstellung prüfen:**\n"
-            "- Lesen Sie die Aufgabenstellung sorgfältig und stellen Sie sicher, dass sie alle Anforderungen erfüllt.\n\n"
+            "- Überprüfen und korrigieren Sie die Aufgabenstellung, um sicherzustellen, dass sie vollständig ist und alle Anforderungen erfüllt.\n\n"
 
             "2. **Lösungsprüfung:**\n"
-            "- Vergleichen Sie die Lösung mit der Aufgabenstellung, um sicherzustellen, dass sie korrekt, vollständig und nachvollziehbar ist.\n\n"
+            "- Korrigieren Sie die Lösung, wenn sie nicht vollständig, korrekt oder nachvollziehbar ist.\n\n"
 
-            "3. **Zustandsübergangstabellen validieren:**\n"
-            "- Überprüfen Sie jede Tabelle auf Vollständigkeit, Konsistenz und Richtigkeit.\n"
-            "- Ergänzen Sie fehlende Übergänge und korrigieren Sie fehlerhafte Einträge.\n\n"
+            "3. **Zustandsübergangstabellen validieren und korrigieren:**\n"
+            "- Überprüfen Sie jede Zustandsübergangstabelle auf Vollständigkeit, Konsistenz und Korrektheit.\n"
+            "- Ergänzen Sie fehlende Zustände oder Übergänge, und korrigieren Sie fehlerhafte Einträge vollständig.\n"
+            "- **Falls keine Zustandsübergangstabelle vorhanden ist, erstellen Sie eine neue, die den Anforderungen entspricht.**\n\n"
+            
+            "4. **Beispielabläufe validieren und ergänzen:**\n"
+            "- **Überprüfen Sie, ob die Beispielausgabe mit dem Endzustand und Bandinhalt der Beispielablauftabelle übereinstimmt.**\n"
+            "- **Falls eine Beispielablauftabelle fehlt, erstellen Sie eine vollständig neue Tabelle, die jeden Schritt dokumentiert:**\n"
+            "  - Bandzustand, Kopfposition und aktueller Zustand für jeden Schritt müssen angegeben sein.\n"
+            "- Überarbeiten Sie fehlerhafte oder inkonsistente Beispielabläufe, bis sie vollständig korrekt und nachvollziehbar sind.\n"
+            "- **Stellen Sie sicher, dass die Beispielablauftabelle konsistent mit der Zustandsübergangstabelle ist und keine Diskrepanzen enthält.**\n\n"
 
-            "4. **Simulationsprüfung durchführen:**\n"
-            "- Prüfen Sie, ob die Zustandsübergänge korrekt implementiert sind und ob die Maschine wie erwartet funktioniert.\n\n"
+            "5. **Simulationsprüfung durchführen:**\n"
+            "- Führen Sie eine Simulation durch, um die Zustandsübergänge und die gesamte Funktionsweise zu überprüfen.\n"
+            "- **Verifizieren Sie jeden Schritt und alle Übergänge, um Fehler oder Inkonsistenzen zu beheben.**\n\n"
 
-            "5. **Beispielabläufe validieren und ergänzen:**\n"
-            "- Überprüfen Sie, ob für jede Aufgabe eine oder mehrere Beispielablauftabellen vorhanden sind, die den Bandzustand, die Kopfposition und den aktuellen Zustand für jeden Schritt der Verarbeitung darstellen.\n"
-            "- **Falls Beispielabläufe fehlen, ergänzen Sie diese, um die Schritte der Maschine nachvollziehbar zu machen**.\n"
-            "  Jede Beispielablauftabelle muss die korrekte Funktion der Zustandsübergänge mit einer Beispiel-Eingabe vollständig dokumentieren.\n"
-            "- Stellen Sie sicher, dass die Beispielabläufe mit den Zustandsübergangstabellen übereinstimmen und keine Inkonsistenzen enthalten.\n\n"
+            "6. **Grenzfälle validieren:**\n"
+            "- Stellen Sie sicher, dass die Aufgabe alle Grenzfälle korrekt behandelt und keine undefinierten Zustände auftreten.\n\n"
 
-            "### Abschlussprüfung:\n"
+            "7. **Mapping-Fehler verhindern:**\n"
+            "- Verhindern Sie, dass unveränderte Aufgaben oder Teile davon aufgrund technischer Fehler zurückgegeben werden.\n"
+            "- Stellen Sie sicher, dass alle zurückgegebenen Aufgaben vollständig überarbeitet und korrekt sind.\n\n"
+        )
 
-            "Führen Sie nach der Überprüfung und Verbesserung eine abschließende Prüfung durch, um sicherzustellen, dass:\n"
-            "- Jede Aufgabe logisch konsistent, korrekt und vollständig ist.\n"
-            "- Alle Lösungen präzise und nachvollziehbar sind.\n"
-            "- Zustandsübergangstabellen keine Lücken oder Fehler enthalten.\n"
-            "- Jede Aufgabe realistisch und fehlerfrei mit einer Standard-Turingmaschine umsetzbar ist.\n\n"
-
-            "### Hinweise für die Validierung:\n"
-            "- Die generierten Aufgaben und Lösungen müssen exakt den Prüfungsanforderungen genügen.\n"
-            "- Vermeiden Sie unnötige Komplexität, die die Richtigkeit der Aufgabe gefährden könnte.\n"
-            "- Achten Sie darauf, dass jede Aufgabe den Anforderungen an Klarheit und Umsetzbarkeit entspricht.\n"
-            "- Validieren Sie jede Aufgabe und Lösung gründlich, bevor sie als korrekt betrachtet wird.\n\n"
-
-            "**Geben Sie die validierten und ggf. verbesserten Aufgaben im ursprünglichen Format zurück.**\n\n"
+    @staticmethod
+    def get_final_test_prompt():
+        return (
+            "# Abschlussprüfung:\n\n"
+            
+            "**Vor der Rückgabe:**\n"
+            "- **Überprüfen Sie die gesamte Aufgabe, einschließlich aller Tabellen und Beispiele, auf vollständige Korrektheit und Konsistenz.**\n"
+            "- Überprüfen Sie, ob die Aufgaben durch die Turingmaschine korrekt umsetzbar sind, inklusive aller Grenzfälle.\n"
+            "- **Überprüfen Sie, ob jede Aufgabe eine Zustandsübergangstabellen und eine Beispielablauftabelle enthält.Falls keine vorhanden ist, ergänzen Sie diese vor der Rückgabe und testen Sie diese nochmals.**\n"
+            "- **Vergleichen Sie die erwartete Beispielausgabe mit dem Endzustand der Beispielablauftabelle, um "
+            "- **Ersetzen Sie die ursprünglichen Aufgaben vollständig durch die korrigierten und verbesserten Versionen.**\n"
+            "- Geben Sie ausschließlich die überarbeiteten Aufgaben zurück. Eine Rückgabe unveränderter Aufgaben ist nicht zulässig.\n\n"
+            
+            "**Wichtige Hinweise:**\n"
+            "- Jede Aufgabe MUSS ZWINGEND vollständig fehlerfrei, in sich schlüssig, klar formuliert und logisch konsistent sein.\n"
+            "-**Eine Rückgabe, die nicht den Vorgaben entspricht, ist nicht akzeptabel**\n\n"
         )

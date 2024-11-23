@@ -1,3 +1,6 @@
+from Const import VALIDATION_MESSAGE_RESULT_PREFIX
+
+
 class MessageBuilder:
 
     @staticmethod
@@ -33,5 +36,5 @@ class MessageBuilder:
         for part in prompt_parts:
             message[0]["content"].append(MessageBuilder.add_txt_to_message(part))
 
-        message[0]["content"].append(MessageBuilder.add_txt_to_message(result))
+        message[0]["content"].append(MessageBuilder.add_txt_to_message(VALIDATION_MESSAGE_RESULT_PREFIX + result))
         return message
