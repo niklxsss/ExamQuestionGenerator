@@ -12,7 +12,7 @@ class InputArgumentParser:
         parser.add_argument('--files_images', type=str, nargs='+', default=[], help="image files")
         parser.add_argument('--files_txt', type=str, nargs='+', default=[], help="text files")
         parser.add_argument('--files_pdf', type=str, nargs='+', default=[], help="pdf files")
-        parser.add_argument('--separate_answers', action='store_true', help="Save answers in a separate file")
+        parser.add_argument('--separate', action='store_true', help="Save answers in a separate file")
         parser.add_argument('--difficulty', type=str, choices=[DIFFICULTY_EASY, DIFFICULTY_MEDIUM,
                                                                DIFFICULTY_CHALLENGING,
                                                                DIFFICULTY_ADVANCED, DIFFICULTY_EXTREME],

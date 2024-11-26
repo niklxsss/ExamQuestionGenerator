@@ -1,7 +1,7 @@
 GPT_MODEL = "gpt-4o"
 MAX_TOKENS = 8000
-TEMPERATURE = 0.6
-VALIDATION_TEMPERATURE = 0.3
+TEMPERATURE = 0.7
+VALIDATION_TEMPERATURE = 0.4
 
 TXT_FORMAT = "TXT"
 PDF_FORMAT = "PDF"
@@ -46,39 +46,52 @@ LABEL_SOLUTION_STEP_BY_STEP = "Lösungsweg"
 LABEL_ADDITIONAL_SOLUTION_INFOS = "Zusatzinformationen"
 LABEL_TABLE = "Tabelle"
 
-DIFFICULTY_EASY = 'leicht'
-DIFFICULTY_MEDIUM = 'mittel'
-DIFFICULTY_CHALLENGING = 'anspruchsvoll'
-DIFFICULTY_ADVANCED = 'fortgeschritten'
-DIFFICULTY_EXTREME = 'extrem_schwierig'
+DIFFICULTY_EASY = 'easy'
+DIFFICULTY_MEDIUM = 'medium'
+DIFFICULTY_CHALLENGING = 'challenging'
+DIFFICULTY_ADVANCED = 'advanced'
+DIFFICULTY_EXTREME = 'extreme'
+
+DIFFICULTY_TRANSLATION_MAP = {
+    DIFFICULTY_EASY: 'leicht',
+    DIFFICULTY_MEDIUM: 'mittel',
+    DIFFICULTY_CHALLENGING: 'anspruchsvoll',
+    DIFFICULTY_ADVANCED: 'fortgeschritten',
+    DIFFICULTY_EXTREME: 'extrem schwierig'
+}
 
 DIFFICULTY_EXPLANATION_MAP = {
     DIFFICULTY_EASY:
         "Aufgaben auf diesem Niveau vermitteln grundlegende Konzepte der Turingmaschine. "
-        "Die Lösung erfordert 2-6 Zustände mit einfachen und klar nachvollziehbaren Übergängen. "
-        "Es werden keine verschachtelten logischen Strukturen oder erweiterten Bandoperationen benötigt. "
-        "Die Aufgaben fördern das Verständnis für die grundlegende Funktionsweise von Zustandsübergängen und Bandaktionen.",
+        "Die Lösung umfasst einfache Übergänge und klare logische Strukturen ohne Schleifen oder Bedingungen. "
+        "Die Aufgaben konzentrieren sich auf elementare Operationen wie das Schreiben und Verschieben des Bandkopfes, "
+        "um das Verständnis grundlegender Zustandsübergänge zu fördern.",
 
     DIFFICULTY_MEDIUM:
-        "Diese Aufgaben bieten eine moderate Herausforderung und setzen ein solides Verständnis der Turingmaschine voraus. "
-        "Die Lösung erfordert 6-12 Zustände und kann Übergänge mit zusätzlichen Bedingungen oder einfachen Schleifen umfassen. "
-        "Die Aufgaben bauen auf den Grundlagen auf, verlangen aber mehrere Schritte und ein besseres Verständnis von Sequenzen und Zustandsabfolgen.",
+        "Diese Aufgaben setzen ein solides Verständnis der Turingmaschine voraus. "
+        "Die Lösung erfordert die Integration mehrerer Schritte mit Bedingungen und einfachen Schleifen. "
+        "Die Aufgaben fordern ein besseres Verständnis der Sequenzen und Zustandsabfolgen, "
+        "können aber immer noch in kleineren, klar strukturierten Blöcken umgesetzt werden.",
 
     DIFFICULTY_CHALLENGING:
-        "Auf diesem Niveau wird analytisches Denken und ein tiefgreifendes Verständnis der Konzepte verlangt. "
-        "Die Lösung umfasst 12-18 Zustände und erfordert die Arbeit mit verschachtelten logischen Strukturen und anspruchsvolleren Übergangsbedingungen. "
-        "Die Aufgaben können komplexere Operationen wie das Verarbeiten und Überprüfen von Eingabesequenzen umfassen, bleiben jedoch mit einer Standard-Turingmaschine lösbar.",
+        "Dieses Niveau verlangt analytisches Denken und ein tiefes Verständnis der Konzepte. "
+        "Die Lösung beinhaltet komplexe logische Strukturen, verschachtelte Übergänge und erfordert "
+        "das Verarbeiten und Überprüfen von längeren Eingabesequenzen. "
+        "Die Aufgaben verlangen eine durchdachte Planung der Zustandsübergänge und das Verständnis anspruchsvollerer Bandoperationen.",
 
     DIFFICULTY_ADVANCED:
-        "Diese Aufgaben verlangen ein umfassendes Verständnis und die Fähigkeit, anspruchsvolle Abläufe präzise umzusetzen. "
-        "Die Lösung umfasst 18-24 Zustände und erfordert den kreativen Einsatz von Bandoperationen und gut geplante Zustandsübergänge. "
-        "Die Aufgaben decken Szenarien ab, die eine klare Strategie und eine strukturierte Lösung verlangen, ohne jedoch über die Fähigkeiten einer Standard-Turingmaschine hinauszugehen.",
+        "Diese Aufgaben verlangen ein umfassendes Verständnis und die Fähigkeit, komplexe Abläufe präzise umzusetzen. "
+        "Sie umfassen dynamische Bedingungen, erweiterte Logiken und erfordern kreative Strategien, "
+        "um Szenarien mit mehreren möglichen Endzuständen oder komplexen Prüfungen zu lösen. "
+        "Die Aufgaben fördern das strategische Denken und die klare Strukturierung komplexer Zustandsübergänge.",
 
     DIFFICULTY_EXTREME:
-        "Auf diesem Schwierigkeitsniveau werden die Grenzen des Verständnisses der Turingmaschine getestet. "
-        "Die Lösung erfordert mehr als 24 Zustände und beinhaltet komplexe Übergangssysteme, die sorgfältig auf mehrere Schritte und Bandbereiche abgestimmt sind. "
-        "Diese Aufgaben stellen Extremsituationen dar und verlangen präzise Planung, strategisches Denken und die Berücksichtigung von Grenzfällen. "
-        "Sie bleiben lösbar, fordern jedoch das Maximum an analytischem Denken und Problemlösungsfähigkeit."
+        "Aufgaben auf diesem Schwierigkeitsniveau testen die Grenzen des Verständnisses der Turingmaschine. "
+        "Die Lösung erfordert fortgeschrittenes strategisches Denken, das Navigieren durch mehrere verschachtelte Logiksysteme "
+        "und die Berücksichtigung von Grenzfällen. "
+        "Diese Aufgaben fordern maximale Präzision und Problemlösungsfähigkeit und beinhalten Szenarien, "
+        "bei denen fehlerfreie Planung und Simulation unverzichtbar sind."
 }
+
 
 VALIDATION_MESSAGE_RESULT_PREFIX = "**HIER SIND DIE ZU OPTIMIERENDEN AUFGABEN:**\n\n"

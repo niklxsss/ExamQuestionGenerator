@@ -30,11 +30,15 @@ class MessageBuilder:
         return message
 
     @staticmethod
-    def build_validation_message(prompt_parts, result):
+    def build_validation_message(prefix_prompt_parts, result, suffix_prompt_parts):
         message = [{"role": "user", "content": []}]
 
-        for part in prompt_parts:
+        for part in prefix_prompt_parts:
             message[0]["content"].append(MessageBuilder.add_txt_to_message(part))
 
         message[0]["content"].append(MessageBuilder.add_txt_to_message(VALIDATION_MESSAGE_RESULT_PREFIX + result))
+
+        for part in suffix_prompt_parts:
+            message[0]["content"].append(MessageBuilder.add_txt_to_message(part))
+
         return message

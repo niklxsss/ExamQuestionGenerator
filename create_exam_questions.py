@@ -5,6 +5,7 @@ from MessageBuilder import MessageBuilder
 from OpenAIClient import OpenAIClient
 from OutputSaver import OutputSaver
 from PromptBuilder import PromptBuilder
+from ValidationPromptBuilder import ValidationPromptBuilder
 
 
 def main():
@@ -13,7 +14,7 @@ def main():
     files_images = args.files_images
     files_txt = args.files_txt
     files_pdf = args.files_pdf
-    separate_answers = args.separate_answers
+    separate = args.separate
     output_format = args.output
     difficulty = args.difficulty
     incorrect_task = args.incorrect_task
@@ -28,43 +29,38 @@ def main():
     else:
         print("[INFO] No additional files provided.")
 
-    # Process files
     info_texts, encoded_base64_data, pdf_texts = FileProcessor.process_files(files_txt, files_images, files_pdf)
     print("[INFO] Files processed successfully.")
 
-    # Create prompt
     print("[INFO] Creating prompt for question generation...")
     prompt_parts = PromptBuilder.create_prompt(num_questions, difficulty, incorrect_task, info_texts, encoded_base64_data,
                                                pdf_texts)
     print("[INFO] Prompt created successfully.")
 
-    # Build message
     print("[INFO] Building message for OpenAI API request...")
     message = MessageBuilder.build_message(prompt_parts, info_texts, encoded_base64_data, pdf_texts)
     print("[INFO] Message built successfully.")
 
-    # Send request to OpenAI
     print("[INFO] Sending question generation request to OpenAI API...")
     result = OpenAIClient.send_request(message, TEMPERATURE)
     print("[INFO] Question generation completed successfully.")
 
-    # Create validation prompt
     print("[INFO] Creating validation prompt...")
-    prompt_parts_validation = PromptBuilder.create_validation_prompt()
+    prefix_prompt_parts_validation = ValidationPromptBuilder.create_prefix_validation_prompt()
+    suffix_parts_validation = ValidationPromptBuilder.create_suffix_validation_prompt()
     print("[INFO] Validation prompt created successfully.")
 
     print("[INFO] Building validation message...")
-    message_validation = MessageBuilder.build_validation_message(prompt_parts_validation, result)
+    message_validation = MessageBuilder.build_validation_message(prefix_prompt_parts_validation, result,
+                                                                 suffix_parts_validation)
     print("[INFO] Validation message built successfully.")
 
-    # Send validation request
     print("[INFO] Sending validation request to OpenAI API...")
     result_final = OpenAIClient.send_request(message_validation, VALIDATION_TEMPERATURE)
     print("[INFO] Validation completed successfully.")
 
-    # Save output
     print("[INFO] Saving final output to file...")
-    OutputSaver.save_output_to_file(result_final, output_format, separate_answers)
+    OutputSaver.save_output_to_file(result_final, output_format, separate)
     print("[INFO] Output saved successfully.")
 
     print("[INFO] Process completed successfully.")
