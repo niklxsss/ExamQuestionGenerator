@@ -65,6 +65,7 @@ class PromptBuilder:
             "## Spezifische Anforderungen an die Aufgaben:\n"
             "- **Alphabet:** Geben Sie das verwendete Alphabet explizit an, wenn es für die Aufgabe relevant ist (z.B. {0, 1, ⋄}).\n"
             "- **Bewegungsrichtung und Endzustand:** Beschreiben Sie klar, wie sich die Turingmaschine über das Band bewegt (z.B. von links nach rechts) und wo sie nach Abschluss stehen bleibt. Diese Informationen sollten in den Zusatzinformationen der Aufgabenstellung enthalten sein.\n"
+            "- **Konzepte und Prinzipien:** Falls die Aufgabe auf spezifischen Konzepten, Prinzipien oder methodischen Ansätzen basiert, die möglicherweise nicht allen Studierenden direkt geläufig sind, fassen Sie diese kurz und prägnant in den Zusatzinformationen der Aufgabenstellung zusammen.\n"
             "- **Zustandsübergangstabellen:** Zustandsübergangstabellen müssen alle möglichen Zustände und Übergänge abdecken, **EINSCHLIEßLICH Anfangs- und Endzuständen **. **Unvollständige Tabellen oder fehlende Zustände sind nicht akzeptabel.**\n"
             "- **Beispielablauftabelle:** Jede Aufgabe **MUSS** eine **Beispielablauftabelle** enthalten, die den Ablauf der Turingmaschine Schritt für Schritt anhand des Beispiels komplett zeigt.\n\n"
 
