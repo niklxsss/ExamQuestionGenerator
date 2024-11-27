@@ -4,7 +4,7 @@ from Const import *
 class PromptBuilder:
 
     @staticmethod
-    def create_prompt(num_questions, difficulty_eng, incorrect_task, files_txt, files_images, files_pdf):
+    def create_prefix_prompt(num_questions, difficulty_eng, incorrect_task, files_txt, files_images, files_pdf):
         difficulty = DIFFICULTY_TRANSLATION_MAP.get(difficulty_eng)
         difficulty_explanation = DIFFICULTY_EXPLANATION_MAP.get(difficulty_eng)
 
@@ -19,12 +19,18 @@ class PromptBuilder:
         if any([files_txt, files_images, files_pdf]):
             prompt_parts.append(PromptBuilder.get_attachments_prompt(files_txt, files_images, files_pdf))
 
-        prompt_parts.append(PromptBuilder.get_process_steps(difficulty))
-        prompt_parts.append(PromptBuilder.get_structure_instructions())
-
-        prompt_parts.append(PromptBuilder.get_final_reminder(difficulty, difficulty_explanation, num_questions))
-
         return prompt_parts
+
+    @staticmethod
+    def create_suffix_prompt(num_questions, difficulty_eng):
+        difficulty = DIFFICULTY_TRANSLATION_MAP.get(difficulty_eng)
+        difficulty_explanation = DIFFICULTY_EXPLANATION_MAP.get(difficulty_eng)
+
+        return [
+            PromptBuilder.get_process_steps(difficulty),
+            PromptBuilder.get_structure_instructions(),
+            PromptBuilder.get_final_reminder(difficulty, difficulty_explanation, num_questions)
+        ]
 
     @staticmethod
     def get_base_prompt(num_questions, difficulty, difficulty_explanation):

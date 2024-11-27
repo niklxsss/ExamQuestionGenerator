@@ -5,6 +5,7 @@ from MessageBuilder import MessageBuilder
 from OpenAIClient import OpenAIClient
 from OutputSaver import OutputSaver
 from PromptBuilder import PromptBuilder
+from Questions import ExamQuestion, ExamQuestions
 from ValidationPromptBuilder import ValidationPromptBuilder
 
 
@@ -33,31 +34,59 @@ def main():
     print("[INFO] Files processed successfully.")
 
     print("[INFO] Creating prompt for question generation...")
-    prompt_parts = PromptBuilder.create_prompt(num_questions, difficulty, incorrect_task, info_texts, encoded_base64_data,
-                                               pdf_texts)
+    # prompt_parts = PromptBuilder.create_prompt(num_questions, difficulty, incorrect_task, info_texts,
+    #                                            encoded_base64_data, pdf_texts)
+
+    prefix_prompt_parts_validation = PromptBuilder.create_prefix_prompt(num_questions, difficulty, incorrect_task,
+                                                                        info_texts, encoded_base64_data, pdf_texts)
+    suffix_prompt_parts_validation = PromptBuilder.create_suffix_prompt(num_questions, difficulty)
     print("[INFO] Prompt created successfully.")
 
     print("[INFO] Building message for OpenAI API request...")
-    message = MessageBuilder.build_message(prompt_parts, info_texts, encoded_base64_data, pdf_texts)
+    message = MessageBuilder.build_message(prefix_prompt_parts_validation, info_texts, encoded_base64_data, pdf_texts,
+                                           suffix_prompt_parts_validation)
     print("[INFO] Message built successfully.")
 
     print("[INFO] Sending question generation request to OpenAI API...")
-    result = OpenAIClient.send_request(message, TEMPERATURE)
+    result = OpenAIClient.send_request(message, TEMPERATURE, ExamQuestions)
     print("[INFO] Question generation completed successfully.")
 
-    print("[INFO] Creating validation prompt...")
-    prefix_prompt_parts_validation = ValidationPromptBuilder.create_prefix_validation_prompt()
-    suffix_parts_validation = ValidationPromptBuilder.create_suffix_validation_prompt()
-    print("[INFO] Validation prompt created successfully.")
+    results = []
+    total_questions = len(result["questions"])
 
-    print("[INFO] Building validation message...")
-    message_validation = MessageBuilder.build_validation_message(prefix_prompt_parts_validation, result,
-                                                                 suffix_parts_validation)
-    print("[INFO] Validation message built successfully.")
+    for index, exam_question in enumerate(result["questions"], start=1):
+        print(f"[INFO] Preparing validation for question {index} of {total_questions}...")
 
-    print("[INFO] Sending validation request to OpenAI API...")
-    result_final = OpenAIClient.send_request(message_validation, VALIDATION_TEMPERATURE)
-    print("[INFO] Validation completed successfully.")
+        prefix_prompt_parts_validation = ValidationPromptBuilder.create_prefix_validation_prompt()
+        suffix_prompt_parts_validation = ValidationPromptBuilder.create_suffix_validation_prompt()
+        print(f"[INFO] Validation prompt created successfully for question {index}.")
+
+        message_validation = MessageBuilder.build_validation_message(
+            prefix_prompt_parts_validation, exam_question, suffix_prompt_parts_validation)
+        print(f"[INFO] Validation message built successfully for question {index}.")
+
+        print(f"[INFO] Sending validation request for question {index} to OpenAI API...")
+        validated_question = OpenAIClient.send_request(message_validation, VALIDATION_TEMPERATURE, ExamQuestion)
+        print(f"[INFO] Validation for question {index} completed successfully.")
+
+        results.append(validated_question)
+        print(f"[INFO] {index} of {total_questions} questions validated.")
+
+        # "--------------json compare-----------------"
+
+        if exam_question == validated_question:
+            print("No changes detected. Validation process may not be effective.")
+        else:
+            print("Differences found. Validation made adjustments.")
+
+        print("--output nicht korrigiert-----------------------------------------------------------")
+        print(exam_question)
+        print("--output nach validation prompt--------------------------------------------------------------------")
+        print(validated_question)
+
+    print("[INFO] All questions validated successfully.")
+
+    result_final = {"questions": results}
 
     print("[INFO] Saving final output to file...")
     OutputSaver.save_output_to_file(result_final, output_format, separate)
@@ -65,16 +94,15 @@ def main():
 
     print("[INFO] Process completed successfully.")
 
-
-    if result == result_final:
-        print("No changes detected. Validation process may not be effective.")
-    else:
-        print("Differences found. Validation made adjustments.")
-
-    print("--output, nach erstem durchlauf-----------------------------------------------------------")
-    print(result)
-    print("--output nach validation prompt--------------------------------------------------------------------")
-    print(result_final)
+    # if result == result_final:
+    #     print("No changes detected. Validation process may not be effective.")
+    # else:
+    #     print("Differences found. Validation made adjustments.")
+    #
+    # print("--output, nach erstem durchlauf-----------------------------------------------------------")
+    # print(result)
+    # print("--output nach validation prompt--------------------------------------------------------------------")
+    # print(result_final)
 
 
 if __name__ == "__main__":

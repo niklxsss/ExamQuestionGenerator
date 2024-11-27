@@ -5,13 +5,12 @@ import openai
 from openai import OpenAI
 from Config import *
 from Const import *
-from Questions import ExamQuestions
 
 
 class OpenAIClient:
 
     @staticmethod
-    def send_request(message, temperature) -> ExamQuestions:
+    def send_request(message, temperature, response_format):
         client = OpenAI(api_key=API_KEY)
 
         try:
@@ -20,9 +19,9 @@ class OpenAIClient:
                 max_tokens=MAX_TOKENS,
                 temperature=temperature,
                 messages=message,
-                response_format=ExamQuestions,
+                response_format=response_format
             )
-            return response.choices[0].message.content
+            return json.loads(response.choices[0].message.content)
 
         except openai.APIConnectionError as e:
             print("The server could not be reached:", e.__cause__)

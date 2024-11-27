@@ -1,4 +1,5 @@
 from Const import VALIDATION_MESSAGE_RESULT_PREFIX
+import json
 
 
 class MessageBuilder:
@@ -12,10 +13,10 @@ class MessageBuilder:
         return {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{encoded_base64_data}"}}
 
     @staticmethod
-    def build_message(prompt_parts, info_texts, encoded_base64_data, pdf_texts):
+    def build_message(prefix_prompt_parts, info_texts, encoded_base64_data, pdf_texts, suffix_prompt_parts):
         message = [{"role": "user", "content": []}]
 
-        for part in prompt_parts:
+        for part in prefix_prompt_parts:
             message[0]["content"].append(MessageBuilder.add_txt_to_message(part))
 
         for info_text in info_texts:
@@ -27,6 +28,9 @@ class MessageBuilder:
         for pdf_text in pdf_texts:
             message[0]["content"].append(MessageBuilder.add_txt_to_message(pdf_text))
 
+        for part in suffix_prompt_parts:
+            message[0]["content"].append(MessageBuilder.add_txt_to_message(part))
+
         return message
 
     @staticmethod
@@ -36,8 +40,8 @@ class MessageBuilder:
         for part in prefix_prompt_parts:
             message[0]["content"].append(MessageBuilder.add_txt_to_message(part))
 
-        message[0]["content"].append(MessageBuilder.add_txt_to_message(VALIDATION_MESSAGE_RESULT_PREFIX + result))
-
+        message[0]["content"].append(MessageBuilder.add_txt_to_message(VALIDATION_MESSAGE_RESULT_PREFIX +
+                                                                       json.dumps(result, indent=2)))
         for part in suffix_prompt_parts:
             message[0]["content"].append(MessageBuilder.add_txt_to_message(part))
 
