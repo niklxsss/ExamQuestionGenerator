@@ -60,12 +60,21 @@ class PromptBuilder:
             "- **Sprache:** Alle Inhalte sollen auf Deutsch verfasst werden.\n"
             "- **Korrektheit:** Stellen Sie sicher, dass die Aufgaben und Lösungen präzise, korrekt und konsistent sind.\n"
             "- **Klarheit:** Vermeiden Sie Unklarheiten. Die Aufgabenstellung muss vollständig, eindeutig und für Studierende leicht verständlich sein.\n"
+            "- **Keine Spoiler:** Vermeiden Sie in der Aufgabenstellung (inkl Zusatzinformationen & Beispiel) jegliche Hinweise, die auf die Lösung oder den Lösungsweg schließen lassen. Die Aufgabenstellung soll nur das zu lösende Problem beschreiben.\n"
             "- **Lösungsbezug:** Die Lösung muss sich direkt auf die Aufgabenstellung beziehen und die erwarteten Schritte nachvollziehbar aufzeigen.\n\n"
 
-            "## Spezifische Anforderungen an die Aufgaben:\n"
-            "- **Alphabet:** Geben Sie das verwendete Alphabet explizit an, wenn es für die Aufgabe relevant ist (z.B. {0, 1, ⋄}).\n"
-            "- **Bewegungsrichtung und Endzustand:** Beschreiben Sie klar, wie sich die Turingmaschine über das Band bewegt (z.B. von links nach rechts) und wo sie nach Abschluss stehen bleibt. Diese Informationen sollten in den Zusatzinformationen der Aufgabenstellung enthalten sein.\n"
-            "- **Konzepte und Prinzipien:** Falls die Aufgabe auf spezifischen Konzepten, Prinzipien oder methodischen Ansätzen basiert, die möglicherweise nicht allen Studierenden direkt geläufig sind, fassen Sie diese kurz und prägnant in den Zusatzinformationen der Aufgabenstellung zusammen.\n"
+            "## Spezifische Anforderungen an die Aufgabenstellung ('question'):\n"
+            "**Trennung von Aufgabenstellung ('question') und Zusatzinformationen (optional_question_additional_infos):**\n"
+            "  - Die 'question' beschreibt **nur das zu lösende Problem**.\n"
+            "  - **KEINE Technischen Details, Beispiele oder Zusatzinfos** (z.B. Alphabet, Startposition des Kopfes, Bandbegrenzung) in 'question' angeben!.**\n\n"
+            
+            "## Spezifische Anforderungen an die Zusatzinformationen (optional_question_additional_infos):\n"
+            "- **Alphabet:** Geben Sie das verwendete Alphabet explizit an, wenn es für die Aufgabe relevant ist (z.B. {0, 1, ⋄}). Verwenden Sie das Symbol `⋄` ausschließlich als Klartext, nicht im LaTeX-Format (z. B. \cdot).\n"
+            "- **Bandinhalt:** Geben Sie an, dass die Eingabe links und rechts durch ein Leerzeichen `⋄` begrenzt ist (bsp.: ■1000■).\n"
+            "- **Startposition und Endzustand:** Geben Sie klar an, auf welcher Position der Lese-/Schreibkopf der Turingmaschine startet und wo er nach Abschluss stehen bleibt **(Immer Seite angeben: LINKS oder RECHTS)**.\n"
+            "- **Konzepte und Prinzipien:** Falls die Aufgabe auf spezifischen Konzepten, Prinzipien oder methodischen Ansätzen basiert, die möglicherweise nicht allen Studierenden direkt geläufig sind, erläutern Sie diese kurz.\n\n"
+            
+            "## Spezifische Anforderungen an die Lösung:\n"
             "- **Zustandsübergangstabellen:** Zustandsübergangstabellen müssen alle möglichen Zustände und Übergänge abdecken, **EINSCHLIEßLICH Anfangs- und Endzuständen **. **Unvollständige Tabellen oder fehlende Zustände sind nicht akzeptabel.**\n"
             "- **Beispielablauftabelle:** Jede Aufgabe **MUSS** eine **Beispielablauftabelle** enthalten, die den Ablauf der Turingmaschine Schritt für Schritt anhand des Beispiels komplett zeigt.\n\n"
 
@@ -96,7 +105,7 @@ class PromptBuilder:
             "   ⦁ **Bandbewegungen** (z. B. falsche Kopfbewegung).\n\n"
 
             "## Hinweise für die Gestaltung:\n"
-            "- Fügen Sie Hinweise oder zusätzliche Informationen hinzu, um den Studierenden bei der Fehlersuche zu helfen, falls erforderlich.\n"
+            "- Fügen Sie Hinweise oder zusätzliche Informationen hinzu, falls erforderlich.\n"
             "- Verwenden Sie Tabellen, um die fehlerhafte Zustandstabelle klar und präzise zu visualisieren. Achten Sie darauf, dass alle Spalten und Zeilen korrekt formatiert und vollständig sind.\n"
             "- Fehler dürfen nicht trivial oder zu leicht zu erkennen sein, um eine angemessene Herausforderung zu gewährleisten.\n\n"
 
@@ -172,7 +181,7 @@ class PromptBuilder:
 
             "8. **Beispielablauftabelle ergänzen:**\n"
             "Erstellen Sie eine Beispielablauftabelle, die jeden Schritt der Turingmaschine dokumentiert (Bandzustand, Kopfposition, aktueller Zustand).\n"
-            "Die Kopfposition MUSS neben der nummerischen Darstellung in der Kopfpostition Spalte, zusätzlich in jedem Bandinhalt Schritt eindeutig markiert werden. Markieren Sie die aktuelle Kopfposition durch `[ ]` auf dem Bandinhalt (bsp für Kopfpostion: [1]000■ ).\n"
+            "Die Kopfposition MUSS neben der nummerischen Darstellung in der Kopfpostition Spalte, zusätzlich in jedem Bandinhalt Schritt eindeutig markiert werden. Markieren Sie die aktuelle Kopfposition durch `[ ]` auf dem Bandinhalt (bsp für Kopfpostion: ■[1]000■ ).\n"
             "Diese Tabelle MUSS exakt die Übergänge und Ergebnisse der Maschine darstellen und konsistent mit der Zustandsübergangstabelle sowie der Aufgabenstellung und dem Beispiel sein.\n"
             "Simulieren Sie die Schritte und korrigieren Sie Diskrepanzen, bis alle Anforderungen erfüllt und alle Zwischenschritte vollständig sind.\n\n"
 
@@ -216,7 +225,7 @@ class PromptBuilder:
         question_content_details = (
             "### Details zu `question_content`:\n"
             "- **question (str)**: Die Hauptfrage. Dieses Feld ist immer erforderlich.\n"
-            "- **optional_question_additional_infos (List[str], optional)**: Zusätzliche Informationen, die das Verständnis erleichtern.\n"
+            "- **optional_question_additional_infos (List[str], optional)**: Zusätzliche Informationen.\n"
             "- **optional_question_tables (List[TableContent], optional)**: Tabellen zur Darstellung komplexer Daten. **Diese sollten nur eingesetzt werden, wenn die Darstellung komplexer Daten in der Fragestellng sinnvoll ist.**\n"
             + PromptBuilder.get_table_structure_details()
         )
