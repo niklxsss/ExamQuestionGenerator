@@ -64,15 +64,19 @@ class PromptBuilder:
             "- **Lösungsbezug:** Die Lösung muss sich direkt auf die Aufgabenstellung beziehen und die erwarteten Schritte nachvollziehbar aufzeigen.\n\n"
 
             "## Spezifische Anforderungen an die Aufgabenstellung ('question'):\n"
-            "**Trennung von Aufgabenstellung ('question') und Zusatzinformationen (optional_question_additional_infos):**\n"
-            "  - Die 'question' beschreibt **nur das zu lösende Problem**.\n"
-            "  - **KEINE Technischen Details, Beispiele oder Zusatzinfos** (z.B. Alphabet, Startposition des Kopfes, Bandbegrenzung) in 'question' angeben!.**\n\n"
+            "- **Strikte Trennung:** Die 'question' darf **ausschließlich** das zu lösende Problem beschreiben und muss vollständig frei von technischen Details, Hinweisen oder Beispielen sein.\n"
+            "- **Verbot für technische Details in der Frage:** Die Frage ('question') darf keine Hinweise zu Leerzeichen, Begrenzungen, Start- oder Endpositionen oder anderen technischen Spezifikationen enthalten. Diese Informationen gehören ausschließlich in die Zusatzinformationen ('optional_question_additional_infos')."
             
             "## Spezifische Anforderungen an die Zusatzinformationen (optional_question_additional_infos):\n"
-            "- **Alphabet:** Geben Sie das verwendete Alphabet explizit an, wenn es für die Aufgabe relevant ist (z.B. {0, 1, ⋄}). Verwenden Sie das Symbol `⋄` ausschließlich als Klartext, nicht im LaTeX-Format (z. B. \cdot).\n"
-            "- **Bandinhalt:** Geben Sie an, dass die Eingabe links und rechts durch ein Leerzeichen `⋄` begrenzt ist (bsp.: ■1000■).\n"
-            "- **Startposition und Endzustand:** Geben Sie klar an, auf welcher Position der Lese-/Schreibkopf der Turingmaschine startet und wo er nach Abschluss stehen bleibt **(Immer Seite angeben: LINKS oder RECHTS)**.\n"
-            "- **Konzepte und Prinzipien:** Falls die Aufgabe auf spezifischen Konzepten, Prinzipien oder methodischen Ansätzen basiert, die möglicherweise nicht allen Studierenden direkt geläufig sind, erläutern Sie diese kurz.\n\n"
+            "- **Alphabet:** Geben Sie das verwendete Alphabet explizit an. Verwenden Sie für das Leerzeichen ausschließlich das Symbol `■` als Klartext, nicht im LaTeX-Format (z. B. \cdot).\n"
+            "- **Bandinhalt:** Geben Sie an, dass die Eingabe links und rechts durch ein Leerzeichen `■` begrenzt ist.\n"
+            "- **Startposition und Endzustand:** Geben Sie eindeutig an, an welcher Position der Lese-/Schreibkopf der Turingmaschine startet und wo er nach Abschluss stehen bleibt. Geben Sie dabei immer die Seite der Eingabe (LINKS oder RECHTS) an.\n"
+            "- **Konzepte und Prinzipien:** Falls die Aufgabe auf spezifischen Konzepten, Prinzipien oder methodischen Ansätzen basiert, die möglicherweise nicht allen Studierenden direkt geläufig sind, erläutern Sie diese kurz.\n"
+            "Diese Details sind nur in den Zusatzinformationen erlaubt.\n\n"
+            
+            "## Anforderungen an das Beispiel:\n"
+            "- **Korrekte Darstellung:** Die Eingabe und der daraus resultierende Output müssen **inklusive der Leerzeichen-Symbole `■` am Anfang und Ende** dargestellt werden, um die Konsistenz mit der Bandrepräsentation zu gewährleisten. Bsp: `■11010■`\n"
+            "- **Eindeutigkeit:** Stellen Sie sicher, dass das Beispiel den Ablauf und das Ergebnis der Aufgabe korrekt widerspiegelt. Vermeiden Sie widersprüchliche Darstellungen, die von der Aufgabenbeschreibung oder Lösung abweichen.\n\n"
             
             "## Spezifische Anforderungen an die Lösung:\n"
             "- **Zustandsübergangstabellen:** Zustandsübergangstabellen müssen alle möglichen Zustände und Übergänge abdecken, **EINSCHLIEßLICH Anfangs- und Endzuständen **. **Unvollständige Tabellen oder fehlende Zustände sind nicht akzeptabel.**\n"
@@ -160,6 +164,12 @@ class PromptBuilder:
             "3. **Kohärenz und Umsetzbarkeit sicherstellen:**\n"
             "   Vergewissern Sie sich, dass die Aufgaben auf der gewählten Schwierigkeitsstufe realistisch, kohärent und umsetzbar sind. "
             "Die Komplexität sollte so gehalten werden, dass die Aufgabe korrekt gelöst werden kann.\n\n"
+            
+            "4. **Aufgabenstellung und Zusatzinformationen erstellen:**\n"
+            "- **Formulieren Sie die Frage ('question'), die nur das Problem beschreibt.**\n"
+            "- **Überprüfen Sie, ob die Frage keine technischen Details enthält.**\n"
+            "- **Fügen Sie die technischen Details ausschließlich in die Zusatzinformationen ('optional_question_additional_infos') ein.**\n"
+            "- **Finalisieren Sie die Frage, indem Sie sicherstellen, dass keine Redundanzen oder Widersprüche zwischen Frage und Zusatzinformationen bestehen.**\n\n"
 
             "4. **Beispiele hinzufügen:**\n"
             "   Generieren Sie ein Beispiel, welches zur Verdeutlichung der Aufgabenstellung dient. "
@@ -170,7 +180,7 @@ class PromptBuilder:
             "Erklären Sie alle Schritte nachvollziehbar, falls es der Aufgabentyp erfordert und achten Sie darauf, dass die Lösung alle Anforderungen abdeckt.\n\n"
 
             "6. **Zustandsübergangstabelle erstellen:**\n"
-            "   **Erstellen Sie eine vollständige und korrekte Zustandsübergangstabelle, die alle Zustände, Übergänge, Bedingungen und alle Zwischenschritte für die Funktion der Turingmaschine abbildet, einschließlich Übergänge für das Bandende (⋄).**\n"
+            "   **Erstellen Sie eine vollständige und korrekte Zustandsübergangstabelle, die alle Zustände, Übergänge, Bedingungen und alle Zwischenschritte für die Funktion der Turingmaschine abbildet, einschließlich Übergänge und Behandlung für das Bandende (■).**\n"
             "Die Tabelle muss logisch konsistent sein und exakt mit der Aufgabenstellung und dem Beispiel übereinstimmen.\n"
             "Korrigieren Sie unvollständige, fehlerhafte oder inkonsistente Übergänge. Tabellen mit Lücken oder Inkonsistenzen sind nicht akzeptabel und müssen vollständig überarbeitet werden.\n\n"
 
@@ -180,8 +190,9 @@ class PromptBuilder:
             "Die Tabelle muss konsistent mit der Aufgabenstellung und dem Beispiel sein.\n\n"
 
             "8. **Beispielablauftabelle ergänzen:**\n"
-            "Erstellen Sie eine Beispielablauftabelle, die jeden Schritt der Turingmaschine dokumentiert (Bandzustand, Kopfposition, aktueller Zustand).\n"
-            "Die Kopfposition MUSS neben der nummerischen Darstellung in der Kopfpostition Spalte, zusätzlich in jedem Bandinhalt Schritt eindeutig markiert werden. Markieren Sie die aktuelle Kopfposition durch `[ ]` auf dem Bandinhalt (bsp für Kopfpostion: ■[1]000■ ).\n"
+            "Erstellen Sie eine Beispielablauftabelle, die jeden Schritt der Turingmaschine dokumentiert (in der Reihenfolge: Schritt, aktueller Zustand, Bandzustand, Kopfposition).\n"
+            "In der Spalte Kopfposition ist ausschließlich der numerische Wert der aktuellen Position des Lesekopfes anzugeben. DIE KOPFPOSITION BEGINNT IMMER MIT DER NUMMERIERUNG **1** UND FOLGT SEQUENTIELL JEDEM SCHRITT DER TURINGMASCHINE.! Dies ist unabhängig davon, ob die Position initial auf einem Leerzeichen, einem Eingabezeichen oder einem Bandende-Symbol liegt.\n"
+            "In der Spalte Bandinhalt muss der gesamte Bandinhalt einschließlich der Leerzeichen vor und nach der Eingabe angegeben werden. Zusätzlich ist die aktive Kopfposition im Bandinhalt durch [ ] zu kennzeichnen (Beispiel: ■[1]000■).\n"
             "Diese Tabelle MUSS exakt die Übergänge und Ergebnisse der Maschine darstellen und konsistent mit der Zustandsübergangstabelle sowie der Aufgabenstellung und dem Beispiel sein.\n"
             "Simulieren Sie die Schritte und korrigieren Sie Diskrepanzen, bis alle Anforderungen erfüllt und alle Zwischenschritte vollständig sind.\n\n"
 
@@ -195,7 +206,7 @@ class PromptBuilder:
 
             "11. **Abschließende Prüfung:**\n"
             "   Validieren Sie jede Aufgabe umfassend, indem Sie folgende Schritte iterativ durchführen:\n"
-            "   - **Übergangsvalidierung:** Stellen Sie sicher, dass die Zustandsübergangstabelle vollständig und korrekt ist. Alle Zustände und Übergänge müssen vorhanden sein, einschließlich Bandende- und Sonderzeichen-Übergängen (⋄).\n"
+            "   - **Übergangsvalidierung:** Stellen Sie sicher, dass die Zustandsübergangstabelle vollständig und korrekt ist. Alle Zustände und Übergänge müssen vorhanden sein, einschließlich Bandende- und Sonderzeichen-Übergängen (■).\n"
             "   - **Simulation:** Simulieren Sie jeden Schritt der Aufgabe. Die Simulation muss zeigen, dass die Turingmaschine alle Übergänge korrekt umsetzt und das erwartete Ergebnis liefert.\n"
             "   - **Grenzfalltests:** Testen Sie die Aufgabe mit leeren Eingaben, ungültigen Zeichen oder ungewöhnlichen Kombinationen. Validieren Sie, dass die Maschine korrekt darauf reagiert.\n"
             "   - **Ergebnisabgleich:** Überprüfen Sie, ob das Ergebnis der Simulation exakt den Anforderungen der Aufgabenstellung entspricht.\n"
@@ -240,7 +251,7 @@ class PromptBuilder:
             "### Details zu `solution_content`:\n"
             "- **solution (str)**: Die Hauptlösung. Dieses Feld ist immer erforderlich.\n"
             "- **optional_solution_additional_infos (List[str], optional)**: Zusätzliche Hinweise, die das Verständnis der Lösung verbessern.\n"
-            "- **optional_solution_step_by_step (List[str], optional)**: Schritt-für-Schritt-Anleitung der Lösung. Verwenden Sie keine Nummerierung! Die Nummerierung erfolgt automatisch.\n"
+            "- **optional_solution_step_by_step (List[str], optional)**: Schritt-für-Schritt-Anleitung der Lösung. VERWENDEN SIE KEINE NUMMERIERUNG!!! **Die Nummerierung erfolgt automatisch!!!**\n"
             "- **solution_state_transition_table (TableContent)**: Die Zustandsübergangstabelle, die alle möglichen Zustände und Übergänge der Lösung vollständig beschreibt. Dieses Feld ist verpflichtend.\n"
             "- **solution_example_flow_table (TableContent)**: Die Beispielablauftabelle, die den Ablauf der Turingmaschine für das Beispiel dokumentiert. Dieses Feld ist verpflichtend.\n"
             "- **optional_additional_solution_tables (List[TableContent], optional)**: Weitere optionale Tabellen zur Unterstützung der Lösung (nur falls erforderlich).\n"
