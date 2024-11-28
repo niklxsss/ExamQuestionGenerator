@@ -5,7 +5,6 @@ class ValidationPromptBuilder:
         return [
             ValidationPromptBuilder.get_base_description(),
             ValidationPromptBuilder.get_correction_steps(),
-            # format??
         ]
 
     @staticmethod
@@ -18,83 +17,86 @@ class ValidationPromptBuilder:
     def get_base_description():
         return (
             "# Ziel der Validierung:\n\n"
-            
-            "Ihre Aufgabe ist es, die Prüfungsaufgabe zu Turingmaschinen zu korrigieren und zu verbessern. "
-            "Die Aufgabe muss vollständig korrekt, logisch konsistent und für Prüfungszwecke geeignet sein.\n\n"
-            
-            "**Hauptziele:**\n"
-            "- Identifizieren Sie alle Fehler in der Aufgabenstellung, Beispiel, Lösung, Zustandsübergangstabelle und Beispielablauftabelle.\n"
-            "- Beheben Sie alle Fehler und stellen Sie sicher, dass die korrigierte Aufgabe den höchsten Anforderungen entspricht.\n"
-            "- Keine fehlerhafte oder unvollständige Aufgabe darf zurückgegeben werden.\n\n"
 
-            "**Verhindern Sie:** \n"
+            "Ihre Aufgabe ist es, die Prüfungsaufgabe zu Turingmaschinen vollständig zu korrigieren und zu verbessern. "
+            "Die Aufgabe muss vollständig korrekt, logisch konsistent und für Prüfungszwecke geeignet sein.\n\n"
+
+            "**Hauptziele:**\n"
+            "- Identifizieren Sie alle Fehler in der Aufgabenstellung, den Zusatzinformationen, dem Beispiel, der Zustandsübergangstabelle und der Beispielablauftabelle.\n"
+            "- Beheben Sie alle Fehler, stellen Sie sicher, dass die korrigierte Aufgabe höchsten Ansprüchen genügt.\n"
+            "- Garantieren Sie, dass die Zustandsübergangstabelle und die Beispielablauftabelle 100% korrekt zum Beispiel und der Aufgabenstellung passen, einschließlich der korrekten Behandlung von Leerzeichen und Grenzfällen.\n"
+            "- Überprüfen Sie, dass keine redundanten oder doppelt vorkommenden Informationen enthalten sind.\n\n"
+
+            "**Verhindern Sie:**\n"
             "- Jegliche Rückgabe der ursprünglichen, unkorrigierten Aufgabe.\n"
             "- Fehlerhafte oder unvollständige Anpassungen, die neue Fehler einführen könnten.\n"
-            "- Dass aufgrund von Mapping- oder Verarbeitungsfehlern die ursprüngliche, unkorrigierte Aufgabe zurückgesendet wird.\n\n"
+            "- Falsche oder nicht überprüfte Tabellen oder Beispiele.\n"
+            "- Eine Rückgabe, in der Aufzählungen (Listen, wie in den Zusatzinformationen oder im Lösungsweg) nummeriert oder mit Aufzählungszeichen versehen sind.\n\n"
         )
 
     @staticmethod
     def get_correction_steps():
         return (
             "# Schritte zur Korrektur:\n\n"
-            
-            "## Aufgabenstellung und Beispiel validieren und korrigieren:\n"
-            "- **Überprüfen Sie die Aufgabenstellung auf Klarheit und Vollständigkeit:**\n"
-            "  ⦁ Die Frage muss eindeutig, präzise und ohne Interpretationsspielraum formuliert sein.\n"
-            "  ⦁ Alle relevanten Informationen (z. B. Eingabe, gewünschtes Verhalten, Endzustände) müssen enthalten sein.\n"
-            "  ⦁ Überprüfen Sie, ob die Anforderungen der Aufgabe logisch und mit einer Turingmaschine umsetzbar sind.\n\n"
 
-            "- **Fehlerbehebung in der Aufgabenstellung:**\n"
-            "  ⦁ Passen Sie Formulierungen an, die mehrdeutig oder unklar sind.\n"
-            "  ⦁ Ergänzen Sie fehlende Details, die für die Lösung der Aufgabe notwendig sind.\n\n"
+            "## Aufgabenstellung und Zusatzinformationen validieren und korrigieren:\n"
+            "- **Aufgabenstellung überprüfen und korrigieren:**\n"
+            "  ⦁ Stellen Sie sicher, dass die Aufgabenstellung das Problem eindeutig, präzise und vollständig beschreibt.\n"
+            "  ⦁ Entfernen Sie technische Details, die in die Zusatzinformationen gehören (z. B. Alphabet, Kopfpositionen, Leerzeichen).\n"
+            "  ⦁ Ergänzen Sie fehlende Details, wenn diese für die Lösung notwendig sind.\n"
+            "  ⦁ Überprüfen Sie, ob die Aufgabenstellung logisch und umsetzbar ist, und korrigieren Sie ungenaue Formulierungen.\n\n"
 
-            "- **Beispiel validieren und korrigieren:**\n"
-            "  ⦁ Überprüfen Sie, ob das Beispiel das erwartete Verhalten der Turingmaschine korrekt abbildet.\n"
-            "  ⦁ Vergewissern Sie sich, dass Eingabe und erwartetes Ergebnis logisch und korrekt sind.\n"
-            "  ⦁ Ergänzen Sie Beispiele oder korrigieren Sie diese, falls sie fehlerhaft oder unvollständig sind.\n\n"
+            "- **Zusatzinformationen validieren und korrigieren:**\n"
+            "  ⦁ Stellen Sie sicher, dass alle technischen Details in die Zusatzinformationen ausgelagert wurden (z. B. Alphabet, Bandbegrenzung, Start- und Endposition).\n"
+            "  ⦁ Entfernen Sie doppelt vorkommende oder redundante Informationen.\n"
+            "  ⦁ Korrigieren Sie die Formatierung der Zusatzinformationen: Listen dürfen keine Nummerierung, Aufzählungszeichen oder Striche enthalten.\n\n"
 
-            "## Zustandsübergangstabellen validieren und korrigieren:\n"
-            "- **Überprüfen Sie jede Zustandsübergangstabelle auf Vollständigkeit, Konsistenz und Korrektheit:**\n"
-            "  ⦁ Alle Zustände müssen dokumentiert sein, einschließlich Start-, Zwischen- und Endzustände.\n"
-            "  ⦁ Jede Übergangsregel muss klar definiert sein: aktueller Zustand, gelesenes Zeichen, neues Zeichen, Bewegung und neuer Zustand.\n"
-            "  ⦁ **Keine Lücken:** Vergewissern Sie sich, dass alle möglichen Eingaben (einschließlich Sonderzeichen wie ⋄) für jeden relevanten Zustand abgedeckt sind.\n"
-            "  ⦁ Jeder Zustand muss logisch erreichbar sein, und keine redundanten Zustände oder Übergänge dürfen vorhanden sein.\n\n"
+            "## Beispiel validieren und korrigieren:\n"
+            "- **Beispiel anpassen:**\n"
+            "  ⦁ Stellen Sie sicher, dass das Beispiel zu 100% mit der Aufgabenstellung übereinstimmt.\n"
+            "  ⦁ Ergänzen Sie das Beispiel, falls es unvollständig ist, oder korrigieren Sie Fehler in Eingabe und erwarteter Ausgabe.\n"
+            "  ⦁ Überprüfen Sie, ob das Beispiel das Verhalten der Turingmaschine korrekt widerspiegelt, einschließlich der Behandlung von Leerzeichen und Bandgrenzen.\n\n"
 
-            "- **Fehlerbehebung:**\n"
-            "  ⦁ Ergänzen Sie fehlende Zustände, Übergänge oder Sonderfälle.\n"
-            "  ⦁ Korrigieren Sie fehlerhafte Einträge vollständig, um sicherzustellen, dass die Tabelle konsistent und fehlerfrei ist.\n\n"
+            "## Konsistenzprüfung zwischen Aufgabe und Lösung:\n"
+            "- **Überprüfung der Lösung:**\n"
+            "  ⦁ Vergewissern Sie sich, dass die Lösung exakt die Zielsetzung der Aufgabenstellung umsetzt.\n"
+            "  ⦁ Diskrepanzen zwischen Aufgabenstellung und Lösung sind vollständig zu korrigieren.\n"
+            "  ⦁ Prüfen Sie, ob alle Zusatzinformationen in die Lösung integriert wurden.\n\n"
 
-            "- **Wenn keine Zustandsübergangstabelle vorhanden ist:**\n"
-            "  ⦁ Erstellen Sie eine neue, die den Anforderungen entspricht und die gesamte Aufgabe abdeckt.\n"
-            "  ⦁ Verwenden Sie eine strukturierte Darstellung mit klaren Spalten für Zustand, Übergang und Bewegung.\n\n"
+            "## Tabellen:\n"
+            "- **Einfachheit sicherstellen:**\n"
+            "  ⦁ Stellen Sie sicher, dass die Zustandsübergangstabelle und die Beispielablauftabelle die Aufgabe auf dem einfachsten möglichen Weg umsetzen.\n"
+            "  ⦁ Entfernen Sie unnötige Zustände, Übergänge oder Komplexitäten, die nicht für die korrekte Umsetzung der Aufgabe erforderlich sind.\n"
 
-            "## Beispielabläufe validieren und ergänzen:\n"
-            "- **Korrektheit sicherstellen:**\n"
-            "  ⦁ Überprüfen Sie, ob die Beispielausgabe mit dem Endzustand und Bandinhalt der Beispielablauftabelle übereinstimmt.\n"
-            "  ⦁ Verifizieren Sie, dass jeder Schritt (Bandzustand, Kopfposition, aktueller Zustand) präzise dokumentiert ist.\n"
-            "  ⦁ **Konsistenz:** Alle Schritte müssen mit der Zustandsübergangstabelle und der Aufgabenstellung übereinstimmen.\n\n"
+            "### Zustandsübergangstabellen validieren und korrigieren:\n"
+            "- **Tabelle prüfen und korrigieren:**\n"
+            "  ⦁ Stellen Sie sicher, dass alle Zustände vollständig dokumentiert sind: Start-, Zwischen- und Endzustände.\n"
+            "  ⦁ Überprüfen Sie, ob alle Übergänge korrekt spezifiziert sind (aktueller Zustand, gelesenes Zeichen, neues Zeichen, Bewegung, neuer Zustand).\n"
+            "  ⦁ Ergänzen Sie fehlende Zustände, Übergänge oder Sonderfälle (z. B. Behandlung von Leerzeichen oder Bandgrenzen).\n"
+            "  ⦁ Überprüfen Sie, falls die Aufgabe iterative Prozesse enthält, diese korrekt umgesetzt sind und korrigieren Sie diese bei Bedarf.\n\n"
 
-            "- **Fehlende Schritte ergänzen:**\n"
-            "  ⦁ Wenn Zwischenschritte fehlen oder unklar sind, erweitern Sie die Tabelle vollständig, um den gesamten Ablauf abzubilden.\n"
-            "  ⦁ Jeder Schritt muss den Übergang im Kontext der Zustandsübergangstabelle nachvollziehbar machen.\n"
-            "  ⦁ Markieren Sie klar die Position des Kopfes bei jedem Schritt.\n\n"
+            "- **Tabelleninhalt verbessern:**\n"
+            "  ⦁ Stellen Sie sicher, dass keine Lücken oder widersprüchlichen Einträge in der Tabelle vorhanden sind.\n"
+            "  ⦁ Validieren Sie die Tabelle anhand der Aufgabenstellung und des Beispiels, um sicherzustellen, dass sie exakt passt.\n\n"
 
-            "## Konsistenz zwischen Tabellen und Aufgabe sicherstellen:\n"
-            "- **Überprüfung der Zusammenhänge:**\n"
-            "  ⦁ Vergewissern Sie sich, dass die Zustandsübergangstabelle, Beispielablauftabelle und Aufgabenstellung logisch zusammenpassen.\n"
-            "  ⦁ Diskrepanzen zwischen den Tabellen und der Aufgabenstellung müssen vollständig korrigiert werden.\n\n"
+            "### Beispielablauftabellen validieren und korrigieren:\n"
+            "- **Überprüfung und Ergänzung:**\n"
+            "  ⦁ Vergewissern Sie sich, dass die Tabelle jeden Schritt der Turingmaschine dokumentiert (Schritt, aktueller Zustand, Bandzustand, Kopfposition).\n"
+            "  ⦁ Korrigieren Sie die Kopfposition, falls sie inkorrekt angegeben ist. DIE KOPFPOSITION BEGINNT IMMER MIT 1!\n"
+            "  ⦁ Ergänzen Sie fehlende Zwischenschritte.\n"
+            "  ⦁ In der Spalte Bandinhalt muss der gesamte Bandinhalt einschließlich der Leerzeichen vor und nach der Eingabe angegeben werden. Zusätzlich ist die aktive Kopfposition im Bandinhalt durch [ ] zu kennzeichnen (Beispiel: ■[1]000■).\n"
+            "  ⦁ Stellen Sie sicher, dass die Bandenden korrekt behandelt werden und keine Leerzeichen verloren gehen oder fälschlicherweise entfernt werden.\n\n"
 
-            "## Tabellen auf Vollständigkeit und Logik prüfen:\n"
-            "- **Detaillierte Überprüfung:**\n"
-            "  ⦁ Sicherstellen, dass keine Übergänge oder Zustände fehlen.\n"
-            "  ⦁ Überprüfen Sie, ob alle Schritte und Zustände logisch aufeinander aufbauen und keine widersprüchlichen Übergänge enthalten sind.\n\n"
+            "- **Korrektheit und Konsistenz sicherstellen:**\n"
+            "  ⦁ Überprüfen Sie, ob die Beispielablauftabelle vollständig mit der Zustandsübergangstabelle und dem Beispiel übereinstimmt.\n"
+            "  ⦁ Simulieren Sie den Ablauf der Turingmaschine Schritt für Schritt und beheben Sie alle Abweichungen.\n"
+            "  ⦁ Verifizieren Sie, dass die Bandinhalt-Darstellung in jedem Schritt logisch konsistent ist, einschließlich der Markierung der Kopfposition und der Behandlung von Bandgrenzen.\n\n"
 
-            "- **Iterative Fehlerkorrektur:**\n"
-            "  ⦁ Falls Fehler oder Unstimmigkeiten auftreten, überarbeiten Sie die Tabellen iterativ.\n"
-            "  ⦁ Testen Sie die korrigierten Tabellen mit der Aufgabenstellung und den Beispielen, um sicherzustellen, dass keine weiteren Probleme bestehen.\n\n"
-
-            "- **Grenzfälle berücksichtigen:**\n"
-            "  ⦁ Stellen Sie sicher, dass die Maschine in allen Fällen korrekt reagiert und keine undefinierten Zustände auftreten.\n"
+            "## Gesamtkohärenz sicherstellen:\n"
+            "- **Aufgabe und Tabellen abstimmen:**\n"
+            "  ⦁ Verifizieren Sie, dass die Aufgabenstellung, die Lösung und das Beispiel inhaltlich übereinstimmen.\n"
+            "  ⦁ Korrigieren Sie alle Unstimmigkeiten zwischen der Zielsetzung der Aufgabenstellung und der tatsächlichen Lösung.\n"
+            "  ⦁ Stellen Sie sicher, dass die Zustandsübergangstabelle und die Beispielablauftabelle die Zielsetzung der Aufgabe präzise umsetzen.\n\n"
         )
 
     @staticmethod
@@ -103,13 +105,22 @@ class ValidationPromptBuilder:
             "# Abschlussprüfung:\n\n"
 
             "**Vor der Rückgabe:**\n"
-            "- **Überprüfen Sie die gesamte Aufgabe, einschließlich aller Tabellen und Beispiele, auf vollständige Korrektheit und Konsistenz.**\n"
-            "- Stellen Sie sicher, dass jede Tabelle vollständig ist, alle Zwischenschritte und Übergänge korrekt dokumentiert und keine Lücken oder Inkonsistenzen aufweist.\n"
-            "- **Überprüfen und korrigieren Sie die Aufgabe so, dass alle Tabellen mit der Aufgabenstellung und dem Beispiel logisch konsistent sind.**\n"
-            "- **Ersetzen Sie die ursprüngliche Aufgabe vollständig durch die korrigierte und verbesserte Version.**\n"
-            "- GEBEN SIE AUSSCHLIEßLICH DIE ÜBERARBEITETE AUFGABE ZURÜCK. DIE RÜCKGABE EINER UNVERÄNDERTE FALSCHEN AUFGABE IST NICHT ZULÄSSIG!\n\n"
+            "- Stellen Sie sicher, dass die korrigierte Aufgabe vollständig korrekt und logisch konsistent ist.\n"
+            "- Überprüfen Sie, ob die Zustandsübergangstabelle und die Beispielablauftabelle 100% korrekt zur Aufgabenstellung und dem Beispiel passen.\n"
+            "- Überprüfen Sie, dass alle Listen (z. B. Zusatzinformationen, Lösungsschritte) keine Nummerierung, Striche oder Aufzählungszeichen enthalten, da diese automatisch formatiert werden.\n"
+            "- Simulieren Sie die Turingmaschine, um sicherzustellen, dass die korrigierte Tabelle und der Ablauf alle Anforderungen erfüllen, einschließlich der Leerzeichenbehandlung und Grenzfälle.\n"
+            "- GEBEN SIE AUSSCHLIESSLICH DIE KORRIGIERTE UND VERBESSERTE AUFGABE ZURÜCK. EINE UNKORRIGIERTE ODER FEHLERHAFTE RÜCKGABE IST NICHT ZULÄSSIG!\n\n"
 
             "**Wichtige Hinweise:**\n"
-            "-**Die Aufgabe MUSS ZWINGEND vollständig fehlerfrei, in sich schlüssig, klar formuliert und logisch konsistent sein.**\n"
-            "-**Eine Rückgabe, die nicht den Vorgaben entspricht, ist inakzeptabel!!!**\n\n"
+            "- Jede Tabelle muss vollständig, fehlerfrei und konsistent sein.\n"
+            "- Die korrigierte Aufgabe muss höchsten Ansprüchen genügen und bereit für den Einsatz in Prüfungen sein.\n"
+            "- Fehler oder Abweichungen in der Rückgabe führen dazu, dass die Aufgabe als unbrauchbar gilt.\n\n"
+        )
+
+    @staticmethod
+    def create_refinement_validation_prompt():
+        return (
+            "Korrigieren Sie die Zustandsübergangstabelle und darauf basierend die Beispielablauftabelle "
+            "(inkl. aller Spalten u Zeilen) so, dass beide vollständig, logisch konsistent und exakt auf die "
+            "Anforderungen der Aufgabenstellung abgestimmt sind! Achte besonders auf den Erwarteten Output im Beispiel um die Aufgabe zu korrigeren!"
         )

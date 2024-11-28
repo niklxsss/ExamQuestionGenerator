@@ -7,6 +7,8 @@ from OutputSaver import OutputSaver
 from PromptBuilder import PromptBuilder
 from Questions import ExamQuestion, ExamQuestions
 from ValidationPromptBuilder import ValidationPromptBuilder
+import json
+
 
 
 def main():
@@ -69,20 +71,33 @@ def main():
         validated_question = OpenAIClient.send_request(message_validation, VALIDATION_TEMPERATURE, ExamQuestion)
         print(f"[INFO] Validation for question {index} completed successfully.")
 
+
+        for refinement_round in range(2):
+            print(f"[INFO] Starting refinement validation round {refinement_round + 1} for question {index}...")
+
+            prompt_parts_refinement_validation = ValidationPromptBuilder.create_refinement_validation_prompt()
+            message_refinement_validation = MessageBuilder.build_refinement_validation_message(
+                prompt_parts_refinement_validation, validated_question)
+
+            validated_question = OpenAIClient.send_request(
+                message_refinement_validation, VALIDATION_TEMPERATURE, ExamQuestion)
+
+            print(f"[INFO] Refinement validation round {refinement_round + 1} completed for question {index}.")
+
         results.append(validated_question)
         print(f"[INFO] {index} of {total_questions} questions validated.")
 
         # "--------------json compare-----------------"
 
-        if exam_question == validated_question:
-            print("No changes detected. Validation process may not be effective.")
-        else:
-            print("Differences found. Validation made adjustments.")
+        # if json.dumps(exam_question) == json.dumps(validated_question):
+        #     print("No changes detected. Validation process may not be effective.")
+        # else:
+        #     print("Differences found. Validation made adjustments.")
 
         print("--output nicht korrigiert-----------------------------------------------------------")
-        print(exam_question)
+        print(json.dumps(exam_question))
         print("--output nach validation prompt--------------------------------------------------------------------")
-        print(validated_question)
+        print(json.dumps(validated_question))
 
     print("[INFO] All questions validated successfully.")
 

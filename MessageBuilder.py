@@ -46,3 +46,15 @@ class MessageBuilder:
             message[0]["content"].append(MessageBuilder.add_txt_to_message(part))
 
         return message
+
+    @staticmethod
+    def build_refinement_validation_message(prompt_parts, result):
+        message = [{"role": "user", "content": []}]
+
+        for part in prompt_parts:
+            message[0]["content"].append(MessageBuilder.add_txt_to_message(part))
+
+        message[0]["content"].append(MessageBuilder.add_txt_to_message(VALIDATION_MESSAGE_RESULT_PREFIX +
+                                                                       json.dumps(result, indent=2)))
+
+        return message
