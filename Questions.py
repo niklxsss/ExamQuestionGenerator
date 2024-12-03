@@ -31,3 +31,20 @@ class ExamQuestion(BaseModel):
 
 class ExamQuestions(BaseModel):
     questions: List[ExamQuestion]
+
+
+class ExamQuestionWithExample(BaseModel):
+    question_content: QuestionContent
+    example: str
+
+
+class ExamQuestionWithExamples(BaseModel):
+    questions: List[ExamQuestionWithExample]
+
+
+class SolutionStateTransitionTable(BaseModel):
+    solution_state_transition_table: TableContent
+
+
+class SolutionExampleFlowTable(BaseModel):
+    solution_example_flow_table: TableContent

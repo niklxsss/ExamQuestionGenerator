@@ -1,14 +1,10 @@
-from Const import TEMPERATURE, VALIDATION_TEMPERATURE
+from Const import TASK_GENERATION_TEMPERATURE, ADDITIONAL_TASK_GENERATION_TEMPERATURE
 from FileProcessor import FileProcessor
 from InputArgumentParser import InputArgumentParser
 from MessageBuilder import MessageBuilder
 from OpenAIClient import OpenAIClient
 from OutputSaver import OutputSaver
-from PromptBuilder import PromptBuilder
-from Questions import ExamQuestion, ExamQuestions
-from ValidationPromptBuilder import ValidationPromptBuilder
-import json
-
+from Questions import ExamQuestion, ExamQuestionWithExamples, TableContent
 
 
 def main():
@@ -30,81 +26,64 @@ def main():
     if any([files_txt, files_images, files_pdf]):
         print("[INFO] Processing attached files...")
     else:
-        print("[INFO] No additional files provided.")
+        print("[INFO] No additional files provided. Proceeding without external inputs.")
 
     info_texts, encoded_base64_data, pdf_texts = FileProcessor.process_files(files_txt, files_images, files_pdf)
-    print("[INFO] Files processed successfully.")
+    print(
+        f"[INFO] Processed {len(info_texts)} text files, {len(encoded_base64_data)} image files, and {len(pdf_texts)} PDF files.")
 
-    print("[INFO] Creating prompt for question generation...")
-    # prompt_parts = PromptBuilder.create_prompt(num_questions, difficulty, incorrect_task, info_texts,
-    #                                            encoded_base64_data, pdf_texts)
+    # Build initial task message
+    print("[INFO] Creating task generation message...")
+    message_task = MessageBuilder.create_task_message(
+        num_questions, difficulty, info_texts, encoded_base64_data, pdf_texts)
+    print("[INFO] Task generation message created successfully.")
 
-    prefix_prompt_parts_validation = PromptBuilder.create_prefix_prompt(num_questions, difficulty, incorrect_task,
-                                                                        info_texts, encoded_base64_data, pdf_texts)
-    suffix_prompt_parts_validation = PromptBuilder.create_suffix_prompt(num_questions, difficulty)
-    print("[INFO] Prompt created successfully.")
+    # Generate initial tasks
+    print("[INFO] Sending request to OpenAI API for task generation...")
+    generated_tasks = OpenAIClient.send_request(message_task, TASK_GENERATION_TEMPERATURE, ExamQuestionWithExamples)
+    print(f"[INFO] Received {len(generated_tasks['questions'])} generated task(s).")
 
-    print("[INFO] Building message for OpenAI API request...")
-    message = MessageBuilder.build_message(prefix_prompt_parts_validation, info_texts, encoded_base64_data, pdf_texts,
-                                           suffix_prompt_parts_validation)
-    print("[INFO] Message built successfully.")
+    complete_tasks = []
+    total_tasks = len(generated_tasks["questions"])
+    for index, question_content in enumerate(generated_tasks["questions"], start=1):
+        print(f"[INFO] Validating question {index} of {total_tasks}...")
 
-    print("[INFO] Sending question generation request to OpenAI API...")
-    result = OpenAIClient.send_request(message, TEMPERATURE, ExamQuestions)
-    print("[INFO] Question generation completed successfully.")
+        # Print the initial question content for debugging
+        print(f"[DEBUG] Question content: {question_content}")
 
-    results = []
-    total_questions = len(result["questions"])
+        # Generate state transition table
+        print(f"[INFO] Creating state transition table for question {index}...")
+        state_transition_table_message = MessageBuilder.create_state_transition_table_message(
+            str(question_content))
+        state_transition_table_content = OpenAIClient.send_request(
+            state_transition_table_message, ADDITIONAL_TASK_GENERATION_TEMPERATURE, TableContent)
+        print(f"[INFO] State transition table created successfully for question {index}.")
 
-    for index, exam_question in enumerate(result["questions"], start=1):
-        print(f"[INFO] Preparing validation for question {index} of {total_questions}...")
+        # Generate example flow table
+        print(f"[INFO] Creating example flow table for question {index}...")
+        example_flow_table_message = MessageBuilder.create_example_flow_table_message(
+            str(question_content) + str(state_transition_table_content))
+        example_flow_table_content = OpenAIClient.send_request(
+            example_flow_table_message, ADDITIONAL_TASK_GENERATION_TEMPERATURE, TableContent)
+        print(f"[INFO] Example flow table created successfully for question {index}.")
 
-        prefix_prompt_parts_validation = ValidationPromptBuilder.create_prefix_validation_prompt()
-        suffix_prompt_parts_validation = ValidationPromptBuilder.create_suffix_validation_prompt()
-        print(f"[INFO] Validation prompt created successfully for question {index}.")
+        # Generate complete solution
+        print(f"[INFO] Generating complete solution for question {index}...")
+        solution_message = MessageBuilder.create_solution_message(
+            str(question_content) + str(state_transition_table_content) + str(example_flow_table_content))
+        complete_task = OpenAIClient.send_request(
+            solution_message, ADDITIONAL_TASK_GENERATION_TEMPERATURE, ExamQuestion)
+        print(f"[INFO] Complete solution generated successfully for question {index}.")
 
-        message_validation = MessageBuilder.build_validation_message(
-            prefix_prompt_parts_validation, exam_question, suffix_prompt_parts_validation)
-        print(f"[INFO] Validation message built successfully for question {index}.")
+        complete_tasks.append(complete_task)
+        print(f"[INFO] Question {index} of {total_tasks} processed and validated.")
 
-        print(f"[INFO] Sending validation request for question {index} to OpenAI API...")
-        validated_question = OpenAIClient.send_request(message_validation, VALIDATION_TEMPERATURE, ExamQuestion)
-        print(f"[INFO] Validation for question {index} completed successfully.")
+    print("[INFO] All questions processed and validated successfully.")
 
-
-        for refinement_round in range(2):
-            print(f"[INFO] Starting refinement validation round {refinement_round + 1} for question {index}...")
-
-            prompt_parts_refinement_validation = ValidationPromptBuilder.create_refinement_validation_prompt()
-            message_refinement_validation = MessageBuilder.build_refinement_validation_message(
-                prompt_parts_refinement_validation, validated_question)
-
-            validated_question = OpenAIClient.send_request(
-                message_refinement_validation, VALIDATION_TEMPERATURE, ExamQuestion)
-
-            print(f"[INFO] Refinement validation round {refinement_round + 1} completed for question {index}.")
-
-        results.append(validated_question)
-        print(f"[INFO] {index} of {total_questions} questions validated.")
-
-        # "--------------json compare-----------------"
-
-        # if json.dumps(exam_question) == json.dumps(validated_question):
-        #     print("No changes detected. Validation process may not be effective.")
-        # else:
-        #     print("Differences found. Validation made adjustments.")
-
-        print("--output nicht korrigiert-----------------------------------------------------------")
-        print(json.dumps(exam_question))
-        print("--output nach validation prompt--------------------------------------------------------------------")
-        print(json.dumps(validated_question))
-
-    print("[INFO] All questions validated successfully.")
-
-    result_final = {"questions": results}
-
+    result_final = {"questions": complete_tasks}
     print("[INFO] Saving final output to file...")
     OutputSaver.save_output_to_file(result_final, output_format, separate)
+    # OutputSaver.save_output_to_file(result, output_format, separate)
     print("[INFO] Output saved successfully.")
 
     print("[INFO] Process completed successfully.")
@@ -113,11 +92,11 @@ def main():
     #     print("No changes detected. Validation process may not be effective.")
     # else:
     #     print("Differences found. Validation made adjustments.")
-    #
-    # print("--output, nach erstem durchlauf-----------------------------------------------------------")
+
+    print("--output, nach erstem durchlauf-----------------------------------------------------------")
     # print(result)
-    # print("--output nach validation prompt--------------------------------------------------------------------")
-    # print(result_final)
+    print("--output nach validation prompt--------------------------------------------------------------------")
+    print(result_final)
 
 
 if __name__ == "__main__":

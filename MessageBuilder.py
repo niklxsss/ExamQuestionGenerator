@@ -1,60 +1,157 @@
-from Const import VALIDATION_MESSAGE_RESULT_PREFIX
-import json
+from PromptBuilder import PromptBuilder
 
 
 class MessageBuilder:
 
     @staticmethod
-    def add_txt_to_message(text):
+    def add_txt_to_content(text):
+        """
+        Erstellt ein Textobjekt mit dem Typ 'text'.
+        """
         return {"type": "text", "text": text}
 
     @staticmethod
-    def add_base64_file_to_message(encoded_base64_data):
+    def add_base64_file_to_content(encoded_base64_data):
+        """
+        Erstellt ein Bildobjekt mit dem Typ 'image_url'.
+        """
         return {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{encoded_base64_data}"}}
 
     @staticmethod
-    def build_message(prefix_prompt_parts, info_texts, encoded_base64_data, pdf_texts, suffix_prompt_parts):
-        message = [{"role": "user", "content": []}]
-
-        for part in prefix_prompt_parts:
-            message[0]["content"].append(MessageBuilder.add_txt_to_message(part))
-
-        for info_text in info_texts:
-            message[0]["content"].append(MessageBuilder.add_txt_to_message(info_text))
-
-        for encoded_base64_datum in encoded_base64_data:
-            message[0]["content"].append(MessageBuilder.add_base64_file_to_message(encoded_base64_datum))
-
-        for pdf_text in pdf_texts:
-            message[0]["content"].append(MessageBuilder.add_txt_to_message(pdf_text))
-
-        for part in suffix_prompt_parts:
-            message[0]["content"].append(MessageBuilder.add_txt_to_message(part))
-
-        return message
+    def add_message(role, content_parts):
+        """
+        Erstellt eine Nachricht mit der spezifischen Rolle und den gegebenen Inhalten.
+        """
+        return {"role": role, "content": content_parts}
 
     @staticmethod
-    def build_validation_message(prefix_prompt_parts, result, suffix_prompt_parts):
-        message = [{"role": "user", "content": []}]
+    def create_task_message(num_questions, difficulty, info_texts, encoded_base64_data, pdf_texts):
+        messages = []
 
-        for part in prefix_prompt_parts:
-            message[0]["content"].append(MessageBuilder.add_txt_to_message(part))
+        system_prompt = MessageBuilder.add_message(
+            "system",
+            [MessageBuilder.add_txt_to_content(PromptBuilder.get_task_system_prompt())]
+        )
 
-        message[0]["content"].append(MessageBuilder.add_txt_to_message(VALIDATION_MESSAGE_RESULT_PREFIX +
-                                                                       json.dumps(result, indent=2)))
-        for part in suffix_prompt_parts:
-            message[0]["content"].append(MessageBuilder.add_txt_to_message(part))
+        base_prompt = MessageBuilder.add_message(
+            "user",
+            [
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_task_base_prompt(num_questions, difficulty)),
 
-        return message
+                *(
+                    item
+                    for info_text in info_texts
+                    for item in [
+                    MessageBuilder.add_txt_to_content(PromptBuilder.get_info_text_prompt()),
+                    MessageBuilder.add_txt_to_content(info_text),
+                ]
+                ),
+
+                *(
+                    item
+                    for encoded_base64_datum in encoded_base64_data
+                    for item in [
+                    MessageBuilder.add_txt_to_content(PromptBuilder.get_bas64_prompt()),
+                    MessageBuilder.add_base64_file_to_content(encoded_base64_datum)
+                ]
+                ),
+
+                *(
+                    item
+                    for pdf_text in pdf_texts
+                    for item in [
+                    MessageBuilder.add_txt_to_content(PromptBuilder.get_pdf_texts_prompt()),
+                    MessageBuilder.add_txt_to_content(pdf_text)
+                ]
+                ),
+
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_task_general_guidelines_prompt(difficulty)),
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_task_and_example_requirements_prompt() +
+                                                  PromptBuilder.get_task_request_prompt())
+            ])
+
+        quality_prompt = MessageBuilder.add_message(
+            "user",
+            [MessageBuilder.add_txt_to_content(PromptBuilder.get_task_quality_prompt())]
+        )
+
+        messages.append(system_prompt)
+        messages.append(base_prompt)
+        messages.append(quality_prompt)
+
+        return messages
 
     @staticmethod
-    def build_refinement_validation_message(prompt_parts, result):
-        message = [{"role": "user", "content": []}]
+    def create_state_transition_table_message(task_parts):
+        messages = []
 
-        for part in prompt_parts:
-            message[0]["content"].append(MessageBuilder.add_txt_to_message(part))
+        system_prompt = MessageBuilder.add_message(
+            "system",
+            [MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_system_prompt())]
+        )
 
-        message[0]["content"].append(MessageBuilder.add_txt_to_message(VALIDATION_MESSAGE_RESULT_PREFIX +
-                                                                       json.dumps(result, indent=2)))
+        base_prompt = MessageBuilder.add_message(
+            "user",
+            [MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_request_prompt(task_parts))]
+        )
 
-        return message
+        quality_prompt = MessageBuilder.add_message(
+            "user",
+            [MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_quality_prompt())]
+        )
+
+        messages.append(system_prompt)
+        messages.append(base_prompt)
+        messages.append(quality_prompt)
+
+        return messages
+
+    @staticmethod
+    def create_example_flow_table_message(task_parts):
+        messages = []
+
+        system_prompt = MessageBuilder.add_message(
+            "system",
+            [MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_system_prompt())]
+        )
+
+        base_prompt = MessageBuilder.add_message(
+            "user",
+            [MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_request_prompt(task_parts))]
+        )
+
+        quality_prompt = MessageBuilder.add_message(
+            "user",
+            [MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_quality_prompt())]
+        )
+
+        messages.append(system_prompt)
+        messages.append(base_prompt)
+        messages.append(quality_prompt)
+
+        return messages
+
+    @staticmethod
+    def create_solution_message(task_parts):
+        messages = []
+
+        system_prompt = MessageBuilder.add_message(
+            "system",
+            [MessageBuilder.add_txt_to_content(PromptBuilder.get_solution_system_prompt())]
+        )
+
+        base_prompt = MessageBuilder.add_message(
+            "user",
+            [MessageBuilder.add_txt_to_content(PromptBuilder.get_solution_request_prompt(task_parts))]
+        )
+
+        quality_prompt = MessageBuilder.add_message(
+            "user",
+            [MessageBuilder.add_txt_to_content(PromptBuilder.get_solution_quality_prompt())]
+        )
+
+        messages.append(system_prompt)
+        messages.append(base_prompt)
+        messages.append(quality_prompt)
+
+        return messages

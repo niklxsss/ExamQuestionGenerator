@@ -117,10 +117,222 @@ class ValidationPromptBuilder:
             "- Fehler oder Abweichungen in der Rückgabe führen dazu, dass die Aufgabe als unbrauchbar gilt.\n\n"
         )
 
+    # @staticmethod
+    # def create_refinement_validation_prompt():
+    #     return (
+    #         "Korrigieren Sie die Zustandsübergangstabelle und darauf basierend die Beispielablauftabelle "
+    #         "(inkl. aller Spalten u Zeilen) so, dass beide vollständig, logisch konsistent und exakt auf die "
+    #         "Anforderungen der Aufgabenstellung abgestimmt sind! Achte besonders auf den Erwarteten Output im Beispiel um die Aufgabe zu korrigeren!"
+    #     )
+
+    # @staticmethod
+    # def create_refinement_validation_prompt():
+    #     return (
+    #         "Überarbeiten Sie die gesamte Aufgabe so, dass sie vollständig konsistent und korrekt ist. "
+    #         "Passen Sie dazu die Lösung, den Lösungsweg (falls vorhanden), die Zustandsübergangstabelle und die Beispielablauftabelle "
+    #         "komplett an die Anforderungen der Aufgabenstellung an. "
+    #         "Gehen Sie dabei davon aus, dass die bisherige Lösung komplett falsch ist, und überprüfen Sie alle Elemente gründlich. "
+    #         "Stellen Sie sicher, dass die Zustandsübergangstabelle den korrekten Ablauf der Turingmaschine abbildet, "
+    #         "und dass die Beispielablauftabelle exakt mit der Zustandsübergangstabelle und den Vorgaben der Aufgabenstellung übereinstimmt. "
+    #         "Berücksichtigen Sie besonders den erwarteten Output im Beispiel, und denken Sie jede Komponente unabhängig von bisherigen Inhalten neu durch. "
+    #         "Ziel ist eine logisch konsistente, präzise und fehlerfreie Darstellung aller Elemente.\n\n"
+    #
+    #         "Zusatzinformation:\n"
+    #         "Achte bei der Beispielablauftabelle vorallem auf eine korrekte abfolge der Schritte, richtige darstellung der Bandinhalt und auf die korrekte Nummerierung der Kopfposition (Erste Ziffer ist Nummer 1)."
+    #         "Ändere nicht das Leerzeichensymbol ■ ab, außer es ist komplett falsch übergeben."
+    #
+    #
+    #     )
+    #
+    # @staticmethod
+    # def create_second_refinement_validation_prompt():
+    #     return (
+    #         "Überarbeiten die gesamte Aufgabe so, dass sie vollständig konsistent und korrekt ist. "
+    #         "Die komplette Lösung ist sehr wahrscheinlich falsch, optimiere diese, damit die Funktion der Aufgabenstellung u des Beispiels fehlerfrei umgesetzt werden"
+    #
+    #     )
+
+    # @staticmethod
+    # def create_task_validation_prompt():
+    #     return (
+    #         "Überarbeiten Sie die Aufgabenstellung, Zusatzinformationen und das Beispiel vollständig, sodass sie den höchsten Standards entsprechen.\n"
+    #         "Die Aufgabenstellung ('question') muss präzise, klar und frei von technischen Details sein, die ausschließlich in den Zusatzinformationen ('optional_question_additional_infos') enthalten sein dürfen.\n"
+    #         "Stellen Sie sicher, dass das Beispiel exakt die Anforderungen der Aufgabenstellung widerspiegelt und den korrekten erwarteten Output zeigt. Das Beispiel soll zudem nur unter 'example' angegeben werden und nicht in der Aufgabenstellung.\n"
+    #         "Alle Inhalte müssen logisch, vollständig und für die Lösung mit einer Standard-Turingmaschine geeignet sein.\n"
+    #         "Das Symbol für Leerzeichen ist ■! Ändere nicht das Leerzeichensymbol ■ ab, außer es entspricht nicht dem Symbol ■!\n"
+    #     )
+
     @staticmethod
-    def create_refinement_validation_prompt():
+    def create_task_validation_prompt():
         return (
-            "Korrigieren Sie die Zustandsübergangstabelle und darauf basierend die Beispielablauftabelle "
-            "(inkl. aller Spalten u Zeilen) so, dass beide vollständig, logisch konsistent und exakt auf die "
-            "Anforderungen der Aufgabenstellung abgestimmt sind! Achte besonders auf den Erwarteten Output im Beispiel um die Aufgabe zu korrigeren!"
+            "Überarbeiten Sie die Aufgabenstellung, die Zusatzinformationen und das Beispiel vollständig, sodass sie höchsten Standards entsprechen.\n"
+            "Die Aufgabenstellung ('question') muss präzise, klar und vollständig das zu lösende Problem beschreiben. "
+            "Technische Details (z. B. Alphabet, Kopfpositionen, Leerzeichen) dürfen NICHT in der Aufgabenstellung erscheinen und müssen ausschließlich in den Zusatzinformationen ('optional_question_additional_infos') enthalten sein.\n\n"
+
+            "Stellen Sie sicher, dass:\n"
+            "- Die Aufgabenstellung logisch, eindeutig und vollständig ist.\n"
+            "- Technische Details in die Zusatzinformationen ausgelagert und dort korrekt und vollständig angegeben werden (z. B. Alphabet: {0, 1, ■}, Bandbegrenzung, Startposition des Kopfes).\n"
+            "- Doppelte oder redundante Informationen entfernt werden.\n"
+            "- Die Zusatzinformationen sauber formatiert sind.\n\n"
+
+            "Überarbeiten Sie das Beispiel ('example') so, dass es zu 100% mit der Aufgabenstellung und den Zusatzinformationen übereinstimmt. "
+            "Stellen Sie sicher, dass das Beispiel das erwartete Verhalten der Turingmaschine exakt widerspiegelt, einschließlich der korrekten Darstellung der Leerzeichen vor und nach der Eingabe. "
+            "Das Beispiel darf nur unter 'example' angegeben werden und nicht in der Aufgabenstellung wiederholt werden.\n\n"
+
+            "Zusätzliche Hinweise:\n"
+            "- Das Symbol für Leerzeichen ist **■**. Ändern Sie dieses Symbol NICHT, außer es entspricht nicht dem Standard.\n"
+            "- Stellen Sie sicher, dass die gesamte Aufgabe logisch umsetzbar und vollständig auf die Lösung mit einer Standard-Turingmaschine abgestimmt ist.\n"
+            "- Entfernen Sie Unklarheiten oder ungenaue Formulierungen und ergänzen Sie notwendige Details, wenn diese fehlen.\n\n"
+
+            "Darstellung von Aufzählungen:\n"
+            "- Überprüfen Sie, dass alle Listen (z. B. Zusatzinformationen, Lösungsschritte) keine Nummerierung, Striche oder Aufzählungszeichen enthalten, da diese automatisch formatiert werden.\n"
         )
+
+    # @staticmethod
+    # def create_solution_validation_prompt():
+    #     return (
+    #         "Überarbeiten Sie die Lösung, einschließlich der Zustandsübergangstabelle und der Beispielablauftabelle, vollständig. "
+    #         "Die Zustandsübergangstabelle muss den Ablauf der Turingmaschine exakt und fehlerfrei abbilden, basierend auf der überarbeiteten Aufgabenstellung und dem Beispiel. "
+    #         "Die Beispielablauftabelle muss die Zustandsübergangstabelle Schritt für Schritt korrekt nachvollziehen und den erwarteten Output aus der Aufgabenstellung widerspiegeln. "
+    #         "Stellen Sie sicher, dass die Lösung vollständig, konsistent und frei von logischen oder technischen Fehlern ist. "
+    #         "Jede Tabelle muss vollständig dokumentiert sein, alle möglichen Übergänge abdecken und exakt mit den Anforderungen übereinstimmen."
+        # )
+
+    # @staticmethod
+    # def create_solution_validation_prompt():
+    #     return (
+    #         "Überarbeiten Sie die Lösung vollständig, einschließlich der Zustandsübergangstabelle und der Beispielablauftabelle, "
+    #         "sodass alle Inhalte präzise, konsistent und vollständig mit der Aufgabenstellung und dem Beispiel abgestimmt sind. "
+    #         "Gehen Sie immer davon aus, dass die bestehende Lösung komplett fehlerhaft ist, und erstellen Sie die Tabellen von Grund auf verbessert und neu durchdacht werden MUSS.\n\n"
+    #
+    #         "## Anforderungen an die Zustandsübergangstabelle:\n"
+    #         "- Stellen Sie sicher, dass die Zustandsübergangstabelle den Ablauf der Turingmaschine exakt und fehlerfrei abbildet.\n"
+    #         "- Dokumentieren Sie alle Zustände vollständig, einschließlich Start-, Zwischen- und Endzustände.\n"
+    #         "- Überprüfen und korrigieren Sie alle Übergänge:\n"
+    #         "  ⦁ Aktueller Zustand\n"
+    #         "  ⦁ Gelesenes Zeichen\n"
+    #         "  ⦁ Neues Zeichen\n"
+    #         "  ⦁ Bewegung (links, rechts, keine)\n"
+    #         "  ⦁ Neuer Zustand\n"
+    #         "- Ergänzen Sie fehlende Zustände, Übergänge oder Sonderfälle, einschließlich der korrekten Behandlung von Leerzeichen und Bandgrenzen.\n"
+    #         "- Stellen Sie sicher, dass iterative Prozesse oder Loops korrekt umgesetzt sind und logisch nachvollziehbar abgebildet werden.\n"
+    #         "- Vermeiden Sie unnötige Zustände oder Komplexitäten, die nicht zur Lösung der Aufgabe beitragen.\n\n"
+    #
+    #         "## Anforderungen an die Beispielablauftabelle:\n"
+    #         "- Dokumentieren Sie jeden Schritt der Turingmaschine vollständig und nachvollziehbar:\n"
+    #         "  ⦁ Schritt (nummeriert).\n"
+    #         "  ⦁ Aktueller Zustand.\n"
+    #         "  ⦁ Bandinhalt:\n"
+    #         "     ⦁ Der gesamte Bandinhalt, einschließlich der Leerzeichen vor und nach der Eingabe, muss angegeben werden.\n"
+    #         "     ⦁ Markieren Sie die aktuelle Kopfposition im Bandinhalt zusätzlich durch [ ], z. B. ■[1]000■.\n"
+    #         "  ⦁ Kopfposition:\n"
+    #         "     ⦁ Geben Sie nur die numerische Position des Lese-/Schreibkopfes an, beginnend mit 1 für die erste Position der Eingabe (nicht das Leerzeichen).\n"
+    #         "- Ergänzen Sie fehlende Zwischenschritte, insbesondere bei iterativen Prozessen oder Loops.\n"
+    #         "- Stellen Sie sicher, dass die Tabelle exakt den Ablauf der Zustandsübergangstabelle widerspiegelt und den erwarteten Output aus der Aufgabenstellung korrekt darstellt.\n"
+    #         "- Verifizieren Sie, dass die Bandenden korrekt behandelt werden und keine Leerzeichen verloren gehen oder fälschlicherweise entfernt werden.\n\n"
+    #
+    #         "## Konsistenz zwischen Aufgabenstellung, Zustandsübergangstabelle und Beispielablauftabelle:\n"
+    #         "- Überprüfen Sie, ob die Lösung exakt die Zielsetzung der Aufgabenstellung umsetzt.\n"
+    #         "- Diskrepanzen zwischen Aufgabenstellung, Zustandsübergangstabelle und Beispielablauftabelle müssen vollständig korrigiert werden.\n"
+    #         "- Validieren Sie den Ablauf der Turingmaschine durch Simulation Schritt für Schritt und korrigieren Sie alle Abweichungen.\n"
+    #         "- Stellen Sie sicher, dass die Bandinhalt-Darstellung in jedem Schritt logisch konsistent ist, einschließlich der Markierung der Kopfposition und der Behandlung von Bandgrenzen.\n\n"
+    #
+    #         "## Anpassung der Zusatzinformationen und des Lösungswegs:\n"
+    #         "- Überarbeiten Sie die Zusatzinformationen der Lösung so, dass sie exakt mit der korrigierten Lösung übereinstimmen und keine redundanten oder widersprüchlichen Angaben enthalten.\n"
+    #         "- Passen Sie den Lösungsweg an, um eine klare und vollständige Beschreibung der Korrekturen und der korrekten Funktionsweise der Turingmaschine zu gewährleisten.\n\n"
+    #
+    #         "Das Symbol für Leerzeichen ist **■**. Ändern Sie dieses Symbol NICHT, außer es entspricht nicht dem Standard!"
+    #     )
+
+    @staticmethod
+    def create_final_refinement_prompt():
+        return (
+            # "Überarbeiten Sie die Prüfungsaufgabe zur Turingmaschine so, dass sie vollständig, logisch konsistent und exakt auf die Aufgabenstellung und das Beispiel abgestimmt sind. "
+            # "Gehen Sie immer davon aus, dass die bestehende Lösung komplett fehlerhaft ist, und erstellen Sie die Tabellen von Grund auf verbessert und neu durchdacht werden MUSS.\n\n"
+            # "Stellen Sie sicher, dass die Tabellen den Ablauf der Turingmaschine korrekt abbilden und das erwartete Ergebnis liefern."
+            #
+            # "Das Symbol für Leerzeichen ist **■**. Ändern Sie dieses Symbol NICHT, außer es entspricht nicht dem Standard!"
+
+            # alle schritte angeben, auch behandlung von Anfang u End leerzeichen etc
+
+            "Überarbeiten Sie die gesamte Prüfungsaufgabe zur Turingmaschine, einschließlich Aufgabenstellung, Beispiel, Lösung, Zustandsübergangstabelle und Beispielablauftabelle, vollständig. "
+            "Alle Inhalte müssen logisch konsistent, vollständig und präzise aufeinander abgestimmt sein. Gehen Sie immer davon aus, dass die bestehende Lösung und alle Tabellen komplett fehlerhaft sind. "
+            "Erstellen Sie die Tabellen von Grund auf neu und verbessern Sie sie durchdacht.\n\n"
+        )
+
+    @staticmethod
+    def create_validation_prompt():
+        return [
+            ValidationPromptBuilder.create_task_example_validation_prompt(),
+            ValidationPromptBuilder.create_solution_table_validation_prompt(),
+            ValidationPromptBuilder.create_solution_validation_prompt(),
+            ValidationPromptBuilder.create_additional_info_validation_prompt()
+        ]
+
+    @staticmethod
+    def create_task_example_validation_prompt():
+        return (
+            "## Korrektur der Aufgabenstellung und des Beispiels:\n"
+            "**Aufgabe:** Überprüfen und verbessern Sie die Aufgabenstellung ('question') und das Beispiel ('example').\n\n"
+            
+            "### Anforderungen an die Aufgabenstellung ('question'):\n"
+            "- Stellen Sie sicher, dass die Aufgabenstellung das zu lösende Problem präzise, klar und vollständig beschreibt.\n"
+            "- Entfernen Sie technische Details oder Hinweise zur Lösung. Diese gehören ausschließlich in die Zusatzinformationen ('optional_question_additional_infos').\n"
+            "- Vermeiden Sie mehrdeutige Formulierungen und sicherstellen Sie, dass die Aufgabenstellung für Studierende leicht verständlich ist.\n\n"
+            
+            "### Anforderungen an das Beispiel ('example'):\n"
+            "- Stellen Sie sicher, dass das Beispiel die Aufgabenstellung klar veranschaulicht und mit ihr übereinstimmt.\n"
+            "- Überprüfen Sie, ob die Eingabe und der erwartete Output korrekt dargestellt sind, einschließlich der Leerzeichen-Symbole `■` (z. B. `■11010■`).\n"
+            "- Das Beispiel muss den Ablauf der Turingmaschine korrekt widerspiegeln und konsistent mit der Lösung sein.\n"
+        )
+
+    @staticmethod
+    def create_solution_table_validation_prompt():
+        return (
+            "## Korrektur der Lösungstabellen:\n"
+            "**Aufgabe:** Überprüfen und verbessern Sie die Zustandsübergangstabelle ('solution_state_transition_table') und die Beispielablauftabelle ('solution_example_flow_table').\n\n"
+            
+            "### Anforderungen an die Zustandsübergangstabelle ('solution_state_transition_table'):\n"
+            "- **Konsistenz:** Stellen Sie sicher, dass die Zustände und Übergänge exakt mit der Aufgabenstellung und dem Beispiel übereinstimmen.\n"
+            "- **Vollständigkeit:** Alle möglichen Zustände (einschließlich Start- und Endzustände) und Übergänge müssen vollständig abgedeckt sein, einschließlich Sonderzeichen wie Leerzeichen `■`.\n"
+            "- **Logik und Effizienz:** Wählen Sie die logischste und effizienteste Abfolge der Zustände und Übergänge, ohne notwendige Schritte oder Zustände auszulassen.\n\n"
+            
+            "### Anforderungen an die Beispielablauftabelle ('solution_example_flow_table'):\n"
+            "- **Konsistenz:** Die Tabelle muss den Ablauf der Turingmaschine genau widerspiegeln und mit der Zustandsübergangstabelle sowie der Aufgabenstellung übereinstimmen.\n"
+            "- **Kopfposition:** Die Kopfposition muss numerisch beginnend mit 1 angegeben werden.\n"
+            "- **Bandinhalt:** Zeigen Sie den gesamten Bandinhalt, einschließlich Leerzeichen an und markieren Sie zusätzlich ist die aktive Kopfposition im Bandinhalt durch [ ] (Beispiel: ■[1]000■)!\n\n"
+            "- Überprüfen Sie, ob alle Zwischenschritte korrekt dokumentiert sind und keine Lücken bestehen.\n"
+
+        )
+
+    @staticmethod
+    def create_solution_validation_prompt():
+        return (
+            "## Korrektur der restlichen Lösung:\n"
+            "**Primäre Aufgabe:** Überarbeiten Sie die Lösung ('solution') sowie optionale Felder ('optional_solution_additional_infos', 'optional_solution_step_by_step').\n\n"
+            
+            "### Anforderungen an die Lösung ('solution'):\n"
+            "- Geben Sie eine präzise und vollständige konzeptionelle Beschreibung des Lösungsansatzes an.\n"
+            "- Stellen Sie sicher, dass die Lösung vollständig mit der Aufgabenstellung, den Zusatzinformationen und den Tabellen übereinstimmt.\n\n"
+            
+            "### Anforderungen an die optionalen Felder:\n"
+            "- **Zusätzliche Informationen ('optional_solution_additional_infos')**:\n"
+            "  - Ergänzen Sie relevante Hintergrundinformationen, die das Verständnis der Lösung verbessern.\n"
+            "- **Lösungsweg ('optional_solution_step_by_step')**:\n"
+            "- Beschreiben Sie den Lösungsweg Schritt für Schritt in Textform, ohne Tabellen oder Aufzählungszeichen.\n"
+            "- Überprüfen Sie, ob alle Informationen logisch konsistent sind und keine unnötigen Details enthalten.\n"
+
+        )
+
+    @staticmethod
+    def create_additional_info_validation_prompt():
+        return (
+            "## Weiter Informationen:\n"
+            "- Überprüfen Sie, dass alle Listen (z. B. Zusatzinformationen, Lösungsschritte) keine Nummerierung, Striche oder Aufzählungszeichen enthalten, da diese automatisch formatiert werden.\n"
+            "- Das Symbol für Leerzeichen ist **■**. Ändern Sie dieses Symbol NICHT, außer es entspricht nicht dem Standard.\n"
+
+        )
+
+
+
+
