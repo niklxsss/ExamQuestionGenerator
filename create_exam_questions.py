@@ -1,10 +1,11 @@
-from Const import TASK_GENERATION_TEMPERATURE, ADDITIONAL_TASK_GENERATION_TEMPERATURE
+from Const import TASK_GENERATION_TEMPERATURE, ADDITIONAL_TASK_GENERATION_TEMPERATURE, VALIDATION_TEMPERATURE
 from FileProcessor import FileProcessor
 from InputArgumentParser import InputArgumentParser
 from MessageBuilder import MessageBuilder
 from OpenAIClient import OpenAIClient
 from OutputSaver import OutputSaver
-from Questions import ExamQuestion, ExamQuestionWithExamples, TableContent
+from Questions import ExamQuestion, ExamQuestionWithExamples, TableContent, SolutionStateTransitionTable, \
+    SolutionExampleFlowTable
 
 
 def main():
@@ -49,14 +50,14 @@ def main():
         print(f"[INFO] Validating question {index} of {total_tasks}...")
 
         # Print the initial question content for debugging
-        print(f"[DEBUG] Question content: {question_content}")
+        # print(f"[DEBUG] Question content: {question_content}")
 
         # Generate state transition table
         print(f"[INFO] Creating state transition table for question {index}...")
         state_transition_table_message = MessageBuilder.create_state_transition_table_message(
             str(question_content))
         state_transition_table_content = OpenAIClient.send_request(
-            state_transition_table_message, ADDITIONAL_TASK_GENERATION_TEMPERATURE, TableContent)
+            state_transition_table_message, ADDITIONAL_TASK_GENERATION_TEMPERATURE, SolutionStateTransitionTable)
         print(f"[INFO] State transition table created successfully for question {index}.")
 
         # Generate example flow table
@@ -64,7 +65,7 @@ def main():
         example_flow_table_message = MessageBuilder.create_example_flow_table_message(
             str(question_content) + str(state_transition_table_content))
         example_flow_table_content = OpenAIClient.send_request(
-            example_flow_table_message, ADDITIONAL_TASK_GENERATION_TEMPERATURE, TableContent)
+            example_flow_table_message, ADDITIONAL_TASK_GENERATION_TEMPERATURE, SolutionExampleFlowTable)
         print(f"[INFO] Example flow table created successfully for question {index}.")
 
         # Generate complete solution
@@ -74,6 +75,12 @@ def main():
         complete_task = OpenAIClient.send_request(
             solution_message, ADDITIONAL_TASK_GENERATION_TEMPERATURE, ExamQuestion)
         print(f"[INFO] Complete solution generated successfully for question {index}.")
+
+        # noch prints einfügen
+        # validation_message = MessageBuilder.create_validation_message(str(complete_task))
+        # complete_validated_task = OpenAIClient.send_request(
+        #     validation_message, VALIDATION_TEMPERATURE, ExamQuestion)
+        # complete_tasks.append(complete_validated_task)
 
         complete_tasks.append(complete_task)
         print(f"[INFO] Question {index} of {total_tasks} processed and validated.")
@@ -93,9 +100,9 @@ def main():
     # else:
     #     print("Differences found. Validation made adjustments.")
 
-    print("--output, nach erstem durchlauf-----------------------------------------------------------")
-    # print(result)
-    print("--output nach validation prompt--------------------------------------------------------------------")
+    # print("--output, nach erstem durchlauf-----------------------------------------------------------")
+    # # print(result)
+    # print("--output nach validation prompt--------------------------------------------------------------------")
     print(result_final)
 
 

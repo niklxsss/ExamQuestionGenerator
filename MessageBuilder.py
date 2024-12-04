@@ -1,4 +1,5 @@
 from PromptBuilder import PromptBuilder
+from ValidationPromptBuilder import ValidationPromptBuilder
 
 
 class MessageBuilder:
@@ -42,7 +43,7 @@ class MessageBuilder:
                     item
                     for info_text in info_texts
                     for item in [
-                    MessageBuilder.add_txt_to_content(PromptBuilder.get_info_text_prompt()),
+                    MessageBuilder.add_txt_to_content(PromptBuilder.get_txt_prompt()),
                     MessageBuilder.add_txt_to_content(info_text),
                 ]
                 ),
@@ -66,8 +67,11 @@ class MessageBuilder:
                 ),
 
                 MessageBuilder.add_txt_to_content(PromptBuilder.get_task_general_guidelines_prompt(difficulty)),
-                MessageBuilder.add_txt_to_content(PromptBuilder.get_task_and_example_requirements_prompt() +
-                                                  PromptBuilder.get_task_request_prompt())
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_task_requirements_prompt() +
+                                                  PromptBuilder.get_task_request_prompt(num_questions)),
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_task_quality_prompt())
+
+                # test versicht auf letzte user übergabe
             ])
 
         quality_prompt = MessageBuilder.add_message(
@@ -92,7 +96,11 @@ class MessageBuilder:
 
         base_prompt = MessageBuilder.add_message(
             "user",
-            [MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_request_prompt(task_parts))]
+            [
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_requirements_prompt()),
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_request_prompt(task_parts)),
+                # MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_quality_prompt())
+            ]
         )
 
         quality_prompt = MessageBuilder.add_message(
@@ -117,7 +125,11 @@ class MessageBuilder:
 
         base_prompt = MessageBuilder.add_message(
             "user",
-            [MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_request_prompt(task_parts))]
+            [
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_requirements_prompt()),
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_request_prompt(task_parts)),
+                # MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_quality_prompt())
+            ]
         )
 
         quality_prompt = MessageBuilder.add_message(
@@ -142,7 +154,11 @@ class MessageBuilder:
 
         base_prompt = MessageBuilder.add_message(
             "user",
-            [MessageBuilder.add_txt_to_content(PromptBuilder.get_solution_request_prompt(task_parts))]
+            [
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_solution_requirements_prompt()),
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_solution_request_prompt(task_parts)),
+                # MessageBuilder.add_txt_to_content(PromptBuilder.get_solution_quality_prompt())
+            ]
         )
 
         quality_prompt = MessageBuilder.add_message(
@@ -153,5 +169,26 @@ class MessageBuilder:
         messages.append(system_prompt)
         messages.append(base_prompt)
         messages.append(quality_prompt)
+
+        return messages
+
+    @staticmethod
+    def create_validation_message(task_parts):
+        messages = []
+
+        system_prompt = MessageBuilder.add_message(
+            "system",
+            [MessageBuilder.add_txt_to_content(ValidationPromptBuilder.get_validation_system_prompt())]
+        )
+
+        base_prompt = MessageBuilder.add_message(
+            "user",
+            [
+                MessageBuilder.add_txt_to_content(ValidationPromptBuilder.get_validation_request_prompt(task_parts))
+            ]
+        )
+
+        messages.append(system_prompt)
+        messages.append(base_prompt)
 
         return messages

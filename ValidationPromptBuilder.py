@@ -1,6 +1,54 @@
 class ValidationPromptBuilder:
 
     @staticmethod
+    def get_validation_system_prompt():
+        return (
+            "Du bist ein spezialisiertes KI-Modell, das Prüfungsaufgaben zu Turingmaschinen validiert. Dein Ziel ist es, "
+            "jede Aufgabe vollständig, korrekt und konsistent zu machen. Achte darauf, dass alle Bestandteile der Aufgabe "
+            "(Aufgabenstellung, Zusatzinformationen, Beispiel, Zustandsübergangstabelle und Beispielablauftabelle) logisch "
+            "miteinander übereinstimmen und fehlerfrei sind.\n\n"
+            "Während der Validierung ist es besonders wichtig sicherzustellen, dass:\n"
+            "- Die Aufgabe klar und präzise formuliert ist und keine inhaltlichen oder logischen Fehler enthält.\n"
+            "- Die Tabellen (Zustandsübergangstabelle und Beispielablauftabelle) exakt und konsistent mit der Aufgabenstellung und dem Beispiel sind.\n"
+            "- Das Beispiel korrekt und repräsentativ für die Aufgabe ist.\n"
+            "- Alle Fehler oder Unstimmigkeiten identifiziert und behoben werden."
+        )
+
+    @staticmethod
+    def get_validation_request_prompt(task):
+        return (
+            f"## Zu überprüfende Aufgabe:\n\n"
+            f"{task}\n\n\n\n"
+            
+            "## Validierung der gesamten Aufgabe:\n"
+            "- **Konsistenz:** Überprüfen Sie, ob alle Elemente der Aufgabe (Aufgabenstellung, Zusatzinformationen, Beispiel, Zustandsübergangstabelle, Beispielablauftabelle) logisch zusammenpassen und konsistent sind.\n"
+            "- **Vollständigkeit:** Stellen Sie sicher, dass keine Inhalte oder notwendige Informationen fehlen.\n\n"
+
+            "## Validierung des Beispiels ('example'):\n"
+            "- **Korrektheit:** Prüfen Sie, ob das Beispiel das Ziel der Aufgabe klar und korrekt veranschaulicht.\n"
+            "- **Konsistenz mit der Aufgabe:** Überprüfen Sie, ob das Beispiel exakt mit der Aufgabenstellung übereinstimmt.\n"
+            "- **Logische Abläufe:** Validieren Sie, ob die im Beispiel dargestellten Schritte logisch und fehlerfrei sind.\n\n"
+
+            "## Validierung der Zustandsübergangstabelle ('solution_state_transition_table'):\n"
+            "- **Korrekte Abbildung der Übergangsregeln:** Stellen Sie sicher, dass alle Zustände und Übergänge der Tabelle exakt mit der Aufgabenstellung und den Zusatzinformationen übereinstimmen.\n"
+            "- **Spaltenstruktur:** Prüfen Sie, ob die Spalten (Aktueller Zustand, Gelesenes Zeichen, Neues Zeichen, Bewegung, Neuer Zustand) korrekt ausgefüllt und vollständig sind.\n"
+            "- **Eindeutigkeit:** Validieren Sie, dass alle Zustandsübergänge präzise und eindeutig definiert sind.\n"
+            "- **Fehlerkorrektur:** Falls Fehler oder Unstimmigkeiten vorhanden sind, korrigieren Sie diese und dokumentieren Sie die Änderungen.\n\n"
+
+            "## Validierung der Beispielablauftabelle ('solution_example_flow_table'):\n"
+            "- **Übereinstimmung mit der Zustandsübergangstabelle:** Validieren Sie, dass jeder Schritt der Beispielablauftabelle den Übergangsregeln der Zustandsübergangstabelle entspricht.\n"
+            "- **Kopfposition:** Überprüfen Sie, ob die Kopfposition korrekt nummeriert ist (beginnend bei 1) und die Bewegungen des Lesekopfes lückenlos dokumentiert sind.\n"
+            "- **Bandinhalt:** Validieren Sie, ob der Bandinhalt nach jedem Schritt korrekt aktualisiert wurde und die aktive Kopfposition richtig markiert ist (z. B. `■11[0]1■`).\n"
+            "- **Fehlerkorrektur:** Prüfen Sie nach jedem Schritt, ob der Ablauf korrekt ist, und korrigieren Sie Unstimmigkeiten.\n\n"
+
+            "## Abschließende Überprüfung:\n"
+            "- **Endzustand:** Validieren Sie, ob die Aufgabe und die Tabellen korrekt den Endzustand der Turingmaschine erreichen.\n"
+            "- **Konsistenz der Ergebnisse:** Stellen Sie sicher, dass das Beispiel und die Tabellen gemeinsam das Ziel der Aufgabe erreichen und korrekt das erwartete Ergebnis produzieren.\n\n"
+
+            "Falls Unstimmigkeiten oder Fehler gefunden werden, nehmen Sie die notwendigen Korrekturen vor und validieren Sie die Aufgabe erneut."
+        )
+
+    @staticmethod
     def create_prefix_validation_prompt():
         return [
             ValidationPromptBuilder.get_base_description(),

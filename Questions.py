@@ -33,6 +33,8 @@ class ExamQuestions(BaseModel):
     questions: List[ExamQuestion]
 
 
+# Hilfsklassen:
+
 class ExamQuestionWithExample(BaseModel):
     question_content: QuestionContent
     example: str
