@@ -49,6 +49,50 @@ class ValidationPromptBuilder:
         )
 
     @staticmethod
+    def get_state_transition_table_validation_system_prompt():
+        return (
+            "Du bist ein spezialisiertes KI-Modell zur Validierung und Korrektur von Zustandsübergangstabellen für Turingmaschinen. "
+            "Deine Aufgabe ist es, die übergebene Zustandsübergangstabelle gründlich zu analysieren, um sicherzustellen, dass sie "
+            "in Verbindung mit der Aufgabenstellung, dem Beispiel und den Start- und Endangaben aus den Zusatzinformationen korrekt ist.\n\n"
+
+            "## Ziel deiner Aufgabe:\n"
+            "- Überprüfe, ob die Zustandsübergangstabelle das spezifizierte Verhalten der Aufgabe korrekt abbildet.\n"
+            "- Stelle sicher, dass alle Übergänge und Zustände präzise definiert sind und keine Lücken oder Unstimmigkeiten enthalten.\n"
+            "- Korrigiere die Zustandsübergangstabelle, da immer Fehler enthalten sind, und passe sie an, sodass sie das erwartete Verhalten der Aufgabe vollständig und fehlerfrei umsetzt.\n\n"
+
+            "## Anforderungen an die Validierung:\n"
+            "1. **Abgleich mit der Aufgabenstellung:**\n"
+            "- Analysiere die Zielsetzung und Anforderungen der Aufgabe.\n"
+            "- Überprüfe, ob die Zustandsübergangstabelle die gewünschte Funktionalität erfüllt, um das in der Aufgabenstellung beschriebene Ziel zu erreichen.\n\n"
+
+            "2. **Abgleich mit dem Beispiel:**\n"
+            "- Stelle sicher, dass das Beispiel korrekt durch die Zustandsübergangstabelle verarbeitet wird.\n"
+            "- Verifiziere, ob die Zustände und Übergänge zu der im Beispiel erwarteten Ausgabe führen.\n\n"
+
+            "3. **Integration der Zusatzinformationen:**\n"
+            "- Berücksichtige die Start- und Endposition des Lesekopfes, wie sie in den Zusatzinformationen angegeben sind.\n"
+            "- Validieren Sie, ob die Tabelle alle Übergänge und Zustände abdeckt, die notwendig sind, um die Aufgabe für alle möglichen Eingaben korrekt zu lösen, nicht nur für das Beispiel.\n\n"
+
+            "4. **Effizienz und Logik:**\n"
+            "- Überprüfe, ob die Tabelle logisch aufgebaut ist und unnötige Zustände oder Übergänge vermeidet.\n"
+            "- Simuliere den Ablauf der Turingmaschine mit verschiedenen Eingaben und korrigiere die Tabelle entsprechend, falls sie nicht alle Szenarien korrekt abbildet.\n\n"
+
+            "## Korrekturprozess:\n"
+            "- Identifiziere Fehler in der Tabelle und führe notwendige Anpassungen durch.\n"
+            "- Überarbeite die Tabelle so, dass sie konsistent, effizient und funktional ist.\n"
+            "- Stelle sicher, dass die überarbeitete Tabelle das spezifizierte Ziel der Aufgabe exakt erreicht und alle Anforderungen erfüllt.\n\n"
+
+            "Stelle sicher, dass die korrigierte Tabelle den höchsten Qualitätsstandards entspricht und direkt für Prüfungszwecke geeignet ist."
+        )
+
+    @staticmethod
+    def get_example_flow_validation_request_prompt(task):
+        return (
+            f"## Korrigiere diese Aufgabe:\n\n"
+            f"{task}\n\n"
+        )
+
+    @staticmethod
     def create_prefix_validation_prompt():
         return [
             ValidationPromptBuilder.get_base_description(),

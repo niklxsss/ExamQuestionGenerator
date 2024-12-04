@@ -1,4 +1,5 @@
-from Const import TASK_GENERATION_TEMPERATURE, ADDITIONAL_TASK_GENERATION_TEMPERATURE, VALIDATION_TEMPERATURE
+from Const import TASK_GENERATION_TEMPERATURE, VALIDATION_TEMPERATURE, EXAMPLE_FLOW_TEMPERATURE, \
+    STATE_TRANSITION_TEMPERATURE, SOLUTION_TEMPERATURE
 from FileProcessor import FileProcessor
 from InputArgumentParser import InputArgumentParser
 from MessageBuilder import MessageBuilder
@@ -36,7 +37,7 @@ def main():
     # Build initial task message
     print("[INFO] Creating task generation message...")
     message_task = MessageBuilder.create_task_message(
-        num_questions, difficulty, info_texts, encoded_base64_data, pdf_texts)
+        num_questions, difficulty, info_texts, encoded_base64_data, pdf_texts, incorrect_task)
     print("[INFO] Task generation message created successfully.")
 
     # Generate initial tasks
@@ -57,7 +58,13 @@ def main():
         state_transition_table_message = MessageBuilder.create_state_transition_table_message(
             str(question_content))
         state_transition_table_content = OpenAIClient.send_request(
-            state_transition_table_message, ADDITIONAL_TASK_GENERATION_TEMPERATURE, SolutionStateTransitionTable)
+            state_transition_table_message, STATE_TRANSITION_TEMPERATURE, SolutionStateTransitionTable)
+
+        # state_transition_table_validation_message = MessageBuilder.create_state_transition_validation_message(
+        #     str(question_content) + str(state_transition_table_content))
+        # state_transition_table_validation_content = OpenAIClient.send_request(
+        #     state_transition_table_validation_message, VALIDATION_TEMPERATURE, SolutionStateTransitionTable)
+
         print(f"[INFO] State transition table created successfully for question {index}.")
 
         # Generate example flow table
@@ -65,7 +72,7 @@ def main():
         example_flow_table_message = MessageBuilder.create_example_flow_table_message(
             str(question_content) + str(state_transition_table_content))
         example_flow_table_content = OpenAIClient.send_request(
-            example_flow_table_message, ADDITIONAL_TASK_GENERATION_TEMPERATURE, SolutionExampleFlowTable)
+            example_flow_table_message, EXAMPLE_FLOW_TEMPERATURE, SolutionExampleFlowTable)
         print(f"[INFO] Example flow table created successfully for question {index}.")
 
         # Generate complete solution
@@ -73,7 +80,7 @@ def main():
         solution_message = MessageBuilder.create_solution_message(
             str(question_content) + str(state_transition_table_content) + str(example_flow_table_content))
         complete_task = OpenAIClient.send_request(
-            solution_message, ADDITIONAL_TASK_GENERATION_TEMPERATURE, ExamQuestion)
+            solution_message, SOLUTION_TEMPERATURE, ExamQuestion)
         print(f"[INFO] Complete solution generated successfully for question {index}.")
 
         # noch prints einfügen
