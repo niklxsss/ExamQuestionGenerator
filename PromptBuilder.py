@@ -2,7 +2,6 @@ from Const import *
 
 
 class PromptBuilder:
-    # evtl quality seperat in prompt
 
     # task_message -----------------------------------------------------------------------------------------------------
 
@@ -14,22 +13,21 @@ class PromptBuilder:
                 PromptBuilder.get_task_general_guidelines_prompt(difficulty) +
                 PromptBuilder.get_task_requirements_prompt() +
                 PromptBuilder.get_task_request_prompt(num_questions)
-                # PromptBuilder.get_task_quality_prompt()
         )
 
     @staticmethod
     def get_task_system_prompt(infos_present):
         base_prompt = (
             "Du bist ein spezialisiertes KI-Modell, das Prüfungsaufgaben zu Turingmaschinen für Informatik-Studierende an Universitäten erstellt.\n"
-            "Dein Ziel ist es, Aufgaben zu generieren, die fehlerfrei, konsistent und von höchster Qualität sind.\n"
-            "Diese Aufgaben sind direkt für Prüfungszwecke vorgesehen und müssen den höchsten akademischen Standards entsprechen.\n"
+            "Dein Ziel ist es, qualitativ hochwertige und fehlerfreie Aufgaben zu erstellen, die den höchsten akademischen Standards entsprechen.\n"
+            "Die Aufgaben müssen die Studierenden herausfordern und ein breites Spektrum an Konzepten und Funktionen von Turingmaschinen abdecken.\n"
             "Du bist dafür verantwortlich, alle Anforderungen des Nutzers präzise umzusetzen, deine Arbeit gründlich zu überprüfen und sicherzustellen, dass alle gelieferten Inhalte korrekt und konsistent sind.\n\n"
         )
 
         additional_info_prompt = (
             "### Vorgehensweise:\n"
             "1. **Verarbeitung von Zusatzinformationen:**\n"
-            "- Du erhältst entweder Informationstexte, Base64-kodierte Bilddateien oder PDF-Daten, die relevante Informationen zu den Aufgaben enthalten.\n"
+            "- Du erhältst ein oder mehrere Informationstexte, Base64-kodierte Bilddateien oder PDF-Daten, die relevante Informationen zu den Aufgaben enthalten.\n"
             "- Analysiere diese Inhalte sorgfältig, um alle relevanten Details zu extrahieren, die für die Erstellung der Turingmaschinen-Aufgaben notwendig sind.\n"
             "- Stelle sicher, dass alle wichtigen Informationen aus diesen Quellen in den nächsten Schritten berücksichtigt werden.\n\n"
             
@@ -66,6 +64,11 @@ class PromptBuilder:
             f"### Schwierigkeitsgrad:\n"
             f"Die Aufgaben müssen dem Schwierigkeitsgrad '**{difficulty}**' entsprechen:\n"
             f"{difficulty_explanation}\n\n"
+
+            "### Vielfältigkeit der Aufgaben:\n"
+            "- Die generierten Aufgaben sollen unterschiedliche Aspekte und Funktionen von Turingmaschinen abdecken.\n"
+            "- Vermeiden Sie Wiederholungen oder ähnliche Aufgabenstellungen innerhalb eines Aufgaben-Sets.\n"
+            "- Achten Sie darauf, dass die Aufgaben abwechslungsreich sind und verschiedene Konzepte abdecken.\n\n"
         )
 
     @staticmethod
@@ -73,28 +76,31 @@ class PromptBuilder:
         return (
             "# Zusätzliche Informationen zum Auftrag:\n\n"
 
-            "Generieren Sie nur Aufgaben mit absichtlich fehlerhaften Turingmaschinen. Ziel dieser Aufgaben ist es, das "
-            "Fehlersuch- und Korrekturvermögen der Studierenden gezielt zu überprüfen.\n\n"
+            "Erstellen Sie Aufgaben mit absichtlich fehlerhaften Turingmaschinen. Ziel ist es, das Fehlersuch- und "
+            "Korrekturvermögen der Studierenden gezielt zu fördern, ohne dass die gesamte Tabelle fehlerhaft oder unverständlich wird.\n\n"
 
             "## Anforderungen an die Fehlerstruktur:\n"
-            "- Die Turingmaschine soll mindestens einen oder mehrere Fehler enthalten, der den gewünschten Output verhindert oder zu einem falschen Ergebnis führt.\n"
-            "- Die Fehler müssen so eingebaut sein, dass sie logisch nachvollziehbar sind, aber eine sorgfältige Analyse erfordern, um identifiziert und behoben zu werden.\n"
+            "- Die Turingmaschine soll exakt einen oder mehrere spezifische Fehler enthalten, die das gewünschte Ergebnis verhindern oder zu einem falschen Output führen.\n"
+            "- **Alle anderen Übergänge und Zustände müssen korrekt sein** und den Anforderungen der Aufgabenstellung entsprechen, damit die Tabelle eine funktionierende Basis hat.\n"
+            "- Fehler dürfen nicht zufällig eingefügt werden, sondern müssen gezielt platziert werden, sodass sie logisch nachvollziehbar sind und eine sorgfältige Analyse erfordern.\n"
             "- Fehler können auftreten in:\n"
-            "   ⦁ **Zustandsübergängen** (z. B. fehlerhafte Übergangsregeln),\n"
-            "   ⦁ **Lese- oder Schreibaktionen** (z. B. falsches Band-Symbol),\n"
-            "   ⦁ **Bandbewegungen** (z. B. falsche Kopfbewegung).\n\n"
+            "   ⦁ **Zustandsübergängen** (z. B. fehlerhafte Zielzustände oder Übergangsregeln),\n"
+            "   ⦁ **Lese- oder Schreibaktionen** (z. B. falsches oder fehlendes Schreib-Symbol),\n"
+            "   ⦁ **Bandbewegungen** (z. B. falsche oder fehlende Bewegungsrichtung des Kopfes).\n\n"
 
-            "## Hinweise für die Gestaltung:\n"
-            "- Fügen Sie Hinweise oder zusätzliche Informationen hinzu, falls erforderlich.\n"
-            "- Verwenden Sie Tabellen, um die fehlerhafte Zustandstabelle klar und präzise zu visualisieren. Achten Sie darauf, dass alle Spalten und Zeilen korrekt formatiert und vollständig sind.\n"
-            "- Fehler dürfen nicht trivial oder zu leicht zu erkennen sein, um eine angemessene Herausforderung zu gewährleisten.\n\n"
+            "## Anforderungen an die Tabelle:\n"
+            "- **Korrektheit der Basis:** Alle Zustände und Übergänge, die keinen beabsichtigten Fehler enthalten, müssen korrekt und mit der Aufgabenstellung konsistent sein.\n"
+            "- **Vollständigkeit:** Alle relevanten Informationen aus der Aufgabenstellung und den Zusatzinformationen müssen in der Tabelle korrekt berücksichtigt werden.\n"
+            "- **Fehlergestaltung:** Fehler müssen subtil genug sein, um eine angemessene Herausforderung zu bieten, aber dennoch logisch nachvollziehbar bleiben.\n"
+            "- **Formatierung:** Die Tabelle muss klar und präzise strukturiert sein. Alle Spalten und Zeilen (Aktueller Zustand, Gelesenes Zeichen, Neues Zeichen, Bewegung, Neuer Zustand) müssen vollständig und korrekt formatiert sein.\n\n"
 
-            "## Ergebnisformat:\n"
-            "Stellen Sie sicher, dass die Aufgaben und Lösungen im vorgeschriebenen Format generiert werden. Jede Aufgabe muss:\n"
-            "- **Klar formuliert** sein, um Missverständnisse zu vermeiden.\n"
-            "- **Eine vollständige Lösung** enthalten, die den Fehler aufzeigt und korrigiert (inkl.  Korrigierte Zustandsübergangstabelle und korrekter Beispielablauftabelle).\n\n"
+            "## Hinweise für die Erstellung:\n"
+            "- Führen Sie vor der Generierung der fehlerhaften Tabelle eine vollständige Simulation der Aufgabe durch, um sicherzustellen, dass die Basis korrekt ist.\n"
+            "- Platzieren Sie die Fehler gezielt, ohne die grundlegende Funktionsweise der Maschine (außer an den fehlerhaften Stellen) zu beeinträchtigen.\n"
+            "- Vermeiden Sie triviale Fehler, die sofort auffallen, sowie unnötig komplexe Fehler, die die Aufgabe übermäßig erschweren.\n"
+            "- Überprüfen Sie die Tabelle abschließend darauf, dass nur die vorgesehenen Fehler enthalten sind und die restlichen Zustände und Übergänge korrekt funktionieren.\n\n"
 
-            # "Beachten Sie, dass diese Aufgaben speziell darauf abzielen, die Analyse- und Problemlösungsfähigkeiten der Studierenden zu überprüfen.\n\n"
+            "Stellen Sie sicher, dass die Aufgabe sowohl eine Herausforderung darstellt als auch didaktisch sinnvoll ist, indem sie gezielt das Verständnis der Studierenden fördert.\n"
         )
 
     @staticmethod
@@ -139,8 +145,8 @@ class PromptBuilder:
             "## Spezifische Anforderungen an das Beispiel ('example'):\n"
             "- **Sinnvolles Beispiel:** Wählen Sie ein Beispiel, das die Anforderungen der Aufgabenstellung klar veranschaulicht.\n"
             "- **Eindeutigkeit:** Stellen Sie sicher, dass das Beispiel den Ablauf und das Ergebnis der Aufgabe korrekt widerspiegelt. Vermeiden Sie widersprüchliche Darstellungen, die von der Aufgabenbeschreibung oder Lösung abweichen.\n"
-            "- **Korrekte Darstellung:** Stellen Sie sicher, dass die Eingabe und der erwartete Output korrekt sind, einschließlich Leerzeichen-Symbole `■` am Anfang und Ende (z. B. `■11010■`).\n"
-            # "- **Korrekte Darstellung:** Stellen Sie sicher, dass die Eingabe und der erwartete Output korrekt sind, einschließlich Leerzeichen-Symbole `■` am Anfang und Ende.\n"
+            # "- **Korrekte Darstellung:** Stellen Sie sicher, dass die Eingabe und der erwartete Output korrekt sind, einschließlich Leerzeichen-Symbole `■` am Anfang und Ende (z. B. `■11010■`).\n"
+            "- **Korrekte Darstellung:** Stellen Sie sicher, dass die Eingabe und der erwartete Output korrekt sind, einschließlich Leerzeichen-Symbole `■` am Anfang und Ende.\n"
             "- **Formatierung des Beispiels:** Das Beispiel muss immer im folgenden Format angegeben werden: `Eingabe: <Wert> | Ausgabe: <Wert>`.\n\n"
         )
 
@@ -155,28 +161,36 @@ class PromptBuilder:
     def get_task_quality_prompt():
         return (
             "## Überprüfung und Verbesserung der Aufgaben:\n"
-            "Stellen Sie sicher, dass die gesamte Aufgabe korrekt, vollständig und konsistent ist. "
-            "Die Überprüfung sollte sich an den folgenden Punkten orientieren:\n\n"
+            "Stellen Sie sicher, dass die Aufgabe vollständig, fehlerfrei und konsistent ist. Achten Sie auf folgende Punkte:\n\n"
 
-            "### Aufgabenstellung und Beispiel:\n"
-            "- Erfüllt die Aufgabe alle Qualitätsstandards und ist sie für Prüfungszwecke geeignet?\n"
-            "- Sind alle Abschnitte der Aufgabe konsistent und ohne logische Widersprüche?\n"
-            "- Ist die Aufgabenstellung klar, präzise und frei von technischen Details oder Hinweisen, die in die Zusatzinformationen gehören?\n"
-            "- Passen die Zusatzinformationen zur Aufgabenstellung, und enthalten sie keine widersprüchlichen oder fehlenden Angaben?\n"
-            "- Stimmt das Beispiel mit der Aufgabenstellung überein und veranschaulicht es die Anforderungen korrekt?\n"
-            "- Ist die Start- und Endposition so definieren, dass die Startposition des Kopfes so gewählt ist, dass die Aufgabe am effizientesten und logischsten gelöst werden kann.\n\n"
-            
+            "### Aufgabenstellung und Zusatzinformationen:\n"
+            "- Ist die Aufgabenstellung klar, präzise und vollständig?\n"
+            "- Sind Zusatzinformationen konsistent mit der Aufgabenstellung und korrekt definiert?\n"
+            "- Wurde die Start- und Endposition logisch und effizient gewählt, sodass die Aufgabe optimal gelöst werden kann?\n\n"
+
+            "### Beispiel:\n"
+            "- Veranschaulicht das Beispiel die Anforderungen der Aufgabe korrekt?\n"
+            "- Stimmt das Beispiel mit der Aufgabenstellung und den Zusatzinformationen überein?\n\n"
+
             "### Verbesserungen:\n"
-            "- Überarbeiten Sie die Aufgabe, wenn Fehler, Unklarheiten oder Widersprüche festgestellt werden.\n"
-            "- Stellen Sie sicher, dass alle Änderungen die Qualität und Konsistenz der Aufgabe verbessern.\n\n"
+            "- Beheben Sie Fehler, Unklarheiten oder Widersprüche.\n"
+            "- Stellen Sie sicher, dass alle Anpassungen die Qualität und Eignung der Aufgabe für Prüfungszwecke verbessern.\n"
+        )
+
+    @staticmethod
+    def get_shared_info_text():
+        return (
+            "Falls die Inhalte direkt Aufgaben zu Turingmaschinen darstellen, dürfen diese nicht wörtlich übernommen werden. "
+            "Nutzen Sie die Inhalte lediglich als Inspiration, um eigene, einzigartige Aufgaben zu erstellen.\n\n"
         )
 
     @staticmethod
     def get_txt_prompt():
         return (
             "## Kontextbezogene Information:\n"
-            "Der folgende Abschnitt enthält wichtige Informationen, die bei der Erstellung der Aufgabe berücksichtigt werden sollen. "
-            "Nutzen Sie diese Inhalte, um die Aufgaben zu gestalten.\n\n"
+            "Der folgende Abschnitt enthält wichtige Informationen, die bei der Erstellung der Aufgabe berücksichtigt werden sollen."
+            "Nutzen Sie diese Inhalte, um die Aufgaben zu gestalten.\n"
+            + PromptBuilder.get_shared_info_text()
         )
 
     @staticmethod
@@ -184,7 +198,8 @@ class PromptBuilder:
         return (
             "## Bildbezogene Information:\n"
             "Das folgende Bild enthält kontextbezogene Informationen, die für die Erstellung der Aufgabe von Bedeutung sind. "
-            "Analysieren Sie das Bild sorgfältig und integrieren Sie die relevanten Details in die Aufgaben sofern es sinnvoll ist.\n\n"
+            "Analysieren Sie das Bild sorgfältig und integrieren Sie die relevanten Details in die Aufgaben sofern es sinnvoll ist.\n"
+            + PromptBuilder.get_shared_info_text()
         )
 
     @staticmethod
@@ -192,7 +207,8 @@ class PromptBuilder:
         return (
             "## Informationen aus einer PDF-Quelle:\n"
             "Der folgende Abschnitt enthält Informationen, die aus einem PDF-Dokument extrahiert wurden. "
-            "Nutzen Sie diese Inhalte, um die Aufgabe zu gestalten.\n\n"
+            "Nutzen Sie diese Inhalte, um die Aufgabe zu gestalten.\n"
+            + PromptBuilder.get_shared_info_text()
         )
 
     # state_transition_table_message ----------------------------------------------------------------------------------
