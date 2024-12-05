@@ -94,7 +94,7 @@ class MessageBuilder:
             ]
         )
 
-        base_prompt = MessageBuilder.add_message(
+        task_prompt = MessageBuilder.add_message(
             "user",
             [
                 MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_task_prompt(task_parts)),
@@ -126,7 +126,7 @@ class MessageBuilder:
         # )
 
         messages.append(system_prompt)
-        messages.append(base_prompt)
+        messages.append(task_prompt)
         messages.append(requirements_prompt)
         messages.append(request_prompt)
         # messages.append(all_messages)
@@ -146,9 +146,24 @@ class MessageBuilder:
         base_prompt = MessageBuilder.add_message(
             "user",
             [
-                MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_requirements_prompt()),
-                MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_request_prompt(task_parts)),
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_task_prompt(task_parts)),
+                # MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_request_prompt(task_parts)),
                 # MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_quality_prompt())
+            ]
+        )
+
+        # requirements_prompt = MessageBuilder.add_message(
+        #     "user",
+        #     [
+        #         MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_requirements_prompt())
+        #     ]
+        # )
+
+        requirements_request_prompt = MessageBuilder.add_message(
+            "user",
+            [
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_requirements_prompt()),
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_request_prompt())
             ]
         )
 
@@ -157,14 +172,15 @@ class MessageBuilder:
             [MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_quality_prompt())]
         )
 
-        all_messages = MessageBuilder.add_message(
-            "user",
-            [MessageBuilder.add_txt_to_content(PromptBuilder.get_all_example_flow_table_prompt(task_parts))]
-        )
+        # all_messages = MessageBuilder.add_message(
+        #     "user",
+        #     [MessageBuilder.add_txt_to_content(PromptBuilder.get_all_example_flow_table_prompt(task_parts))]
+        # )
 
         messages.append(system_prompt)
-        # messages.append(base_prompt)
-        messages.append(all_messages)
+        messages.append(base_prompt)
+        # messages.append(requirements_prompt)
+        messages.append(requirements_request_prompt)
         messages.append(quality_prompt)
 
 
