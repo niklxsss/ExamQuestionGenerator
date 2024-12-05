@@ -100,7 +100,7 @@ class PromptBuilder:
             "- Vermeiden Sie triviale Fehler, die sofort auffallen, sowie unnötig komplexe Fehler, die die Aufgabe übermäßig erschweren.\n"
             "- Überprüfen Sie die Tabelle abschließend darauf, dass nur die vorgesehenen Fehler enthalten sind und die restlichen Zustände und Übergänge korrekt funktionieren.\n\n"
 
-            "Stellen Sie sicher, dass die Aufgabe sowohl eine Herausforderung darstellt als auch didaktisch sinnvoll ist, indem sie gezielt das Verständnis der Studierenden fördert.\n"
+            "Stellen Sie sicher, dass die Aufgabe sowohl eine Herausforderung darstellt als auch didaktisch sinnvoll ist, indem sie gezielt das Verständnis der Studierenden fördert.\n\n"
         )
 
     @staticmethod
@@ -217,8 +217,8 @@ class PromptBuilder:
     def get_all_state_transition_table_prompt(task_parts):
         return (
                 PromptBuilder.get_state_transition_table_requirements_prompt() +
-                PromptBuilder.get_state_transition_table_request_prompt(task_parts)
-                # PromptBuilder.get_state_transition_table_quality_prompt()
+                PromptBuilder.get_state_transition_table_request_prompt() +
+                PromptBuilder.get_state_transition_table_quality_prompt()
         )
 
     @staticmethod
@@ -228,13 +228,22 @@ class PromptBuilder:
             "Dein Ziel ist es, Tabellen zu generieren, die die Anforderungen der Aufgabenstellung, Zusatzinformationen "
             "und des Beispiels vollständig und effizient umsetzen. Die Tabellen müssen den höchsten akademischen Standards entsprechen "
             "und für alle möglichen Eingaben die korrekten Ergebnisse liefern.\n\n"
+            
+            "### Prozessübersicht:\n"
+            "1. **Aufgabenstellung:**\n"
+            "   Zunächst erhältst du die vollständige Aufgabenstellung, auf deren Basis du die Zustandsübergangstabelle erstellen sollst.\n\n"
+            "2. **Spezifische Anforderungen:**\n"
+            "   Anschließend werden dir spezifische Anforderungen übermittelt, die sicherstellen, dass die Tabelle konsistent, korrekt und effizient ist.\n\n"
+            "3. **Generierung der Tabelle:**\n"
+            "   Erstelle die Zustandsübergangstabelle basierend auf der erhaltenen Aufgabenstellung und den spezifischen Anforderungen.\n\n"
+            "4. **Korrektur und Validierung:**\n"
+            "   Nach der Generierung überprüfst du die Tabelle auf Fehler oder Unstimmigkeiten und nimmst, falls erforderlich, Korrekturen vor, um eine fehlerfreie und konsistente Tabelle zu gewährleisten.\n\n"
+        )
 
-            "## Vorgehensweise:\n"
-            "1. **Analyse der Aufgabenstellung:** Analysieren Sie die Zielsetzung, Zusatzinformationen und das Beispiel so wie die Start und Endposition, um die Aufgabe vollständig zu verstehen.\n"
-            "2. **Simulation:** Simulieren Sie den Ablauf der Turingmaschine intern mit verschiedenen möglichen Eingaben, um die effizienteste und logischste Lösung zu identifizieren.\n"
-            "3. **Effiziente Generierung:** Erstellen Sie die Zustandsübergangstabelle so einfach wie möglich, ohne unnötige Zustände oder Übergänge einzufügen.\n"
-            "4. **Validierung:** Überprüfen Sie, ob die Tabelle für alle Eingaben korrekt funktioniert und das spezifizierte Ziel der Aufgabe erreicht.\n"
-            "5. **Korrektur:** Passen Sie die Tabelle bei Bedarf an, um Konsistenz und Vollständigkeit sicherzustellen.\n"
+    @staticmethod
+    def get_state_transition_table_task_prompt(task_parts):
+        return (
+            f"AUFGABENSTELLUNG UND BEISPIEL:\n\n{task_parts}\n\n"
         )
 
     @staticmethod
@@ -249,13 +258,15 @@ class PromptBuilder:
             "### Konsistenz zwischen Aufgabenstellung und Lösung:\n"
             "- Die Tabelle muss die Zielsetzung der Aufgabe präzise und effizient umsetzen.\n"
             "- Stellen Sie sicher, dass alle Zustände und Übergänge exakt den Vorgaben der Aufgabenstellung und Zusatzinformationen entsprechen.\n"
+            "- Erstelle die Tabelle so, dass sie mit der Start- und Endposition der Aufgabenstellung konsistent ist!\n"
             "- Jeder Übergang und jede Zustandsänderung muss darauf ausgelegt sein, das spezifizierte Ziel der Aufgabe zu erreichen.\n"
             "- Vermeiden Sie Annahmen oder Ergänzungen, die nicht explizit in der Aufgabenstellung beschrieben sind.\n\n"
 
             "### Struktur und Vollständigkeit:\n"
             "- **Spaltenstruktur:** Die Tabelle muss folgende Spalten enthalten: Aktueller Zustand, Gelesenes Zeichen, Neues Zeichen, Bewegung, Neuer Zustand.\n"
             "- **Vollständigkeit:** Alle möglichen Zustände, einschließlich Start- und Endzustände, sowie alle Übergänge müssen abgedeckt sein. Sonderzeichen wie Leerzeichen `■` sind einzubeziehen.\n"
-            "- **Eindeutigkeit:** Jeder Übergang muss klar und ohne Mehrdeutigkeit definiert sein.\n\n"
+            "- **Eindeutigkeit:** Jeder Übergang muss klar definiert sein.\n"
+            "- **Handling von Bandgrenzen:** Falls der Schreib-/Lesevorgang über die ursprüngliche Eingabe hinausgeht, stellen Sie sicher, dass Leerzeichen korrekt verarbeitet werden und der Übergang weiterhin konsistent bleibt.\n\n"
 
             "### Logik und Effizienz:\n"
             "- Die Zustandsübergänge sollten die Aufgabe mit minimalem Aufwand und maximaler Effizienz umsetzen.\n"
@@ -270,30 +281,30 @@ class PromptBuilder:
         )
 
     @staticmethod
-    def get_state_transition_table_request_prompt(task_parts):
+    def get_state_transition_table_request_prompt():
         return (
-            f"AUFGABENSTELLUNG UND BEISPIEL:\n\n{task_parts}\n\n"
-            "Erstellen Sie eine Zustandsübergangstabelle auf Basis der Aufgabenstellung, Zusatzinformationen und des Beispiels.\n"
-            "Simulieren Sie den Ablauf der Turingmaschine vorab, um die effizienteste und logischste Lösung zu identifizieren.\n"
-            "Die Tabelle muss alle möglichen Eingaben korrekt verarbeiten, die Zielsetzung der Aufgabe erfüllen und vollständig, fehlerfrei sowie effizient gestaltet sein.\n\n"
+            "Erstellen Sie eine korrekte allumfassende Zustandsübergangstabelle auf Basis der Aufgabenstellung, Zusatzinformationen und des Beispiels.\n\n"
         )
 
     @staticmethod
     def get_state_transition_table_quality_prompt():
         return (
-            "## Überprüfung und Validierung der Zustandsübergangstabelle:\n"
-            "Stellen Sie sicher, dass die Zustandsübergangstabelle vollständig, korrekt und konsistent ist. Gehen Sie dabei die folgenden Punkte durch:\n\n"
+            "## Überprüfung und Verbesserung der Zustandsübergangstabelle:\n"
+            "Stellen Sie sicher, dass die Zustandsübergangstabelle vollständig, korrekt und konsistent ist.\n"
+            "Gehen Sie davon aus, dass Fehler enthalten sind!\n\n"
+            
+            "Prüfen und Verbessern Sie folgenden Punkte:\n\n"
 
             "### Aufgabenbezogene Überprüfung:\n"
             "- Stimmen die Zustände und Übergänge mit der Aufgabenstellung, den Zusatzinformationen und dem Beispiel überein?\n"
-            "- Wurden alle relevanten Anforderungen der Aufgabenstellung korrekt berücksichtigt?\n\n"
+            "- Wurden alle relevanten Anforderungen der Aufgabenstellung korrekt berücksichtigt?\n"
+            "- Vergewissern Sie sich, dass die Tabelle vollständig konsistent mit der Aufgabenstellung ist, einschließlich der definierten Start- und Endposition.\n\n"
 
             "### Technische Überprüfung:\n"
-            "- **Spaltenstruktur:** Sind alle Spalten (Aktueller Zustand, Gelesenes Zeichen, Neues Zeichen, Bewegung, Neuer Zustand) korrekt und vollständig?\n"
             "- **Vollständigkeit:** Sind alle möglichen Zustände und Übergänge abgedeckt, einschließlich Sonderzeichen wie Leerzeichen `■`?\n"
             "- **Logik und Effizienz:** Ist die Abfolge der Zustände logisch und effizient?\n"
             "- **Kopfbewegung:** Sind die Bewegungen des Lesekopfes präzise und entsprechend der Aufgabenstellung definiert?\n\n"
-            
+
             "### Überprüfung mit Testeingaben:\n"
             "- Validieren Sie die Zustandsübergangstabelle mit mehreren Testeingaben, um sicherzustellen, dass sie für verschiedene Szenarien korrekte Ergebnisse liefert.\n"
             "- Stellen Sie sicher, dass alle möglichen Ergebnisse der Aufgabenstellung korrekt und wie vorgesehen erreicht werden.\n\n"
@@ -303,7 +314,7 @@ class PromptBuilder:
             "- Stellen Sie sicher, dass keine logischen Widersprüche oder Fehler vorhanden sind.\n\n"
 
             "### Fehlerkorrektur:\n"
-            "Falls Fehler oder Unstimmigkeiten auftreten, verbessern Sie die Tabelle entsprechend!\n\n"
+            "Falls Fehler oder Unstimmigkeiten auftreten, **VERBESSERN** Sie die Tabelle entsprechend und validieren Sie diese erneut!\n\n"
         )
 
     # example_flow_table_message ----------------------------------------------------------------------------------

@@ -34,11 +34,9 @@ class MessageBuilder:
             [MessageBuilder.add_txt_to_content(PromptBuilder.get_task_system_prompt(any([info_texts, encoded_base64_data, pdf_texts])))]
         )
 
-        base_prompt = MessageBuilder.add_message(
+        info_files_prompt = MessageBuilder.add_message(
             "user",
             [
-                # MessageBuilder.add_txt_to_content(PromptBuilder.get_task_base_prompt(num_questions, difficulty, incorrect_task)),
-
                 *(
                     item
                     for info_text in info_texts
@@ -65,28 +63,20 @@ class MessageBuilder:
                     MessageBuilder.add_txt_to_content(pdf_text)
                 ]
                 ),
-
-                # MessageBuilder.add_txt_to_content(PromptBuilder.get_task_general_guidelines_prompt(difficulty)),
-                # MessageBuilder.add_txt_to_content(PromptBuilder.get_task_requirements_prompt() +
-                #                                   PromptBuilder.get_task_request_prompt(num_questions)),
-                # MessageBuilder.add_txt_to_content(PromptBuilder.get_task_quality_prompt())
-
-                # test alles zsm
-
             ])
-
-        quality_prompt = MessageBuilder.add_message(
-            "user",
-            [MessageBuilder.add_txt_to_content(PromptBuilder.get_task_quality_prompt())]
-        )
 
         all_messages = MessageBuilder.add_message(
             "user",
             [MessageBuilder.add_txt_to_content(PromptBuilder.get_all_task_prompt(num_questions,difficulty, incorrect_task))]
         )
 
+        quality_prompt = MessageBuilder.add_message(
+            "user",
+            [MessageBuilder.add_txt_to_content(PromptBuilder.get_task_quality_prompt())]
+        )
+
         messages.append(system_prompt)
-        # messages.append(base_prompt)
+        messages.append(info_files_prompt)
         messages.append(all_messages)
         messages.append(quality_prompt)
 
@@ -99,15 +89,29 @@ class MessageBuilder:
 
         system_prompt = MessageBuilder.add_message(
             "system",
-            [MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_system_prompt())]
+            [
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_system_prompt())
+            ]
         )
 
         base_prompt = MessageBuilder.add_message(
             "user",
             [
-                # MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_requirements_prompt()),
-                # MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_request_prompt(task_parts)),
-                # MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_quality_prompt())
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_task_prompt(task_parts)),
+            ]
+        )
+
+        requirements_prompt = MessageBuilder.add_message(
+            "user",
+            [
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_requirements_prompt())
+            ]
+        )
+
+        request_prompt = MessageBuilder.add_message(
+            "user",
+            [
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_request_prompt())
             ]
         )
 
@@ -116,13 +120,16 @@ class MessageBuilder:
             [MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_quality_prompt())]
         )
 
-        all_messages = MessageBuilder.add_message(
-            "user",
-            [MessageBuilder.add_txt_to_content(PromptBuilder.get_all_state_transition_table_prompt(task_parts))]
-        )
+        # all_messages = MessageBuilder.add_message(
+        #     "user",
+        #     [MessageBuilder.add_txt_to_content(PromptBuilder.get_all_state_transition_table_prompt(task_parts))]
+        # )
 
         messages.append(system_prompt)
-        messages.append(all_messages)
+        messages.append(base_prompt)
+        messages.append(requirements_prompt)
+        messages.append(request_prompt)
+        # messages.append(all_messages)
         messages.append(quality_prompt)
 
         return messages
