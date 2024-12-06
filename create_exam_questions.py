@@ -1,3 +1,5 @@
+import json
+
 from Const import TASK_GENERATION_TEMPERATURE, VALIDATION_TEMPERATURE, EXAMPLE_FLOW_TEMPERATURE, \
     STATE_TRANSITION_TEMPERATURE, SOLUTION_TEMPERATURE
 from FileProcessor import FileProcessor
@@ -31,16 +33,15 @@ def main():
         print("[INFO] No additional files provided. Proceeding without external inputs.")
 
     info_texts, encoded_base64_data, pdf_texts = FileProcessor.process_files(files_txt, files_images, files_pdf)
-    print(
-        f"[INFO] Processed {len(info_texts)} text files, {len(encoded_base64_data)} image files, and {len(pdf_texts)} PDF files.")
 
-    # Build initial task message
+    print(f"[INFO] Processed {len(info_texts)} text files, {len(encoded_base64_data)} image files, and "
+          f"{len(pdf_texts)} PDF files.")
+
     print("[INFO] Creating task generation message...")
     message_task = MessageBuilder.create_task_message(
         num_questions, difficulty, info_texts, encoded_base64_data, pdf_texts, incorrect_task)
     print("[INFO] Task generation message created successfully.")
 
-    # Generate initial tasks
     print("[INFO] Sending request to OpenAI API for task generation...")
     generated_tasks = OpenAIClient.send_request(message_task, TASK_GENERATION_TEMPERATURE, ExamQuestionWithExamples)
     print(f"[INFO] Received {len(generated_tasks['questions'])} generated task(s).")
@@ -50,24 +51,13 @@ def main():
     for index, question_content in enumerate(generated_tasks["questions"], start=1):
         print(f"[INFO] Validating question {index} of {total_tasks}...")
 
-        # Print the initial question content for debugging
-        # print(f"[DEBUG] Question content: {question_content}")
-
-        # Generate state transition table
         print(f"[INFO] Creating state transition table for question {index}...")
         state_transition_table_message = MessageBuilder.create_state_transition_table_message(
             str(question_content))
         state_transition_table_content = OpenAIClient.send_request(
             state_transition_table_message, STATE_TRANSITION_TEMPERATURE, SolutionStateTransitionTable)
-
-        # state_transition_table_validation_message = MessageBuilder.create_state_transition_validation_message(
-        #     str(question_content) + str(state_transition_table_content))
-        # state_transition_table_validation_content = OpenAIClient.send_request(
-        #     state_transition_table_validation_message, VALIDATION_TEMPERATURE, SolutionStateTransitionTable)
-
         print(f"[INFO] State transition table created successfully for question {index}.")
 
-        # Generate example flow table
         print(f"[INFO] Creating example flow table for question {index}...")
         example_flow_table_message = MessageBuilder.create_example_flow_table_message(
             str(question_content) + str(state_transition_table_content))
@@ -75,7 +65,6 @@ def main():
             example_flow_table_message, EXAMPLE_FLOW_TEMPERATURE, SolutionExampleFlowTable)
         print(f"[INFO] Example flow table created successfully for question {index}.")
 
-        # Generate complete solution
         print(f"[INFO] Generating complete solution for question {index}...")
         solution_message = MessageBuilder.create_solution_message(
             str(question_content) + str(state_transition_table_content) + str(example_flow_table_content))
@@ -83,21 +72,33 @@ def main():
             solution_message, SOLUTION_TEMPERATURE, ExamQuestion)
         print(f"[INFO] Complete solution generated successfully for question {index}.")
 
-        # noch prints einfügen
-        # validation_message = MessageBuilder.create_validation_message(str(complete_task))
-        # complete_validated_task = OpenAIClient.send_request(
-        #     validation_message, VALIDATION_TEMPERATURE, ExamQuestion)
-        # complete_tasks.append(complete_validated_task)
+        print(f"[INFO] Correcting solution for question {index}...")
+        validation_message = MessageBuilder.create_validation_message(str(complete_task), incorrect_task)
+        complete_validated_task = OpenAIClient.send_request(
+            validation_message, VALIDATION_TEMPERATURE, ExamQuestion)
+        print(f"[INFO] Validation and correction completed for question {index}.")
 
-        complete_tasks.append(complete_task)
+        complete_tasks.append(complete_validated_task)
+
+        # Testing
+        if complete_task == complete_validated_task:
+            print("No changes detected. Validation process may not be effective.")
+        else:
+            print("Differences found. Validation made adjustments.")
+
+        print("--output, vor Korrektur-----------------------------------------------------------")
+        print(json.dumps(complete_task))
+        print("--output nach validation prompt--------------------------------------------------------------------")
+        print(json.dumps(complete_validated_task))
+
         print(f"[INFO] Question {index} of {total_tasks} processed and validated.")
 
     print("[INFO] All questions processed and validated successfully.")
 
     result_final = {"questions": complete_tasks}
+
     print("[INFO] Saving final output to file...")
     OutputSaver.save_output_to_file(result_final, output_format, separate)
-    # OutputSaver.save_output_to_file(result, output_format, separate)
     print("[INFO] Output saved successfully.")
 
     print("[INFO] Process completed successfully.")
@@ -110,7 +111,7 @@ def main():
     # print("--output, nach erstem durchlauf-----------------------------------------------------------")
     # # print(result)
     # print("--output nach validation prompt--------------------------------------------------------------------")
-    print(result_final)
+    # print(result_final)
 
 
 if __name__ == "__main__":

@@ -144,7 +144,7 @@ class PromptBuilder:
 
             "## Spezifische Anforderungen an das Beispiel ('example'):\n"
             "- **Sinnvolles Beispiel:** Wählen Sie ein Beispiel, das die Anforderungen der Aufgabenstellung klar veranschaulicht.\n"
-            "- **Eindeutigkeit:** Stellen Sie sicher, dass das Beispiel den Ablauf und das Ergebnis der Aufgabe korrekt widerspiegelt. Vermeiden Sie widersprüchliche Darstellungen, die von der Aufgabenbeschreibung oder Lösung abweichen.\n"
+            "- **Eindeutigkeit:** Stellen Sie sicher, dass das Beispiel den Ablauf und das Ergebnis der Aufgabe korrekt widerspiegelt und die Funktion der Aufgabe am besten veranschaulicht. Vermeiden Sie widersprüchliche Darstellungen, die von der Aufgabenbeschreibung oder Lösung abweichen.\n"
             "- **Korrekte Darstellung:** Stellen Sie sicher, dass die Eingabe und der erwartete Output korrekt sind, einschließlich Leerzeichen-Symbole `■` am Anfang und Ende.\n"
             "- **Formatierung des Beispiels:** Das Beispiel muss immer im folgenden Format angegeben werden: `Eingabe: <Wert> | Ausgabe: <Wert>`.\n\n"
         )
@@ -454,7 +454,7 @@ class PromptBuilder:
     def get_solution_request_prompt(task_parts):
         return (
             f"Aufgabenstellung und Tabelle:\n\n {task_parts}\n\n"
-            "Erstellten Sie den rest der Lösung wie angegeben auf Basis der übergebenen Inhalte und baue die Aufgabe im übergebenen Format ExamQuestion zusammen!\n"
+            "Erstellten Sie den rest der Lösung wie angegeben auf Basis der übergebenen Inhalte und baue die Aufgabe im übergebenen Format ExamQuestion zusammen!\n\n"
         )
 
     @staticmethod
