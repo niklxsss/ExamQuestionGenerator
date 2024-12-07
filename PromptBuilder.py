@@ -77,7 +77,7 @@ class PromptBuilder:
             "# Zusätzliche Informationen zum Auftrag:\n\n"
 
             "Erstellen Sie Aufgaben mit absichtlich fehlerhaften Turingmaschinen. Ziel ist es, das Fehlersuch- und "
-            "Korrekturvermögen der Studierenden gezielt zu fördern, ohne dass die gesamte Tabelle fehlerhaft oder unverständlich wird.\n\n"
+            "Korrekturvermögen der Studierenden gezielt zu fördern, ohne dass die gesamte Tabelle fehlerhaft oder unverständlich wird (Gebe dies auch explizit in der Aufgabenstellung an!).\n\n"
 
             "## Anforderungen an die Fehlerstruktur:\n"
             "- Die Turingmaschine soll exakt einen oder mehrere spezifische Fehler enthalten, die das gewünschte Ergebnis verhindern oder zu einem falschen Output führen.\n"
@@ -240,9 +240,10 @@ class PromptBuilder:
         )
 
     @staticmethod
-    def get_state_transition_table_task_prompt(task_parts):
+    def get_state_transition_table_task_prompt(question_content):
         return (
-            f"AUFGABENSTELLUNG UND BEISPIEL:\n\n{task_parts}\n\n"
+            f"AUFGABENSTELLUNG: {question_content[SECTION_QUESTION_CONTENT]}\n\n"
+            f"BEISPIEL: {question_content[SECTION_EXAMPLE]}\n\n"
         )
 
     @staticmethod
@@ -346,9 +347,11 @@ class PromptBuilder:
         )
 
     @staticmethod
-    def get_example_flow_table_task_prompt(task_parts):
+    def get_example_flow_table_task_prompt(question_content, state_transition_table_content):
         return (
-            f"AUFGABENSTELLUNG UND ZUSTANDSÜBERGANGSTABELLE: {task_parts}\n\n"
+            f"AUFGABENSTELLUNG: {question_content[SECTION_QUESTION_CONTENT]}\n\n"
+            f"BEISPIEL: {question_content[SECTION_EXAMPLE]}\n\n"
+            f"ZUSTANDSÜBERGANGSTABELLE: {state_transition_table_content[SECTION_SOLUTION_STATE_TRANSITION_TABLE]}\n\n"
         )
 
     @staticmethod
@@ -365,11 +368,17 @@ class PromptBuilder:
             "  ⦁ Die Kopfposition muss für jeden Schritt eindeutig angegeben werden, sodass der gesamte Ablauf der Turingmaschine präzise und nachvollziehbar bleibt.\n"
 
             "- **Bandinhalt:** Der Bandinhalt muss vollständig angezeigt werden, einschließlich der Begrenzungsleerzeichen (`■`) links und rechts der Eingabe. Markieren Sie die aktive Kopfposition durch eine Umrahmung `[ ]` (z. B. `■11[0]1■`).\n"
+            # "- **Anwendung der Übergangsregeln:** Setzen Sie die Übergangsregeln korrekt um, indem der Bandinhalt bei jedem Schreibvorgang aktualisiert und die Kopfbewegung dokumentiert wird (Der Bandinhalt muss immer auf dem vorherigen Inhalt aufbauen!).\n"
             "- **Anwendung der Übergangsregeln:** Setzen Sie die Übergangsregeln korrekt um, indem der Bandinhalt bei jedem Schreibvorgang aktualisiert und die Kopfbewegung dokumentiert wird.\n"
             "- **Vollständigkeit:** Die Tabelle muss alle relevanten Zustandsänderungen, Kopfbewegungen und Übergänge dokumentieren, die erforderlich sind, um die Eingabe korrekt zu verarbeiten.\n"
 
+            "- **Relevanz der Zustandsübergangstabelle:**\n"
+            "  ⦁ Verwenden Sie nur die Zustände und Übergänge der Zustandsübergangstabelle, die für das Beispiel relevant sind.\n"
+            "  ⦁ Nicht alle Zustände der Tabelle sind notwendig, um das Beispiel vollständig zu dokumentieren. Stellen Sie sicher, dass nur die tatsächlich verwendeten Zustände und Übergänge in der Beispielablauftabelle enthalten sind.\n"
+            "  ⦁ Beachten Sie, dass der Endzustand je nach Beispiel unterschiedlich schnell erreicht werden kann. Dokumentieren Sie den Ablauf bis zum Abschluss des Beispiels, auch wenn dies nur wenige Schritte oder viele Schritte je nach Beispiel erfordert!\n"
+            
             "- **Übergangsregeln:**\n"
-            "  ⦁ Setzen Sie die Übergangsregeln korrekt um und validieren Sie nach jedem Schritt, ob die aktuellen Änderungen (Zustand, Bandinhalt, Kopfposition) mit der Zustandsübergangstabelle übereinstimmen.\n"
+            "  ⦁ Setzen Sie die Übergangsregeln korrekt um und validieren Sie nach jedem Schritt, dass die aktuellen Änderungen (Zustand, Bandinhalt, Kopfposition) mit der Zustandsübergangstabelle übereinstimmen.\n"
             "  ⦁ Überprüfen Sie jede Zeile einzeln, um sicherzustellen, dass keine Abweichungen oder Fehler auftreten. Falls Anpassungen erforderlich sind, korrigieren Sie diese konsequent.\n\n"
 
             "## Schrittweise Validierung:**\n"
@@ -451,9 +460,17 @@ class PromptBuilder:
         )
 
     @staticmethod
-    def get_solution_request_prompt(task_parts):
+    def get_solution_request_prompt(validated_task_and_tables):
         return (
-            f"Aufgabenstellung und Tabelle:\n\n {task_parts}\n\n"
+            f"AUFGABENSTELLUNG: {validated_task_and_tables[SECTION_QUESTION_CONTENT]}\n\n"
+            f"BEISPIEL: {validated_task_and_tables[SECTION_EXAMPLE]}\n\n"
+            f"ZUSTANDSÜBERGANGSTABELLE: {validated_task_and_tables[SECTION_SOLUTION_STATE_TRANSITION_TABLE]}\n\n"
+            f"BEISPIELABLAUFTABELLE: {validated_task_and_tables[SECTION_SOLUTION_EXAMPLE_FLOW_TABLE]}\n\n"
+            # f"AUFGABENSTELLUNG:\n\n{validated_task_and_tables.question_content}\n\n"
+            # f"BEISPIEL:\n\n{validated_task_and_tables.example}\n\n"
+            # f"ZUSTANDSÜBERGANGSTABELLE\n\n{validated_task_and_tables.solution_state_transition_table}\n\n"
+            # f"BEISPIELABLAUFTABELLE\n\n{validated_task_and_tables.solution_example_flow_table}\n\n"
+            
             "Erstellten Sie den rest der Lösung wie angegeben auf Basis der übergebenen Inhalte und baue die Aufgabe im übergebenen Format ExamQuestion zusammen!\n\n"
         )
 

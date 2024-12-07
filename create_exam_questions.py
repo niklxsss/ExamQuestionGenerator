@@ -1,14 +1,14 @@
 import json
 
 from Const import TASK_GENERATION_TEMPERATURE, VALIDATION_TEMPERATURE, EXAMPLE_FLOW_TEMPERATURE, \
-    STATE_TRANSITION_TEMPERATURE, SOLUTION_TEMPERATURE
+    STATE_TRANSITION_TEMPERATURE, SOLUTION_TEMPERATURE, SECTION_QUESTIONS
 from FileProcessor import FileProcessor
 from InputArgumentParser import InputArgumentParser
 from MessageBuilder import MessageBuilder
 from OpenAIClient import OpenAIClient
 from OutputSaver import OutputSaver
-from Questions import ExamQuestion, ExamQuestionWithExamples, TableContent, SolutionStateTransitionTable, \
-    SolutionExampleFlowTable
+from Questions import ExamQuestion, ExamQuestionWithExamples, SolutionStateTransitionTable, \
+    SolutionExampleFlowTable, ExamQuestionWithExampleAndTables
 
 
 def main():
@@ -44,52 +44,79 @@ def main():
 
     print("[INFO] Sending request to OpenAI API for task generation...")
     generated_tasks = OpenAIClient.send_request(message_task, TASK_GENERATION_TEMPERATURE, ExamQuestionWithExamples)
-    print(f"[INFO] Received {len(generated_tasks['questions'])} generated task(s).")
+    print(f"[INFO] Received {len(generated_tasks[SECTION_QUESTIONS])} generated task(s).")
 
     complete_tasks = []
-    total_tasks = len(generated_tasks["questions"])
-    for index, question_content in enumerate(generated_tasks["questions"], start=1):
-        print(f"[INFO] Validating question {index} of {total_tasks}...")
+    total_tasks = len(generated_tasks[SECTION_QUESTIONS])
+    for index, question_content in enumerate(generated_tasks[SECTION_QUESTIONS], start=1):
+        print(f"[INFO] Creating question {index} of {total_tasks}...")
 
         print(f"[INFO] Creating state transition table for question {index}...")
-        state_transition_table_message = MessageBuilder.create_state_transition_table_message(
-            str(question_content))
+        state_transition_table_message = MessageBuilder.create_state_transition_table_message(question_content)
+
         state_transition_table_content = OpenAIClient.send_request(
             state_transition_table_message, STATE_TRANSITION_TEMPERATURE, SolutionStateTransitionTable)
         print(f"[INFO] State transition table created successfully for question {index}.")
 
+        # print(f"[INFO] Starting validation process for state transition table of question {index}...")
+        # state_transition_table_validation_message = MessageBuilder.create_validation_state_transition_table_message(
+        #     str(question_content) + str(state_transition_table_content))
+        #
+        # state_transition_table_content_validated = OpenAIClient.send_request(
+        #     state_transition_table_validation_message, VALIDATION_TEMPERATURE, SolutionStateTransitionTable)
+        # print(f"[INFO] State transition table validated and corrected for question {index}.")
+
         print(f"[INFO] Creating example flow table for question {index}...")
         example_flow_table_message = MessageBuilder.create_example_flow_table_message(
-            str(question_content) + str(state_transition_table_content))
+            question_content, state_transition_table_content)
+
         example_flow_table_content = OpenAIClient.send_request(
             example_flow_table_message, EXAMPLE_FLOW_TEMPERATURE, SolutionExampleFlowTable)
         print(f"[INFO] Example flow table created successfully for question {index}.")
 
+        print(f"[INFO] Starting validation process for example flow table of question {index}...")
+        # example_flow_table_validation_message = MessageBuilder.create_validation_example_flow_table_message(
+        #     str(question_content) + str(state_transition_table_content_validated) + str(example_flow_table_content))
+        #
+        # example_flow_table_content_validated = OpenAIClient.send_request(
+        #     example_flow_table_validation_message, VALIDATION_TEMPERATURE, SolutionExampleFlowTable)
+
+        table_validation_message = MessageBuilder.create_validation_message(question_content, state_transition_table_content, example_flow_table_content)
+        validated_task_and_tables = OpenAIClient.send_request(
+            table_validation_message, VALIDATION_TEMPERATURE, ExamQuestionWithExampleAndTables)
+        print(f"[INFO] Example flow table validated and corrected for question {index}.")
+
         print(f"[INFO] Generating complete solution for question {index}...")
-        solution_message = MessageBuilder.create_solution_message(
-            str(question_content) + str(state_transition_table_content) + str(example_flow_table_content))
+        # solution_message = MessageBuilder.create_solution_message(
+        #     str(question_content) + str(state_transition_table_content) +
+        #     str(example_flow_table_content))
+
+        # exam_question = ExamQuestionWithExampleAndTables(
+        #     question_content=question_content[SECTION_QUESTION_CONTENT],
+        #     example=question_content[SECTION_EXAMPLE],
+        #     solution_state_transition_table=state_transition_table_content[SECTION_SOLUTION_STATE_TRANSITION_TABLE],
+        #     solution_example_flow_table=example_flow_table_content[SECTION_SOLUTION_EXAMPLE_FLOW_TABLE]
+        # )
+        solution_message = MessageBuilder.create_solution_message(validated_task_and_tables)
+
         complete_task = OpenAIClient.send_request(
             solution_message, SOLUTION_TEMPERATURE, ExamQuestion)
         print(f"[INFO] Complete solution generated successfully for question {index}.")
 
-        print(f"[INFO] Correcting solution for question {index}...")
-        validation_message = MessageBuilder.create_validation_message(str(complete_task), incorrect_task)
-        complete_validated_task = OpenAIClient.send_request(
-            validation_message, VALIDATION_TEMPERATURE, ExamQuestion)
-        print(f"[INFO] Validation and correction completed for question {index}.")
+        complete_tasks.append(complete_task)
 
-        complete_tasks.append(complete_validated_task)
+        #Testing
+        compare_tables_and_print_differences(
+            "Zustandsübergangstabelle",
+            state_transition_table_content["solution_state_transition_table"],
+            validated_task_and_tables["solution_state_transition_table"]
+        )
 
-        # Testing
-        if complete_task == complete_validated_task:
-            print("No changes detected. Validation process may not be effective.")
-        else:
-            print("Differences found. Validation made adjustments.")
-
-        print("--output, vor Korrektur-----------------------------------------------------------")
-        print(json.dumps(complete_task))
-        print("--output nach validation prompt--------------------------------------------------------------------")
-        print(json.dumps(complete_validated_task))
+        compare_tables_and_print_differences(
+            "Beispielablauftabelle",
+            example_flow_table_content["solution_example_flow_table"],
+            validated_task_and_tables["solution_example_flow_table"]
+        )
 
         print(f"[INFO] Question {index} of {total_tasks} processed and validated.")
 
@@ -103,15 +130,24 @@ def main():
 
     print("[INFO] Process completed successfully.")
 
-    # if result == result_final:
-    #     print("No changes detected. Validation process may not be effective.")
-    # else:
-    #     print("Differences found. Validation made adjustments.")
 
-    # print("--output, nach erstem durchlauf-----------------------------------------------------------")
-    # # print(result)
-    # print("--output nach validation prompt--------------------------------------------------------------------")
-    # print(result_final)
+def compare_tables_and_print_differences(table_name, original_table, validated_table):
+    """
+    Vergleicht zwei Tabellen und gibt Unterschiede aus.
+
+    :param table_name: Name der Tabelle (z.B. "Zustandsübergangstabelle" oder "Beispielablauftabelle").
+    :param original_table: Originale Tabelle vor der Validierung.
+    :param validated_table: Validierte Tabelle nach der Korrektur.
+    """
+    if original_table == validated_table:
+        print(f"No changes detected in {table_name}. Validation process may not be effective.")
+    else:
+        print(f"Differences found in {table_name}. Validation made adjustments.")
+
+    print(f"--output, {table_name} vor Korrektur----------------------------------------------------------------------")
+    print(json.dumps(original_table))
+    print(f"--output, {table_name} nach validation prompt-------------------------------------------------------------")
+    print(json.dumps(validated_table))
 
 
 if __name__ == "__main__":
