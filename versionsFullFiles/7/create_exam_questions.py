@@ -1,8 +1,7 @@
 import json
 
 from Const import TASK_GENERATION_TEMPERATURE, VALIDATION_TEMPERATURE, EXAMPLE_FLOW_TEMPERATURE, \
-    STATE_TRANSITION_TEMPERATURE, SOLUTION_TEMPERATURE, SECTION_QUESTIONS, SECTION_QUESTION_CONTENT, SECTION_EXAMPLE, \
-    SECTION_SOLUTION_STATE_TRANSITION_TABLE, SECTION_SOLUTION_EXAMPLE_FLOW_TABLE
+    STATE_TRANSITION_TEMPERATURE, SOLUTION_TEMPERATURE, SECTION_QUESTIONS
 from FileProcessor import FileProcessor
 from InputArgumentParser import InputArgumentParser
 from MessageBuilder import MessageBuilder
@@ -15,7 +14,7 @@ from Questions import ExamQuestion, ExamQuestionWithExamples, SolutionStateTrans
 def main():
     args = InputArgumentParser.parse_arguments()
     num_questions = args.num_questions
-    files_image = args.files_image
+    files_images = args.files_images
     files_txt = args.files_txt
     files_pdf = args.files_pdf
     separate = args.separate
@@ -28,12 +27,12 @@ def main():
     print(f"[INFO] incorrect task: {incorrect_task}")
     print(f"[INFO] Output format: {output_format}")
 
-    if any([files_txt, files_image, files_pdf]):
+    if any([files_txt, files_images, files_pdf]):
         print("[INFO] Processing attached files...")
     else:
         print("[INFO] No additional files provided. Proceeding without external inputs.")
 
-    info_texts, encoded_base64_data, pdf_texts = FileProcessor.process_files(files_txt, files_image, files_pdf)
+    info_texts, encoded_base64_data, pdf_texts = FileProcessor.process_files(files_txt, files_images, files_pdf)
 
     print(f"[INFO] Processed {len(info_texts)} text files, {len(encoded_base64_data)} image files, and "
           f"{len(pdf_texts)} PDF files.")
@@ -59,6 +58,14 @@ def main():
             state_transition_table_message, STATE_TRANSITION_TEMPERATURE, SolutionStateTransitionTable)
         print(f"[INFO] State transition table created successfully for question {index}.")
 
+        # print(f"[INFO] Starting validation process for state transition table of question {index}...")
+        # state_transition_table_validation_message = MessageBuilder.create_validation_state_transition_table_message(
+        #     str(question_content) + str(state_transition_table_content))
+        #
+        # state_transition_table_content_validated = OpenAIClient.send_request(
+        #     state_transition_table_validation_message, VALIDATION_TEMPERATURE, SolutionStateTransitionTable)
+        # print(f"[INFO] State transition table validated and corrected for question {index}.")
+
         print(f"[INFO] Creating example flow table for question {index}...")
         example_flow_table_message = MessageBuilder.create_example_flow_table_message(
             question_content, state_transition_table_content)
@@ -68,22 +75,29 @@ def main():
         print(f"[INFO] Example flow table created successfully for question {index}.")
 
         print(f"[INFO] Starting validation process for example flow table of question {index}...")
-        # table_validation_message = MessageBuilder.create_validation_message(question_content, state_transition_table_content, example_flow_table_content)
+        # example_flow_table_validation_message = MessageBuilder.create_validation_example_flow_table_message(
+        #     str(question_content) + str(state_transition_table_content_validated) + str(example_flow_table_content))
         #
-        # validated_task_and_tables = OpenAIClient.send_request(
-        #     table_validation_message, VALIDATION_TEMPERATURE, ExamQuestionWithExampleAndTables)
+        # example_flow_table_content_validated = OpenAIClient.send_request(
+        #     example_flow_table_validation_message, VALIDATION_TEMPERATURE, SolutionExampleFlowTable)
+
+        table_validation_message = MessageBuilder.create_validation_message(question_content, state_transition_table_content, example_flow_table_content)
+        validated_task_and_tables = OpenAIClient.send_request(
+            table_validation_message, VALIDATION_TEMPERATURE, ExamQuestionWithExampleAndTables)
         print(f"[INFO] Example flow table validated and corrected for question {index}.")
 
         print(f"[INFO] Generating complete solution for question {index}...")
+        # solution_message = MessageBuilder.create_solution_message(
+        #     str(question_content) + str(state_transition_table_content) +
+        #     str(example_flow_table_content))
 
-        exam_question = ExamQuestionWithExampleAndTables(
-            question_content=question_content[SECTION_QUESTION_CONTENT],
-            example=question_content[SECTION_EXAMPLE],
-            solution_state_transition_table=state_transition_table_content[SECTION_SOLUTION_STATE_TRANSITION_TABLE],
-            solution_example_flow_table=example_flow_table_content[SECTION_SOLUTION_EXAMPLE_FLOW_TABLE]
-        )
-
-        solution_message = MessageBuilder.create_solution_message(exam_question)
+        # exam_question = ExamQuestionWithExampleAndTables(
+        #     question_content=question_content[SECTION_QUESTION_CONTENT],
+        #     example=question_content[SECTION_EXAMPLE],
+        #     solution_state_transition_table=state_transition_table_content[SECTION_SOLUTION_STATE_TRANSITION_TABLE],
+        #     solution_example_flow_table=example_flow_table_content[SECTION_SOLUTION_EXAMPLE_FLOW_TABLE]
+        # )
+        solution_message = MessageBuilder.create_solution_message(validated_task_and_tables)
 
         complete_task = OpenAIClient.send_request(
             solution_message, SOLUTION_TEMPERATURE, ExamQuestion)
@@ -91,18 +105,18 @@ def main():
 
         complete_tasks.append(complete_task)
 
-        # #Testing
-        # compare_tables_and_print_differences(
-        #     "Zustandsübergangstabelle",
-        #     state_transition_table_content["solution_state_transition_table"],
-        #     validated_task_and_tables["solution_state_transition_table"]
-        # )
-        #
-        # compare_tables_and_print_differences(
-        #     "Beispielablauftabelle",
-        #     example_flow_table_content["solution_example_flow_table"],
-        #     validated_task_and_tables["solution_example_flow_table"]
-        # )
+        #Testing
+        compare_tables_and_print_differences(
+            "Zustandsübergangstabelle",
+            state_transition_table_content["solution_state_transition_table"],
+            validated_task_and_tables["solution_state_transition_table"]
+        )
+
+        compare_tables_and_print_differences(
+            "Beispielablauftabelle",
+            example_flow_table_content["solution_example_flow_table"],
+            validated_task_and_tables["solution_example_flow_table"]
+        )
 
         print(f"[INFO] Question {index} of {total_tasks} processed and validated.")
 

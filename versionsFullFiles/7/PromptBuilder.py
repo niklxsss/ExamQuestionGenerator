@@ -6,6 +6,16 @@ class PromptBuilder:
     # task_message -----------------------------------------------------------------------------------------------------
 
     @staticmethod
+    def get_all_task_prompt(num_questions, difficulty, incorrect_task):
+        return (
+                PromptBuilder.get_task_base_prompt(num_questions, difficulty) +
+                (PromptBuilder.get_incorrect_task_prompt() if incorrect_task else "") +
+                PromptBuilder.get_task_general_guidelines_prompt(difficulty) +
+                PromptBuilder.get_task_requirements_prompt() +
+                PromptBuilder.get_task_request_prompt(num_questions)
+        )
+
+    @staticmethod
     def get_task_system_prompt(infos_present):
         base_prompt = (
             "Du bist ein spezialisiertes KI-Modell, das Prüfungsaufgaben zu Turingmaschinen für Informatik-Studierende an Universitäten erstellt.\n"
@@ -52,9 +62,8 @@ class PromptBuilder:
             f"Sie sollen deren Verständnis und Anwendungskompetenz überprüfen und für Prüfungen geeignet sein.\n\n"
 
             f"### Schwierigkeitsgrad:\n"
-            f"Die Aufgaben müssen dem Schwierigkeitsgrad '**{difficulty}**' entsprechen!\n"
-            f"Anforderungen: {difficulty_explanation}\n\n"
-            "Achten Sie unbedingt darauf, dass der Schwierigkeitsgrad eingehalten wird!\n"
+            f"Die Aufgaben müssen dem Schwierigkeitsgrad '**{difficulty}**' entsprechen:\n"
+            f"{difficulty_explanation}\n\n"
 
             "### Vielfältigkeit der Aufgaben:\n"
             "- Die generierten Aufgaben sollen unterschiedliche Aspekte und Funktionen von Turingmaschinen abdecken.\n"
@@ -63,34 +72,30 @@ class PromptBuilder:
         )
 
     @staticmethod
-    def get_incorrect_task_prompt(difficulty_eng):
-        difficulty = DIFFICULTY_TRANSLATION_MAP.get(difficulty_eng)
-
+    def get_incorrect_task_prompt():
         return (
             "# Zusätzliche Informationen zum Auftrag:\n\n"
 
-            f"Erstellen Sie Aufgaben mit absichtlich fehlerhaften Turingmaschinen, die dem Schwierigkeitsnivea '**{difficulty}**' entsprechen. Ziel ist es, das Fehlersuch- und "
-            "Korrekturvermögen der Studierenden gezielt zu fördern, ohne dass die gesamte Tabelle fehlerhaft oder unverständlich wird.\n\n"
+            "Erstellen Sie Aufgaben mit absichtlich fehlerhaften Turingmaschinen. Ziel ist es, das Fehlersuch- und "
+            "Korrekturvermögen der Studierenden gezielt zu fördern, ohne dass die gesamte Tabelle fehlerhaft oder unverständlich wird (Gebe dies auch explizit in der Aufgabenstellung an!).\n\n"
 
             "## Anforderungen an die Fehlerstruktur:\n"
-            "- Die Turingmaschine soll einen oder mehrere spezifische Fehler enthalten, die das gewünschte Ergebnis verhindern oder zu einem falschen Output führen "
-            "(**Gebe auch explizit in der Aufgabenstellung an, dass Fehler enthalten sind!**).\n"
+            "- Die Turingmaschine soll exakt einen oder mehrere spezifische Fehler enthalten, die das gewünschte Ergebnis verhindern oder zu einem falschen Output führen.\n"
             "- **Alle anderen Übergänge und Zustände müssen korrekt sein** und den Anforderungen der Aufgabenstellung entsprechen, damit die Tabelle eine funktionierende Basis hat.\n"
             "- Fehler dürfen nicht zufällig eingefügt werden, sondern müssen gezielt platziert werden, sodass sie logisch nachvollziehbar sind und eine sorgfältige Analyse erfordern.\n"
             "- Fehler können auftreten in:\n"
-            "   ⦁ **Zustandsübergängen**\n"
-            "   ⦁ **Lese- oder Schreibaktionen** (z. B. falsches Schreib und/oder Lese-Symbol)\n"
-            "   ⦁ **Bandbewegungen** (z. B. falsche oder fehlende Bewegungsrichtung des Kopfes)\n\n"
+            "   ⦁ **Zustandsübergängen** (z. B. fehlerhafte Zielzustände oder Übergangsregeln),\n"
+            "   ⦁ **Lese- oder Schreibaktionen** (z. B. falsches oder fehlendes Schreib-Symbol),\n"
+            "   ⦁ **Bandbewegungen** (z. B. falsche oder fehlende Bewegungsrichtung des Kopfes).\n\n"
 
             "## Anforderungen an die Tabelle:\n"
             "- **Korrektheit der Basis:** Alle Zustände und Übergänge, die keinen beabsichtigten Fehler enthalten, müssen korrekt und mit der Aufgabenstellung konsistent sein.\n"
-            "- **Vollständigkeit:** Alle relevanten Informationen aus der Aufgabenstellung und den Zusatzinformationen müssen in der Tabelle korrekt berücksichtigt werden (inkl Bewegungsrichtung und Start- sowie Endzustand).\n"
+            "- **Vollständigkeit:** Alle relevanten Informationen aus der Aufgabenstellung und den Zusatzinformationen müssen in der Tabelle korrekt berücksichtigt werden.\n"
             "- **Fehlergestaltung:** Fehler müssen subtil genug sein, um eine angemessene Herausforderung zu bieten, aber dennoch logisch nachvollziehbar bleiben.\n"
             "- **Formatierung:** Die Tabelle muss klar und präzise strukturiert sein. Alle Spalten und Zeilen (Aktueller Zustand, Gelesenes Zeichen, Neues Zeichen, Bewegung, Neuer Zustand) müssen vollständig und korrekt formatiert sein.\n\n"
 
             "## Hinweise für die Erstellung:\n"
             "- Führen Sie vor der Generierung der fehlerhaften Tabelle eine vollständige Simulation der Aufgabe durch, um sicherzustellen, dass die Basis korrekt ist.\n"
-            "- Erstellen Sie daraufhin zuerst eine fehlerfreie Tabelle und füge erst danach Fehler ein, um sicherzustellen, dass die Tabelle grundsätzlich richtig funktioniert!\n"
             "- Platzieren Sie die Fehler gezielt, ohne die grundlegende Funktionsweise der Maschine (außer an den fehlerhaften Stellen) zu beeinträchtigen.\n"
             "- Vermeiden Sie triviale Fehler, die sofort auffallen, sowie unnötig komplexe Fehler, die die Aufgabe übermäßig erschweren.\n"
             "- Überprüfen Sie die Tabelle abschließend darauf, dass nur die vorgesehenen Fehler enthalten sind und die restlichen Zustände und Übergänge korrekt funktionieren.\n\n"
@@ -130,7 +135,7 @@ class PromptBuilder:
             "- **Alphabet:** Geben Sie das verwendete Alphabet explizit an. Verwenden Sie für das Leerzeichen ausschließlich das Symbol `■` (Klartext, nicht in anderen Formaten).\n"
             "- **Bandinhalt:** Geben Sie an, dass die Eingabe links und rechts durch ein Leerzeichen `■` begrenzt ist. (Nicht das Band, das ist unendlich!)\n"
             "- **Konzepte und Prinzipien:** Falls die Aufgabe auf spezifischen Konzepten basiert, die möglicherweise nicht allen Studierenden direkt geläufig sind, erläutern Sie diese kurz.\n"
-            "- **Start- und Endposition:** Definieren Sie klar, wo der Lese-/Schreibkopf startet und endet. Die Startposition des Kopfes soll immer so gewählt werden, dass die Aufgabe effizient und logisch gelöst werden kann. Die Endposition muss auch logisch zur Abfolge passen und präzise angegeben werden!\n"
+            "- **Start- und Endposition:** Definieren Sie klar, wo der Lese-/Schreibkopf startet und endet. Die Startposition des Kopfes soll immer so gewählt werden, dass die Aufgabe effizient und logisch gelöst werden kann.\n"
             "  ⦁ Falls die Aufgabe so aufgebaut ist, dass sie in eine Bewegungsrichtung abgeschlossen werden kann, wählen Sie die Startposition entsprechend, um unnötige Bewegungen des Lesekopfes zu vermeiden.\n"
             "  ⦁ Simulieren Sie den Ablauf der Aufgabe basierend auf der Aufgabenstellung, den Zusatzinformationen und der Zielsetzung der Aufgabe. Bestimmen Sie daraufhin die logisch günstigste Startposition des Lese-/Schreibkopfs.\n"
             "  ⦁ Stellen Sie sicher, dass die gewählte Startposition konsistent mit der Zustandsübergangstabelle und dem Beispiel ist.\n"
@@ -138,7 +143,7 @@ class PromptBuilder:
             "  ⦁ Die gilt auch für die Endposition!\n\n"
 
             "## Spezifische Anforderungen an das Beispiel ('example'):\n"
-            "- **Sinnvolles Beispiel:** Wählen Sie ein Beispiel, das die Anforderungen der Aufgabenstellung klar und korrekt veranschaulicht.\n"
+            "- **Sinnvolles Beispiel:** Wählen Sie ein Beispiel, das die Anforderungen der Aufgabenstellung klar veranschaulicht.\n"
             "- **Eindeutigkeit:** Stellen Sie sicher, dass das Beispiel den Ablauf und das Ergebnis der Aufgabe korrekt widerspiegelt und die Funktion der Aufgabe am besten veranschaulicht. Vermeiden Sie widersprüchliche Darstellungen, die von der Aufgabenbeschreibung oder Lösung abweichen.\n"
             "- **Korrekte Darstellung:** Stellen Sie sicher, dass die Eingabe und der erwartete Output korrekt sind, einschließlich Leerzeichen-Symbole `■` am Anfang und Ende.\n"
             "- **Formatierung des Beispiels:** Das Beispiel muss immer im folgenden Format angegeben werden: `Eingabe: <Wert> | Ausgabe: <Wert>`.\n\n"
@@ -175,7 +180,7 @@ class PromptBuilder:
     def get_shared_info_text():
         return (
             "Falls die Inhalte direkt Aufgaben zu Turingmaschinen darstellen, dürfen diese nicht wörtlich übernommen werden. "
-            "Nutzen Sie die Inhalte als Orientierung, um eigene Aufgaben zu erstellen.\n\n"
+            "Nutzen Sie die Inhalte lediglich als Inspiration, um eigene, einzigartige Aufgaben zu erstellen.\n\n"
         )
 
     @staticmethod
@@ -208,18 +213,43 @@ class PromptBuilder:
     # state_transition_table_message ----------------------------------------------------------------------------------
 
     @staticmethod
-    def get_state_transition_table_system_context_prompt():
+    def get_all_state_transition_table_prompt(task_parts):
+        return (
+                PromptBuilder.get_state_transition_table_requirements_prompt() +
+                PromptBuilder.get_state_transition_table_request_prompt() +
+                PromptBuilder.get_state_transition_table_quality_prompt()
+        )
+
+    @staticmethod
+    def get_state_transition_table_system_prompt():
         return (
             "Du bist ein spezialisiertes KI-Modell, das eine Zustandsübergangstabelle für eine gegebene Turingmaschinen erstellt."
             "Dein Ziel ist es, eine Tabelle zu generieren, die die Anforderungen der Aufgabenstellung, Zusatzinformationen "
             "und des Beispiels vollständig und effizient umsetzt. Die Tabelle muss den höchsten akademischen Standards entsprechen "
             "und für alle möglichen Eingaben die korrekten Ergebnisse liefern.\n\n"
+
+            "### Prozessübersicht:\n"
+            "1. **Aufgabenstellung:**\n"
+            "   Zunächst erhältst du die vollständige Aufgabenstellung, auf deren Basis du die Zustandsübergangstabelle erstellen sollst.\n\n"
+            "2. **Spezifische Anforderungen:**\n"
+            "   Anschließend werden dir spezifische Anforderungen übermittelt, die sicherstellen, dass die Tabelle konsistent, korrekt und effizient ist.\n\n"
+            "3. **Generierung der Tabelle:**\n"
+            "   Erstelle die Zustandsübergangstabelle basierend auf der erhaltenen Aufgabenstellung und den spezifischen Anforderungen.\n\n"
+            "4. **Korrektur und Validierung:**\n"
+            "   Nach der Generierung überprüfst du die Tabelle auf Fehler oder Unstimmigkeiten und nimmst, falls erforderlich, Korrekturen vor, um eine fehlerfreie und konsistente Tabelle zu gewährleisten.\n\n"
         )
 
     @staticmethod
-    def get_state_transition_table_system_requirements_prompt():
+    def get_state_transition_table_task_prompt(question_content):
         return (
-            "# Richtlinien für die Zustandsübergangstabelle ('solution_state_transition_table'):\n\n"
+            f"AUFGABENSTELLUNG: {question_content[SECTION_QUESTION_CONTENT]}\n\n"
+            f"BEISPIEL: {question_content[SECTION_EXAMPLE]}\n\n"
+        )
+
+    @staticmethod
+    def get_state_transition_table_requirements_prompt():
+        return (
+            "## Anforderungen an die Zustandsübergangstabelle ('solution_state_transition_table'):\n\n"
 
             "### Analyse der Aufgabenstellung:\n"
             "- Verstehen Sie die Anforderungen und Zielsetzung der Aufgabe vollständig, einschließlich der Start- und Endposition.\n"
@@ -229,15 +259,14 @@ class PromptBuilder:
             "### Konsistenz zwischen Aufgabenstellung und Lösung:\n"
             "- Die Tabelle muss die Zielsetzung der Aufgabe präzise und effizient umsetzen.\n"
             "- Stellen Sie sicher, dass alle Zustände und Übergänge exakt den Vorgaben der Aufgabenstellung und Zusatzinformationen entsprechen.\n"
-            "- Erstelle die Tabelle so, dass sie mit der START- und END-Position der Aufgabenstellung konsistent ist! Achte auch auf eine präzise Rückführung in die Endpostition falls genauer bechrieben!\n"
+            "- Erstelle die Tabelle so, dass sie mit der Start- und Endposition der Aufgabenstellung konsistent ist!\n"
             "- Jeder Übergang und jede Zustandsänderung muss darauf ausgelegt sein, das spezifizierte Ziel der Aufgabe zu erreichen.\n"
             "- Vermeiden Sie Annahmen oder Ergänzungen, die nicht explizit in der Aufgabenstellung beschrieben sind.\n\n"
 
             "### Struktur und Vollständigkeit:\n"
             "- **Spaltenstruktur:** Die Tabelle muss folgende Spalten enthalten: Aktueller Zustand, Gelesenes Zeichen, Neues Zeichen, Bewegung, Neuer Zustand.\n"
             "- **Vollständigkeit:** Alle möglichen Zustände, einschließlich Start- und Endzustände, sowie alle Übergänge müssen abgedeckt sein. Sonderzeichen wie Leerzeichen `■` sind einzubeziehen.\n"
-            "- **Eindeutigkeit:** Jeder Übergang muss klar definiert sein und es darf nicht vorkommen dass es pro Zustand zweimal das gleiche einzulesende Zeichen gibt (Fehler wie diese sind inakzeptabel!).\n"
-            "- **Allgemeingültigkeit**: Die Zustandsübergangstabelle darf nicht nur auf das gegebene Beispiel zugeschnitten sein, sondern muss auch für anderen potenzielle Eingaben korrekt funktionieren, die gemäß der Aufgabenstellung erwartet werden.\n"
+            "- **Eindeutigkeit:** Jeder Übergang muss klar definiert sein.\n"
             "- **Handling von Bandgrenzen:** Falls der Schreib-/Lesevorgang über die ursprüngliche Eingabe hinausgeht, stellen Sie sicher, dass Leerzeichen korrekt verarbeitet werden und der Übergang weiterhin konsistent bleibt.\n\n"
 
             "### Logik und Effizienz:\n"
@@ -253,154 +282,68 @@ class PromptBuilder:
         )
 
     @staticmethod
-    def get_state_transition_table_system_process_prompt():
-        return (
-            "# Prozessübersicht:\n"
-            "1. **Aufgabenstellung:**\n"
-            "   Zunächst erhältst du die vollständige Aufgabenstellung, auf deren Basis du die Zustandsübergangstabelle erstellen sollst. Anaylsiere diese bis du die Anforderungen genau verstanden hast!\n\n"
-            "2. **Generierung der Tabelle:**\n"
-            "   Erstelle die Zustandsübergangstabelle basierend auf der erhaltenen Aufgabenstellung und den spezifischen Anforderungen.\n\n"
-            "3. **Korrektur und Validierung:**\n"
-            "   Nach der Generierung überprüfst du die Tabelle auf Fehler oder Unstimmigkeiten und nimmst, falls erforderlich, Korrekturen vor, um eine fehlerfreie und konsistente Tabelle zu gewährleisten.\n\n"
-        )
-
-    @staticmethod
     def get_state_transition_table_request_prompt():
         return (
-            "**Erstelle eine vollständige und präzise Zustandsübergangstabelle, die die Aufgabenstellung effizient und korrekt umsetzt!!!**\n\n"
-
-            "[WICHTIG] Beachte Folgendes vor der Erstellung genau:\n"
-            "  - Plane die benötigten Zustände so, dass sie die Funktion der Aufgabe vollständig abdecken, inklusive aller Übergänge und Grenzfälle.\n"
-            "  - Definiere die Übergänge klar und konsistent, sodass jeder Zustand nur einmal pro gelesenem Zeichen spezifiziert ist.\n"
-            "  - Vermeide doppelte Zustände für das gleiche gelesene Zeichen.\n"
-            "  - Stelle sicher, dass Start- und Endzustand korrekt nach der Aufgabenstellung definiert sind. Die Maschine muss am Ende an der spezifizierten Endposition stehen bleiben.\n"
-            "  - Beachte, dass die Rückführung der Bandposition zum gewünschten Endzustand (inkl. aller Zwischenschritte) zwingend korrekt und vollständig umgesetzt wird.\n\n"
-            "  - Vermeide unnötige Komplexität.\n\n"
-
-            "[WICHTIG] Zusätzlich:\n"
-            "  - Überprüfe gedanklich die gesamte Tabelle Schritt für Schritt, um sicherzustellen, dass alle Übergänge und Grenzfälle korrekt berücksichtigt werden.\n"
-            "  - Beachte, dass die Rückführung der Bandposition zum gewünschten Endzustand (inkl. aller Zwischenschritte) zwingend korrekt und vollständig umgesetzt wird.\n\n"
-            "  - Teste gedanklich verschiedene Szenarien, um sicherzustellen, dass die Tabelle für alle möglichen Eingaben korrekt funktioniert.\n\n"
-
-            "Stelle sicher, dass die Tabelle logisch aufgebaut, effizient und nachvollziehbar ist. Überprüfe alle Schritte vor Abschluss der Tabelle, "
-            "um sicherzustellen, dass die Aufgabenstellung vollständig erfüllt wird.\n\n"
-        )
-
-    @staticmethod
-    def get_state_transition_table_task_prompt(question_content):
-        return (
-            f"AUFGABENSTELLUNG: {question_content[SECTION_QUESTION_CONTENT]}\n\n"
-            f"BEISPIEL: {question_content[SECTION_EXAMPLE]}\n\n"
+            "Erstellen Sie eine korrekte allumfassende Zustandsübergangstabelle auf Basis der Aufgabenstellung, Zusatzinformationen und des Beispiels.\n\n"
         )
 
     @staticmethod
     def get_state_transition_table_quality_prompt():
         return (
-            # "## Korrektur der von dir gerade erstellten Zustandsübergangstabelle:\n"
-            # "Stellen Sie sicher, dass die Zustandsübergangstabelle vollständig, korrekt und konsistent ist.\n"
-            # "Falls Fehler oder Unstimmigkeiten auftreten, **VERBESSERN** Sie die Tabelle!\n"
-            # "Gehen Sie davon aus, dass Fehler enthalten sind!\n\n"
-            #
-            # "# Verbessern Sie folgenden Punkte:\n\n"
-            #
-            # "### Aufgabenbezogene Korrektur:\n"
-            # "- Stimmen die Zustände und Übergänge mit der Aufgabenstellung, den Zusatzinformationen und dem Beispiel überein?\n"
-            # "- Wurden alle relevanten Anforderungen der Aufgabenstellung korrekt berücksichtigt?\n"
-            # "- Überprüfen Sie, ob die Tabelle auch andere Eingaben korrekt verarbeitet und nicht nur das gegebene Beispiel abdeckt.\n"
-            # "- Vergewissern Sie sich, dass die Tabelle vollständig konsistent mit der Aufgabenstellung ist, einschließlich der definierten Start- und Endposition.\n\n"
-            #
-            # "### Technische Korrektur:\n"
-            # "- **Vollständigkeit:** Sind alle möglichen Zustände und Übergänge abgedeckt, einschließlich Sonderzeichen wie Leerzeichen `■`?\n"
-            # "- **Logik und Effizienz:** Ist die Abfolge der Zustände logisch und effizient?\n"
-            # "- **Kopfbewegung:** Sind die Bewegungen des Lesekopfes präzise und entsprechend der Aufgabenstellung definiert?\n\n"
-            #
-            # "### Überprüfung mit Testeingaben:\n"
-            # "- Validieren Sie die Zustandsübergangstabelle mit mehreren Testeingaben, um sicherzustellen, dass sie für verschiedene Szenarien korrekte Ergebnisse liefert.\n"
-            # "- Stellen Sie sicher, dass alle möglichen Ergebnisse der Aufgabenstellung korrekt und wie vorgesehen erreicht werden.\n\n"
-            #
-            # "### Abschließende Validierung:\n"
-            # "- Überprüfen Sie, ob die Tabelle den höchsten Qualitätsstandards entspricht und für Prüfungszwecke geeignet ist.\n"
-            # "- Stellen Sie sicher, dass keine logischen Widersprüche oder Fehler vorhanden sind.\n\n"
+            "## Überprüfung und Verbesserung der Zustandsübergangstabelle:\n"
+            "Stellen Sie sicher, dass die Zustandsübergangstabelle vollständig, korrekt und konsistent ist.\n"
+            "Gehen Sie davon aus, dass Fehler enthalten sind!\n\n"
 
-            "Überprüfen Sie die Zustandsübergangstabelle auf Basis der definierten Richlinien auf Vollständigkeit, Korrektheit und Konsistenz:\n"
-            "- Stimmen die Zustände und Übergänge mit der Aufgabenstellung und den Anforderungen überein?\n"
-            "- Sind Start- und Endposition korrekt definiert und wird die Rückführung in die Endposition korrekt durchgeführt?\n"
-            "- Sind alle Bewegungen und Zustände logisch und frei von Widersprüchen?\n"
-            "- Testen Sie die Tabelle mit verschiedenen Eingaben, um sicherzustellen, dass sie für alle Szenarien funktioniert.\n"
-            "- Entfernen Sie unnötige Zustände oder Übergänge, ohne die Funktionalität einzuschränken."
+            "### Fehlerkorrektur:\n"
+            "Falls Fehler oder Unstimmigkeiten auftreten, **VERBESSERN** Sie die Tabelle entsprechend und validieren Sie diese erneut!\n\n"
+
+            "# Verbessern Sie folgenden Punkte:\n\n"
+
+            "### Aufgabenbezogene Überprüfung:\n"
+            "- Stimmen die Zustände und Übergänge mit der Aufgabenstellung, den Zusatzinformationen und dem Beispiel überein?\n"
+            "- Wurden alle relevanten Anforderungen der Aufgabenstellung korrekt berücksichtigt?\n"
+            "- Vergewissern Sie sich, dass die Tabelle vollständig konsistent mit der Aufgabenstellung ist, einschließlich der definierten Start- und Endposition.\n\n"
+
+            "### Technische Überprüfung:\n"
+            "- **Vollständigkeit:** Sind alle möglichen Zustände und Übergänge abgedeckt, einschließlich Sonderzeichen wie Leerzeichen `■`?\n"
+            "- **Logik und Effizienz:** Ist die Abfolge der Zustände logisch und effizient?\n"
+            "- **Kopfbewegung:** Sind die Bewegungen des Lesekopfes präzise und entsprechend der Aufgabenstellung definiert?\n\n"
+
+            "### Überprüfung mit Testeingaben:\n"
+            "- Validieren Sie die Zustandsübergangstabelle mit mehreren Testeingaben, um sicherzustellen, dass sie für verschiedene Szenarien korrekte Ergebnisse liefert.\n"
+            "- Stellen Sie sicher, dass alle möglichen Ergebnisse der Aufgabenstellung korrekt und wie vorgesehen erreicht werden.\n\n"
+
+            "### Abschließende Validierung:\n"
+            "- Überprüfen Sie, ob die Tabelle den höchsten Qualitätsstandards entspricht und für Prüfungszwecke geeignet ist.\n"
+            "- Stellen Sie sicher, dass keine logischen Widersprüche oder Fehler vorhanden sind.\n\n"
         )
 
     # example_flow_table_message ----------------------------------------------------------------------------------
 
     @staticmethod
-    def get_example_flow_table_system_context_prompt():
+    def get_all_example_flow_table_prompt(task_parts):
+        return (
+                PromptBuilder.get_example_flow_table_requirements_prompt() +
+                PromptBuilder.get_example_flow_table_request_prompt()
+        )
+
+    @staticmethod
+    def get_example_flow_table_system_prompt():
         return (
             "Du bist ein spezialisiertes KI-Modell, das eine Beispielablauftabelle für eine gegebene Turingmaschine erstellt!\n"
             "Dein Ziel ist es, auf Basis der Aufgabenstellung, der Zusatzinformationen, des Beispiels und der Zustandsübergangstabelle, "
             "eine fehlerfreie, konsistente und qualitativ hochwertige Tabelle zu erstellen.\n"
             "Die Tabelle muss den höchsten akademischen Standards entsprechen und für das gegebene Beispiel, den fehlerfreien Ablauf aufzeigen.\n\n"
-        )
 
-    @staticmethod
-    def get_example_flow_table_system_requirements_prompt():
-        return (
-            "## Anforderungen an die Beispielablauftabelle ('solution_example_flow_table'):\n"
-            "- **Konsistenz:** Die Tabelle muss den Ablauf der Turingmaschine genau widerspiegeln und mit der Zustandsübergangstabelle, dem Beispiel, sowie der Aufgabenstellung übereinstimmen.\n"
-            "- **Spaltenstruktur:** Die Tabelle muss folgende Spalten enthalten: Schritt, Aktueller Zustand, Bandinhalt, Kopfposition.\n"
-            "- **Start- Endposition** Die Start- und Endposition muss korrekt und konsistent mit den Angaben in der Aufgabenstellung sein. (Der Start erfolgt immer an einer Randposition der Eingabe!)\n"
-
-            "- **Kopfposition:** Geben Sie die Kopfposition ausschließlich als numerischen Wert der aktuellen Position des Lesekopfes an.\n"
-            "  ⦁ Die Nummerierung beginnt immer bei **1** und wird bei jedem Schritt der Turingmaschine fortlaufend aktualisiert.\n"
-            "  ⦁ Falls der Lesekopf das linke Ende des sichtbaren Bandbereichs überschreitet, setzen Sie die Nummerierung negativ fort, beginnend mit **0**, **-1**, **-2**, und so weiter. Dadurch wird jede Bewegung des Lesekopfes lückenlos dokumentiert.\n"
-            "  ⦁ Die Kopfposition muss für jeden Schritt eindeutig angegeben werden, sodass der gesamte Ablauf der Turingmaschine präzise und nachvollziehbar bleibt.\n"
-
-            "- **Bandinhalt:** Der Bandinhalt muss vollständig angezeigt werden, einschließlich der Begrenzungsleerzeichen (`■`) links und rechts der Eingabe. Markieren Sie die aktive Kopfposition durch eine Umrahmung `[ ]` (z. B. `■11[0]1■`).\n"
-            "- **Anwendung der Übergangsregeln:** Setzen Sie die Übergangsregeln korrekt um, indem der Bandinhalt bei jedem Schreibvorgang aktualisiert und die Kopfbewegung dokumentiert wird.\n"
-            "  ⦁ Prüfe den aktuellen Zustand und das Zeichen unter dem Lesekopf, schreibe das neue Zeichen, führe die Bewegung gemäß der Anweisung aus und wechsle in den nächsten Zustand laut der Zustandstabelle.\n"
-            "  ⦁ Der Bandinhalt muss immer auf dem vorherigen Inhalt aufbauen!\n"
-            "  ⦁ Beachten Sie, dass Richtungswechsel des Lesekopfes nicht nur am Bandende, sondern auch an beliebigen Positionen auf dem Band stattfinden können.\n"
-
-            "- **Vollständigkeit:** Die Tabelle muss alle relevanten Zustandsänderungen, Kopfbewegungen und Übergänge dokumentieren, die erforderlich sind, um die Eingabe korrekt zu verarbeiten.\n"
-
-            "- **Relevanz der Zustandsübergangstabelle:**\n"
-            "  ⦁ Verwenden Sie nur die Zustände und Übergänge der Zustandsübergangstabelle, die für das Beispiel relevant sind.\n"
-            "  ⦁ Nicht alle Zustände der Tabelle sind notwendig, um das Beispiel vollständig zu dokumentieren. Stellen Sie sicher, dass nur die tatsächlich verwendeten Zustände und Übergänge in der Beispielablauftabelle enthalten sind.\n"
-            "  ⦁ Beachten Sie, dass der Endzustand je nach Beispiel unterschiedlich schnell erreicht werden kann. Dokumentieren Sie den Ablauf bis zum Abschluss des Beispiels, auch wenn dies nur wenige Schritte oder viele Schritte je nach Beispiel erfordert!\n"
-
-            "- **Übergangsregeln prüfen:**\n"
-            "  ⦁ Setzen Sie die Übergangsregeln korrekt um und validieren Sie nach jedem Schritt, dass die aktuellen Änderungen (Zustand, Bandinhalt, Kopfposition) mit der Zustandsübergangstabelle übereinstimmen.\n"
-            "  ⦁ Überprüfen Sie jede Zeile einzeln, um sicherzustellen, dass keine Abweichungen oder Fehler auftreten. Falls Anpassungen erforderlich sind, korrigieren Sie diese konsequent.\n\n"
-
-            "## Schrittweise Validierung:**\n"
-            "- Validieren Sie nach jedem erstellten Schritt, ob dieser mit der Zustandsübergangstabelle übereinstimmt.\n"
-            "- Überprüfen Sie, ob Anpassungen oder Korrekturen erforderlich sind, und übertragen Sie diese in die Tabelle, bevor der nächste Schritt erstellt wird.\n"
-        )
-
-    @staticmethod
-    def get_example_flow_table_system_process_prompt():
-        return (
             "### Prozessübersicht:\n"
             "1. **Aufgabenstellung:**\n"
-            "   Zunächst erhältst du die vollständige Aufgabenstellung und Zustandsübergangstabelle, auf deren Basis du die Beispielablauftabelle erstellen sollst. Anaylsiere diese bis du die Anforderungen genau verstanden hast!\n\n"
-            "2. **Generierung der Tabelle:**\n"
+            "   Zunächst erhältst du die vollständige Aufgabenstellung und Zustandsübergangstabelle, auf deren Basis du die Beispielablauftabelle erstellen sollst.\n\n"
+            "2. **Spezifische Anforderungen:**\n"
+            "   Anschließend werden dir spezifische Anforderungen übermittelt, die sicherstellen, dass die Tabelle konsistent, korrekt und effizient ist.\n\n"
+            "3. **Generierung der Tabelle:**\n"
             "   Erstelle die Beispielablauftabelle basierend auf der erhaltenen Aufgabenstellung, Zustandsübergangstabelle und den spezifischen Anforderungen.\n\n"
-            "3. **Korrektur und Validierung:**\n"
+            "4. **Korrektur und Validierung:**\n"
             "   Nach der Generierung überprüfst du die Tabelle auf Fehler oder Unstimmigkeiten und nimmst, falls erforderlich, Korrekturen vor, um eine fehlerfreie und konsistente Tabelle zu gewährleisten.\n\n"
-        )
-
-    @staticmethod
-    def get_example_flow_table_request_prompt():
-        return (
-            "**Erstellen Sie eine korrekte und allumfassende Beispielablauftabelle auf Basis der Zustandsübergangstabelle, Aufgabenstellung, Zusatzinformationen und des Beispiels!**\n\n"
-            
-            "[WICHTIG] Beachten Sie Folgendes bei der Erstellung:\n"
-            "  - Jede Bandänderung muss exakt der in der Zustandsübergangstabelle definierten Operation entsprechen.\n"
-            "  - Überprüfen Sie für jeden Schritt, dass das richtige Zeichen am richtigen Ort geschrieben wird und der Kopf gemäß den Vorgaben der Tabelle verschoben wird.\n"
-            "  - Das Zeichen muss in jedem Schritt mit dem neuem Zeichen überschrieben werden, auch wenn es sich um das gleiche Zeichen handelt\n"
-            "  - Der Lese-/Schreibkopf muss immer auf der definierten Startposition beginnen und am Ende der Operation korrekt im gewünschten Endzustand stehen.\n"
-            "  - Achten Sie darauf, dass keine unlogischen oder redundanten Operationen stattfinden (z. B. doppelte Änderungen an derselben Bandposition).\n\n"
-            
-            "Stellen Sie sicher, dass die Beispielablauftabelle logisch aufgebaut, vollständig und konsistent mit allen Vorgaben ist.\n\n"
         )
 
     @staticmethod
@@ -412,44 +355,84 @@ class PromptBuilder:
         )
 
     @staticmethod
+    def get_example_flow_table_requirements_prompt():
+        return (
+            "## Anforderungen an die Beispielablauftabelle ('solution_example_flow_table'):\n"
+            "- **Konsistenz:** Die Tabelle muss den Ablauf der Turingmaschine genau widerspiegeln und mit der Zustandsübergangstabelle, dem Beispiel, sowie der Aufgabenstellung übereinstimmen.\n"
+            "- **Spaltenstruktur:** Die Tabelle muss folgende Spalten enthalten: Schritt, Aktueller Zustand, Bandinhalt, Kopfposition.\n"
+            "- **Start- Endposition** Die Start- und Endposition muss korrekt und konsistent mit den Angaben in der Aufgabenstellung sein.\n"
+
+            "- **Kopfposition:** Geben Sie die Kopfposition ausschließlich als numerischen Wert der aktuellen Position des Lesekopfes an.\n"
+            "  ⦁ Die Nummerierung beginnt immer bei **1** und wird bei jedem Schritt der Turingmaschine fortlaufend aktualisiert.\n"
+            "  ⦁ Falls der Lesekopf das linke Ende des sichtbaren Bandbereichs überschreitet, setzen Sie die Nummerierung negativ fort, beginnend mit **0**, **-1**, **-2**, und so weiter. Dadurch wird jede Bewegung des Lesekopfes lückenlos dokumentiert.\n"
+            "  ⦁ Die Kopfposition muss für jeden Schritt eindeutig angegeben werden, sodass der gesamte Ablauf der Turingmaschine präzise und nachvollziehbar bleibt.\n"
+
+            "- **Bandinhalt:** Der Bandinhalt muss vollständig angezeigt werden, einschließlich der Begrenzungsleerzeichen (`■`) links und rechts der Eingabe. Markieren Sie die aktive Kopfposition durch eine Umrahmung `[ ]` (z. B. `■11[0]1■`).\n"
+            # "- **Anwendung der Übergangsregeln:** Setzen Sie die Übergangsregeln korrekt um, indem der Bandinhalt bei jedem Schreibvorgang aktualisiert und die Kopfbewegung dokumentiert wird (Der Bandinhalt muss immer auf dem vorherigen Inhalt aufbauen!).\n"
+            "- **Anwendung der Übergangsregeln:** Setzen Sie die Übergangsregeln korrekt um, indem der Bandinhalt bei jedem Schreibvorgang aktualisiert und die Kopfbewegung dokumentiert wird.\n"
+            "- **Vollständigkeit:** Die Tabelle muss alle relevanten Zustandsänderungen, Kopfbewegungen und Übergänge dokumentieren, die erforderlich sind, um die Eingabe korrekt zu verarbeiten.\n"
+
+            "- **Relevanz der Zustandsübergangstabelle:**\n"
+            "  ⦁ Verwenden Sie nur die Zustände und Übergänge der Zustandsübergangstabelle, die für das Beispiel relevant sind.\n"
+            "  ⦁ Nicht alle Zustände der Tabelle sind notwendig, um das Beispiel vollständig zu dokumentieren. Stellen Sie sicher, dass nur die tatsächlich verwendeten Zustände und Übergänge in der Beispielablauftabelle enthalten sind.\n"
+            "  ⦁ Beachten Sie, dass der Endzustand je nach Beispiel unterschiedlich schnell erreicht werden kann. Dokumentieren Sie den Ablauf bis zum Abschluss des Beispiels, auch wenn dies nur wenige Schritte oder viele Schritte je nach Beispiel erfordert!\n"
+
+            "- **Übergangsregeln:**\n"
+            "  ⦁ Setzen Sie die Übergangsregeln korrekt um und validieren Sie nach jedem Schritt, dass die aktuellen Änderungen (Zustand, Bandinhalt, Kopfposition) mit der Zustandsübergangstabelle übereinstimmen.\n"
+            "  ⦁ Überprüfen Sie jede Zeile einzeln, um sicherzustellen, dass keine Abweichungen oder Fehler auftreten. Falls Anpassungen erforderlich sind, korrigieren Sie diese konsequent.\n\n"
+
+            "## Schrittweise Validierung:**\n"
+            "- Validieren Sie nach jedem erstellten Schritt, ob dieser mit der Zustandsübergangstabelle übereinstimmt.\n"
+            "- Überprüfen Sie, ob Anpassungen oder Korrekturen erforderlich sind, und übertragen Sie diese in die Tabelle, bevor der nächste Schritt erstellt wird.\n"
+        )
+
+    @staticmethod
+    def get_example_flow_table_request_prompt():
+        return (
+            "**Erstellen Sie eine korrekte allumfassende Beispielablauftabelle auf Basis der Zustandsübergangstabelle, Aufgabenstellung, Zusatzinformationen und des Beispiels!**\n\n"
+        )
+
+    @staticmethod
     def get_example_flow_table_quality_prompt():
         return (
-            # "## Korrektur der von dir gerade erstellten Beispielablauftabelle:\n"
-            # "Die Beispielablauftabelle enthält immer Fehler oder Unstimmigkeiten. Ihre Aufgabe ist es, diese Fehler zu identifizieren und die Tabelle so zu korrigieren, dass sie vollständig, korrekt und konsistent ist. Gehen Sie dabei die folgenden Punkte durch:\n\n"
-            #
-            # "### Fehlerkorrektur:\n"
-            # "- Identifizieren Sie gezielt alle Fehler in der Tabelle, einschließlich logischer Widersprüche, falscher Übergänge oder inkorrekter Kopfbewegungen.\n"
-            # "- Korrigieren Sie die Tabelle so, dass sie alle Anforderungen erfüllt und das Ziel der Aufgabe präzise abbildet.\n"
-            # "- Validieren Sie die Korrekturen abschließend, um sicherzustellen, dass keine weiteren Fehler vorhanden sind.\n\n"
-            #
-            # "### Aufgabenbezogene Korrektur:\n"
-            # "- Entspricht die Tabelle den Anforderungen der Aufgabenstellung, den Zusatzinformationen und dem Beispiel?\n"
-            # "- Ist die Tabelle konsistent mit der Zustandsübergangstabelle und sind alle relevanten Übergänge, Bewegungen und Zustandsänderungen dokumentiert?\n"
-            # "- Sind Start- und Endposition korrekt und konsistent mit den Angaben in der Aufgabenstellung?\n\n"
-            #
-            # "### Technische Korrektur:\n"
-            # "- **Kopfposition:** Ist die Kopfposition korrekt nummeriert und synchron mit der tatsächlichen Position des Lesekopfes in jedem Schritt?\n"
-            # "- **Bandinhalt:** Wird der Bandinhalt in jedem Schritt korrekt aktualisiert, einschließlich der Markierung der aktiven Kopfposition durch `[ ]`?\n"
-            # "- **Übergangsregeln:** Sind alle Übergangsregeln korrekt und vollständig umgesetzt?\n"
-            # "- **Vollständigkeit:** Sind alle Zustandsänderungen und Kopfbewegungen dokumentiert, und gibt es keine Lücken oder Auslassungen?\n\n"
-            #
-            # "### Validierung des Ablaufs:\n"
-            # "- Überprüfen Sie, ob der Ablauf exakt mit den Vorgaben der Aufgabenstellung, des Beispiels und der Zustandsübergangstabelle übereinstimmt.\n"
-            # "- Validieren Sie, dass das erwartete Ergebnis des Beispiels (Ausgabe) korrekt erreicht wird.\n"
-            # "- Prüfen Sie, ob die Tabelle für alle Szenarien und mögliche Eingaben korrekt funktioniert und keine zusätzlichen Fehler auftreten.\n\n"
-            #
-            # "### Abschließende Validierung:\n"
-            # "- Stellen Sie sicher, dass die Tabelle den höchsten Qualitätsstandards entspricht und für Prüfungszwecke geeignet ist.\n"
-            # "- Überprüfen Sie, ob alle Unstimmigkeiten und Fehler beseitigt wurden.\n\n"
+            "## Überprüfung und Korrektur der Beispielablauftabelle:\n"
+            "Die Beispielablauftabelle enthält immer Fehler oder Unstimmigkeiten. Ihre Aufgabe ist es, diese Fehler zu identifizieren und die Tabelle so zu korrigieren, dass sie vollständig, korrekt und konsistent ist. Gehen Sie dabei die folgenden Punkte durch:\n\n"
 
-            "Überprüfen Sie die Beispielablauftabelle auf Basis der definierten Richlinien auf Vollständigkeit, Korrektheit und Konsistenz:\n"
-            "- Stimmt der Ablauf mit der Zustandsübergangstabelle überein?\n"
-            "- Ist die Kopfposition in jedem Schritt korrekt und synchron mit der tatsächlichen Bandposition?\n"
-            "- Wurde der Bandinhalt in jedem Schritt korrekt aktualisiert, einschließlich der Markierung der aktiven Kopfposition?\n"
-            "- Korrigieren Sie alle Fehler, wie falsche Übergänge, Kopfbewegungen oder unvollständige Schritte, und stellen Sie sicher, dass der Ablauf logisch und konsistent bleibt."
+            "### Fehlerkorrektur:\n"
+            "- Identifizieren Sie gezielt alle Fehler in der Tabelle, einschließlich logischer Widersprüche, falscher Übergänge oder inkorrekter Kopfbewegungen.\n"
+            "- Korrigieren Sie die Tabelle so, dass sie alle Anforderungen erfüllt und das Ziel der Aufgabe präzise abbildet.\n"
+            "- Validieren Sie die Korrekturen abschließend, um sicherzustellen, dass keine weiteren Fehler vorhanden sind.\n\n"
+
+            "### Aufgabenbezogene Überprüfung:\n"
+            "- Entspricht die Tabelle den Anforderungen der Aufgabenstellung, den Zusatzinformationen und dem Beispiel?\n"
+            "- Ist die Tabelle konsistent mit der Zustandsübergangstabelle und sind alle relevanten Übergänge, Bewegungen und Zustandsänderungen dokumentiert?\n"
+            "- Sind Start- und Endposition korrekt und konsistent mit den Angaben in der Aufgabenstellung?\n\n"
+
+            "### Technische Überprüfung:\n"
+            "- **Kopfposition:** Ist die Kopfposition korrekt nummeriert und synchron mit der tatsächlichen Position des Lesekopfes in jedem Schritt?\n"
+            "- **Bandinhalt:** Wird der Bandinhalt in jedem Schritt korrekt aktualisiert, einschließlich der Markierung der aktiven Kopfposition durch `[ ]`?\n"
+            "- **Übergangsregeln:** Sind alle Übergangsregeln korrekt und vollständig umgesetzt?\n"
+            "- **Vollständigkeit:** Sind alle Zustandsänderungen und Kopfbewegungen dokumentiert, und gibt es keine Lücken oder Auslassungen?\n\n"
+
+            "### Validierung des Ablaufs:\n"
+            "- Überprüfen Sie, ob der Ablauf exakt mit den Vorgaben der Aufgabenstellung, des Beispiels und der Zustandsübergangstabelle übereinstimmt.\n"
+            "- Validieren Sie, dass das erwartete Ergebnis des Beispiels (Ausgabe) korrekt erreicht wird.\n"
+            "- Prüfen Sie, ob die Tabelle für alle Szenarien und mögliche Eingaben korrekt funktioniert und keine zusätzlichen Fehler auftreten.\n\n"
+
+            "### Abschließende Validierung:\n"
+            "- Stellen Sie sicher, dass die Tabelle den höchsten Qualitätsstandards entspricht und für Prüfungszwecke geeignet ist.\n"
+            "- Überprüfen Sie, ob alle Unstimmigkeiten und Fehler beseitigt wurden.\n\n"
         )
 
     # solution_message ----------------------------------------------------------------------------------
+
+    # @staticmethod
+    # def get_all_solution_prompt(task_parts):
+    #     return (
+    #             PromptBuilder.get_solution_requirements_prompt() +
+    #             PromptBuilder.get_solution_request_prompt(task_parts) +
+    #             PromptBuilder.get_solution_quality_prompt()
+    #     )
 
     @staticmethod
     def get_solution_system_prompt():
@@ -477,26 +460,18 @@ class PromptBuilder:
         )
 
     @staticmethod
-    def get_solution_task_prompt(validated_task_and_tables):
+    def get_solution_request_prompt(validated_task_and_tables):
         return (
-            # f"AUFGABENSTELLUNG: {validated_task_and_tables[SECTION_QUESTION_CONTENT]}\n\n"
-            # f"BEISPIEL: {validated_task_and_tables[SECTION_EXAMPLE]}\n\n"
-            # f"ZUSTANDSÜBERGANGSTABELLE: {validated_task_and_tables[SECTION_SOLUTION_STATE_TRANSITION_TABLE]}\n\n"
-            # f"BEISPIELABLAUFTABELLE: {validated_task_and_tables[SECTION_SOLUTION_EXAMPLE_FLOW_TABLE]}\n\n"
-            
-            # test ohen validierung
-            f"AUFGABENSTELLUNG:\n\n{validated_task_and_tables.question_content}\n\n"
-            f"BEISPIEL:\n\n{validated_task_and_tables.example}\n\n"
-            f"ZUSTANDSÜBERGANGSTABELLE\n\n{validated_task_and_tables.solution_state_transition_table}\n\n"
-            f"BEISPIELABLAUFTABELLE\n\n{validated_task_and_tables.solution_example_flow_table}\n\n"
-        )
+            f"AUFGABENSTELLUNG: {validated_task_and_tables[SECTION_QUESTION_CONTENT]}\n\n"
+            f"BEISPIEL: {validated_task_and_tables[SECTION_EXAMPLE]}\n\n"
+            f"ZUSTANDSÜBERGANGSTABELLE: {validated_task_and_tables[SECTION_SOLUTION_STATE_TRANSITION_TABLE]}\n\n"
+            f"BEISPIELABLAUFTABELLE: {validated_task_and_tables[SECTION_SOLUTION_EXAMPLE_FLOW_TABLE]}\n\n"
+            # f"AUFGABENSTELLUNG:\n\n{validated_task_and_tables.question_content}\n\n"
+            # f"BEISPIEL:\n\n{validated_task_and_tables.example}\n\n"
+            # f"ZUSTANDSÜBERGANGSTABELLE\n\n{validated_task_and_tables.solution_state_transition_table}\n\n"
+            # f"BEISPIELABLAUFTABELLE\n\n{validated_task_and_tables.solution_example_flow_table}\n\n"
 
-    @staticmethod
-    def get_solution_request_prompt():
-        return (
-            "Erstellten Sie den rest der Lösung (solution, optional_solution_additional_infos, "
-            "optional_solution_step_by_step) wie angegeben auf Basis der übergebenen Inhalte und baue die Aufgabe "
-            "im übergebenen Format ExamQuestion wieder zusammen!\n\n"
+            "Erstellten Sie den rest der Lösung wie angegeben auf Basis der übergebenen Inhalte und baue die Aufgabe im übergebenen Format ExamQuestion zusammen!\n\n"
         )
 
     @staticmethod

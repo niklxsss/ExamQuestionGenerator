@@ -30,9 +30,6 @@ class OpenAIClient:
             exit()
         except openai.RateLimitError as e:
             print("Rate limit error:", e.status_code, e.response)
-            # print("Rate Limit Error:", e)
-            # print("Details:", e.headers if hasattr(e, 'headers') else "Keine Header-Details verfügbar")
-            # print("Retry-After:", e.headers.get("Retry-After", "Nicht angegeben"))
             exit()
         except openai.APIStatusError as e:
             print("API returned a non-200 status code:", e.status_code, e.response)

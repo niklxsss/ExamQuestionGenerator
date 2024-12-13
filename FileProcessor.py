@@ -23,9 +23,9 @@ class FileProcessor:
         return text
 
     @staticmethod
-    def process_files(files_text, files_images, files_pdf):
+    def process_files(files_text, files_image, files_pdf):
         info_texts = [FileProcessor.read_text_file(file) for file in files_text]
-        encoded_base64_data = [FileProcessor.encode_file_to_base64(file) for file in files_images]
+        encoded_base64_data = [FileProcessor.encode_file_to_base64(file) for file in files_image]
         pdf_texts = [FileProcessor.read_pdf_as_text(file) for file in files_pdf]
 
         return info_texts, encoded_base64_data, pdf_texts

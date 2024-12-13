@@ -67,17 +67,9 @@ class MessageBuilder:
                 ),
             ])
 
-        combined_messages = MessageBuilder.add_message(
+        all_messages = MessageBuilder.add_message(
             "user",
-            [
-                MessageBuilder.add_txt_to_content(
-                    PromptBuilder.get_task_base_prompt(num_questions, difficulty) +
-                    (PromptBuilder.get_incorrect_task_prompt(difficulty) if incorrect_task else "") +
-                    PromptBuilder.get_task_general_guidelines_prompt(difficulty) +
-                    PromptBuilder.get_task_requirements_prompt() +
-                    PromptBuilder.get_task_request_prompt(num_questions)
-                )
-            ]
+            [MessageBuilder.add_txt_to_content(PromptBuilder.get_all_task_prompt(num_questions,difficulty, incorrect_task))]
         )
 
         quality_prompt = MessageBuilder.add_message(
@@ -87,7 +79,7 @@ class MessageBuilder:
 
         messages.append(system_prompt)
         messages.append(info_files_prompt)
-        messages.append(combined_messages)
+        messages.append(all_messages)
         messages.append(quality_prompt)
 
 
@@ -100,19 +92,28 @@ class MessageBuilder:
         system_prompt = MessageBuilder.add_message(
             "system",
             [
-                MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_system_context_prompt()),
-                MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_system_requirements_prompt()),
-                MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_system_process_prompt())
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_system_prompt())
             ]
         )
 
-        request_task_prompt = MessageBuilder.add_message(
+        task_prompt = MessageBuilder.add_message(
             "user",
             [
-                MessageBuilder.add_txt_to_content(
-                    PromptBuilder.get_state_transition_table_request_prompt() +
-                    PromptBuilder.get_state_transition_table_task_prompt(question_content)
-                )
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_task_prompt(question_content)),
+            ]
+        )
+
+        requirements_prompt = MessageBuilder.add_message(
+            "user",
+            [
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_requirements_prompt())
+            ]
+        )
+
+        request_prompt = MessageBuilder.add_message(
+            "user",
+            [
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_state_transition_table_request_prompt())
             ]
         )
 
@@ -122,8 +123,10 @@ class MessageBuilder:
         )
 
         messages.append(system_prompt)
-        messages.append(request_task_prompt)
-        # messages.append(quality_prompt)
+        messages.append(task_prompt)
+        messages.append(requirements_prompt)
+        messages.append(request_prompt)
+        messages.append(quality_prompt)
 
         return messages
 
@@ -133,20 +136,21 @@ class MessageBuilder:
 
         system_prompt = MessageBuilder.add_message(
             "system",
+            [MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_system_prompt())]
+        )
+
+        base_prompt = MessageBuilder.add_message(
+            "user",
             [
-                MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_system_context_prompt()),
-                MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_system_requirements_prompt()),
-                MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_system_process_prompt()),
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_task_prompt(question_content, state_transition_table_content)),
             ]
         )
 
-        request_task_prompt = MessageBuilder.add_message(
+        requirements_request_prompt = MessageBuilder.add_message(
             "user",
             [
-                MessageBuilder.add_txt_to_content(
-                    PromptBuilder.get_example_flow_table_request_prompt() +
-                    PromptBuilder.get_example_flow_table_task_prompt(question_content, state_transition_table_content)
-                )
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_requirements_prompt()),
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_example_flow_table_request_prompt())
             ]
         )
 
@@ -156,8 +160,9 @@ class MessageBuilder:
         )
 
         messages.append(system_prompt)
-        messages.append(request_task_prompt)
-        # messages.append(quality_prompt)
+        messages.append(base_prompt)
+        messages.append(requirements_request_prompt)
+        messages.append(quality_prompt)
 
         return messages
 
@@ -174,7 +179,7 @@ class MessageBuilder:
             "user",
             [
                 MessageBuilder.add_txt_to_content(PromptBuilder.get_solution_requirements_prompt()),
-                MessageBuilder.add_txt_to_content(PromptBuilder.get_solution_task_prompt(validated_task_and_tables) + PromptBuilder.get_solution_request_prompt()),
+                MessageBuilder.add_txt_to_content(PromptBuilder.get_solution_request_prompt(validated_task_and_tables)),
             ]
         )
 
@@ -185,7 +190,7 @@ class MessageBuilder:
 
         messages.append(system_prompt)
         messages.append(base_prompt)
-        # messages.append(quality_prompt)
+        messages.append(quality_prompt)
 
         return messages
 
@@ -207,43 +212,75 @@ class MessageBuilder:
                 MessageBuilder.add_txt_to_content(
                     ValidationPromptBuilder.get_state_transition_table_prompt(state_transition_table_content)),
                 MessageBuilder.add_txt_to_content(
-                    ValidationPromptBuilder.get_example_flow_table_prompt(example_flow_table_content))
-            ]
-        )
-        minmal_prompt = MessageBuilder.add_message(
-            "user",
-            [
-                MessageBuilder.add_txt_to_content(
-                    ValidationPromptBuilder.get_minimal_prompt(question_content,state_transition_table_content,example_flow_table_content))
-            ]
-        )
-        # state_prompt = MessageBuilder.add_message(
-        #     "user",
-        #     [
-        #         MessageBuilder.add_txt_to_content(
-        #             ValidationPromptBuilder.get_state_transition_table_prompt(state_transition_table_content))
-        #     ]
-        # )
-        # example_prompt = MessageBuilder.add_message(
-        #     "user",
-        #     [
-        #         MessageBuilder.add_txt_to_content(
-        #             ValidationPromptBuilder.get_example_flow_table_prompt(example_flow_table_content))
-        #     ]
-        # )
-        summary_prompt = MessageBuilder.add_message(
-            "user",
-            [
-                MessageBuilder.add_txt_to_content(
-                    ValidationPromptBuilder.get_summary_prompt())
+                    ValidationPromptBuilder.get_example_flow_table_prompt(example_flow_table_content)),
             ]
         )
 
         messages.append(system_prompt)
-        messages.append(minmal_prompt)
+        messages.append(task_prompt)
+
+        return messages
+
+
+    @staticmethod
+    def create_validation_state_transition_table_message(task_parts):
+        messages = []
+
+        system_prompt = MessageBuilder.add_message(
+            "system",
+            [MessageBuilder.add_txt_to_content(ValidationPromptBuilder.get_validation_system_prompt_state_transition_table())]
+        )
+
+        base_prompt = MessageBuilder.add_message(
+            "user",
+            [
+                MessageBuilder.add_txt_to_content(ValidationPromptBuilder.get_validation_user_prompt_state_transition_tableee(task_parts)),
+                # MessageBuilder.add_txt_to_content(
+                #     ValidationPromptBuilder.get_validation_user_prompt_state_transition_tablee(task_parts)),
+            ]
+        )
+
+        task_prompt = MessageBuilder.add_message(
+            "user",
+            [
+                MessageBuilder.add_txt_to_content(
+                    ValidationPromptBuilder.get_validation_user_prompt_state_transition_tablee(task_parts)),
+            ]
+        )
+
+        messages.append(system_prompt)
+        messages.append(base_prompt)
         # messages.append(task_prompt)
-        # messages.append(state_prompt)
-        # messages.append(example_prompt)
-        # messages.append(summary_prompt)
+
+        return messages
+
+
+    @staticmethod
+    def create_validation_example_flow_table_message(task_parts):
+        messages = []
+
+        system_prompt = MessageBuilder.add_message(
+            "system",
+            [MessageBuilder.add_txt_to_content(ValidationPromptBuilder.get_validation_system_prompt_example_flow_table())]
+        )
+
+        base_prompt = MessageBuilder.add_message(
+            "user",
+            [
+                MessageBuilder.add_txt_to_content(ValidationPromptBuilder.get_validation_user_prompt_example_flow_table(task_parts)),
+            ]
+        )
+
+        task_prompt = MessageBuilder.add_message(
+            "user",
+            [
+                MessageBuilder.add_txt_to_content(
+                    ValidationPromptBuilder.get_validation_user_prompt_example_flow_tablee(task_parts)),
+            ]
+        )
+
+        messages.append(system_prompt)
+        # messages.append(base_prompt)
+        messages.append(task_prompt)
 
         return messages
