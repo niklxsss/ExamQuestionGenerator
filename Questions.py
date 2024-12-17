@@ -33,7 +33,7 @@ class ExamQuestions(BaseModel):
     questions: List[ExamQuestion]
 
 
-# Hilfsklassen:
+# Hilfsklassen
 
 class ExamQuestionWithExample(BaseModel):
     question_content: QuestionContent
@@ -49,14 +49,6 @@ class ExamQuestionWithExampleAndTables(BaseModel):
     example: str
     solution_state_transition_table: TableContent
     solution_example_flow_table: TableContent
-
-    def __init__(self, question_content, example, solution_state_transition_table, solution_example_flow_table):
-        super().__init__(
-            question_content=question_content,
-            example=example,
-            solution_state_transition_table=solution_state_transition_table,
-            solution_example_flow_table=solution_example_flow_table
-        )
 
 
 class SolutionStateTransitionTable(BaseModel):

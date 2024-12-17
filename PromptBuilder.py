@@ -3,6 +3,47 @@ from Const import *
 
 class PromptBuilder:
 
+    # Schwierigkeitsstufen ---------------------------------------------------------------------------------------------
+
+    DIFFICULTY_EXPLANATION_MAP = {
+
+        DIFFICULTY_EASY:
+            (
+                "Aufgaben auf diesem Niveau sollen sich auf die grundlegendsten Mechanismen von Turingmaschinen beschränken.\n"
+                "- Es dürfen keine Schleifen oder komplexe Logik enthalten sein.\n"
+                "- Die Aufgaben müssen mit einer kleinen Anzahl an Zuständen lösbar sein.\n"
+                "- Die Bandbewegung darf sich nur in eine Richtung vollziehen (kein Wechsel der Bewegungsrichtung).\n"
+                "- Keine zusätzlichen logischen Operationen wie Überträge oder Berechnungen sind erlaubt.\n"
+                "- Ziel ist es, einfache Konzepte wie das Schreiben und Lesen von Zeichen oder Bewegen des Kopfes in eine Richtung zu verdeutlichen.\n"
+                "- Vermeide Eingaben, die nur aus einem Symbol bestehen.\n"
+                "- Validieren Sie, dass die Aufgaben so einfach wie möglich gestaltet sind und der Zielgruppe von Einsteigern entsprechen.\n"
+                "**Prüfen Sie sorgfältig, ob die Aufgabe den Kriterien entspricht, bevor Sie fortfahren.**\n\n"
+            ),
+
+        DIFFICULTY_MEDIUM:
+            (
+                "Aufgaben auf diesem Niveau sollen das Verständnis der grundlegenden Konzepte der Turingmaschine vertiefen und moderate Herausforderungen einführen.\n"
+                "- Die Aufgaben können einfache Verzweigungen und Schleifen beinhalten, die logisch und klar strukturiert sind.\n"
+                "- Zustandsübergänge bleiben überschaubar und klar nachvollziehbar, wobei unnötige Komplexität vermieden wird.\n"
+                "- Der Bandkopf kann sich in beide Richtungen bewegen.\n"
+                "- Alle Übergänge müssen klar definiert und auf wenige, eng miteinander verknüpfte Zustände begrenzt sein.\n"
+                "- Das Ziel ist es, die Fähigkeit der Studierenden zu fördern, einfache Logiken und Bedingungen korrekt umzusetzen, ohne sie zu überfordern.\n"
+                "**Prüfen Sie sorgfältig, ob die Aufgabe wirklich nur moderate Herausforderungen bietet und die Komplexität nicht unnötig gesteigert wird!**\n\n"
+            ),
+
+        DIFFICULTY_HARD:
+            (
+                "Aufgaben auf diesem Niveau sollen anspruchsvolle Szenarien darstellen, die ein tiefgehendes Verständnis der Turingmaschine und hohe Problemlösefähigkeiten erfordern.\n"
+                "- Die Zustandsübergänge sind komplex und können mehrere Bedingungen, verschachtelte Schleifen sowie dynamische Richtungswechsel umfassen.\n"
+                "- Die Aufgaben können längere Sequenzen mit mehreren Zwischenzielen und Zustandsgruppen umfassen, die zur Lösung erforderlich sind.\n"
+                "- Der Fokus liegt auf strategischem Denken, indem die Teilnehmenden vielschichtige Abläufe analysieren und effizient umsetzen müssen.\n"
+                "- Es müssen Grenzfälle und Sonderbedingungen berücksichtigt werden, um die Funktion der Maschine in allen Szenarien sicherzustellen.\n"
+                "- Das Ziel ist es, Aufgaben zu erstellen, die die Herausforderungen der Turingmaschine demonstrieren und die Studierenden an die Grenzen ihres Verständnisses bringen.\n"
+                "**Vergewissern Sie sich, dass die Aufgabe wirklich anspruchsvoll ist und die Komplexität angemessen erhöht wurde, ohne unlösbar zu sein.**\n\n"
+            )
+
+    }
+
     # task_message -----------------------------------------------------------------------------------------------------
 
     @staticmethod
@@ -40,7 +81,7 @@ class PromptBuilder:
     @staticmethod
     def get_task_base_prompt(num_questions, difficulty_eng):
         difficulty = DIFFICULTY_TRANSLATION_MAP.get(difficulty_eng)
-        difficulty_explanation = DIFFICULTY_EXPLANATION_MAP.get(difficulty_eng)
+        difficulty_explanation = PromptBuilder.DIFFICULTY_EXPLANATION_MAP.get(difficulty_eng)
 
         return (
             "# Ziel der Aufgabe:\n\n"
@@ -70,7 +111,7 @@ class PromptBuilder:
             "# Zusätzliche Informationen zum Auftrag:\n\n"
 
             f"Erstellen Sie Aufgaben mit absichtlich fehlerhaften Turingmaschinen, die dem Schwierigkeitsnivea '**{difficulty}**' entsprechen. Ziel ist es, das Fehlersuch- und "
-            "Korrekturvermögen der Studierenden gezielt zu fördern, ohne dass die gesamte Tabelle fehlerhaft oder unverständlich wird.\n\n"
+            "Korrekturvermögen der Studierenden gezielt zu fördern, ohne dass die gesamte Tabelle fehlerhaft oder unverständlich wird. (Nutze eine Tabelle um die fehlerhafte Turingmaschine darzustellen!)\n\n"
 
             "## Anforderungen an die Fehlerstruktur:\n"
             "- Die Turingmaschine soll einen oder mehrere spezifische Fehler enthalten, die das gewünschte Ergebnis verhindern oder zu einem falschen Output führen "
@@ -80,7 +121,8 @@ class PromptBuilder:
             "- Fehler können auftreten in:\n"
             "   ⦁ **Zustandsübergängen**\n"
             "   ⦁ **Lese- oder Schreibaktionen** (z. B. falsches Schreib und/oder Lese-Symbol)\n"
-            "   ⦁ **Bandbewegungen** (z. B. falsche oder fehlende Bewegungsrichtung des Kopfes)\n\n"
+            "   ⦁ **Bandbewegungen** (z. B. falsche Bewegungsrichtung des Kopfes)\n"
+           "    ⦁ **Zustände** (z. B. zusätzliche oder fehlende Zustände)\n\n"
 
             "## Anforderungen an die Tabelle:\n"
             "- **Korrektheit der Basis:** Alle Zustände und Übergänge, die keinen beabsichtigten Fehler enthalten, müssen korrekt und mit der Aufgabenstellung konsistent sein.\n"
@@ -130,7 +172,8 @@ class PromptBuilder:
             "- **Alphabet:** Geben Sie das verwendete Alphabet explizit an. Verwenden Sie für das Leerzeichen ausschließlich das Symbol `■` (Klartext, nicht in anderen Formaten).\n"
             "- **Bandinhalt:** Geben Sie an, dass die Eingabe links und rechts durch ein Leerzeichen `■` begrenzt ist. (Nicht das Band, das ist unendlich!)\n"
             "- **Konzepte und Prinzipien:** Falls die Aufgabe auf spezifischen Konzepten basiert, die möglicherweise nicht allen Studierenden direkt geläufig sind, erläutern Sie diese kurz.\n"
-            "- **Start- und Endposition:** Definieren Sie klar, wo der Lese-/Schreibkopf startet und endet. Die Startposition des Kopfes soll immer so gewählt werden, dass die Aufgabe effizient und logisch gelöst werden kann. Die Endposition muss auch logisch zur Abfolge passen und präzise angegeben werden!\n"
+            "- **Start- und Endposition:** Definieren Sie klar, wo der Lese-/Schreibkopf startet und endet. Die Startposition des Kopfes soll immer so gewählt werden, dass die Aufgabe effizient und logisch gelöst werden kann. "
+            "Die Endposition muss auch logisch zur Abfolge passen und präzise ohne unnötige Informationen angegeben werden!\n"
             "  ⦁ Falls die Aufgabe so aufgebaut ist, dass sie in eine Bewegungsrichtung abgeschlossen werden kann, wählen Sie die Startposition entsprechend, um unnötige Bewegungen des Lesekopfes zu vermeiden.\n"
             "  ⦁ Simulieren Sie den Ablauf der Aufgabe basierend auf der Aufgabenstellung, den Zusatzinformationen und der Zielsetzung der Aufgabe. Bestimmen Sie daraufhin die logisch günstigste Startposition des Lese-/Schreibkopfs.\n"
             "  ⦁ Stellen Sie sicher, dass die gewählte Startposition konsistent mit der Zustandsübergangstabelle und dem Beispiel ist.\n"
@@ -141,7 +184,11 @@ class PromptBuilder:
             "- **Sinnvolles Beispiel:** Wählen Sie ein Beispiel, das die Anforderungen der Aufgabenstellung klar und korrekt veranschaulicht.\n"
             "- **Eindeutigkeit:** Stellen Sie sicher, dass das Beispiel den Ablauf und das Ergebnis der Aufgabe korrekt widerspiegelt und die Funktion der Aufgabe am besten veranschaulicht. Vermeiden Sie widersprüchliche Darstellungen, die von der Aufgabenbeschreibung oder Lösung abweichen.\n"
             "- **Korrekte Darstellung:** Stellen Sie sicher, dass die Eingabe und der erwartete Output korrekt sind, einschließlich Leerzeichen-Symbole `■` am Anfang und Ende.\n"
+            "- **Leerzeichen** Wenn Leerzeichen als Trennungszeichen genutzt werden ist dies auch mit dem Symbol `■` darzustellen.\n\n"
             "- **Formatierung des Beispiels:** Das Beispiel muss immer im folgenden Format angegeben werden: `Eingabe: <Wert> | Ausgabe: <Wert>`.\n\n"
+             # (Falls der Bandinhalt gleich bleibt und der Inhalt )
+
+            "**Füge KEINE Tabellen (optional_question_tables) hinzu, außer es ist ausdrücklich verlangt!**\n\n"
         )
 
     @staticmethod
@@ -149,26 +196,6 @@ class PromptBuilder:
         return (
             f"Erstellen Sie die **{num_questions}** Aufgabenstellungen und jeweils ein passendes Beispiel.\n"
             "Stellen Sie sicher, dass alle Inhalte vollständig, präzise und fehlerfrei sind.\n\n"
-        )
-
-    @staticmethod
-    def get_task_quality_prompt():
-        return (
-            "## Überprüfung und Verbesserung der Aufgaben:\n"
-            "Stellen Sie sicher, dass die Aufgabe vollständig, fehlerfrei und konsistent ist. Achten Sie auf folgende Punkte:\n\n"
-
-            "### Aufgabenstellung und Zusatzinformationen:\n"
-            "- Ist die Aufgabenstellung klar, präzise und vollständig?\n"
-            "- Sind Zusatzinformationen konsistent mit der Aufgabenstellung und korrekt definiert?\n"
-            "- Wurde die Start- und Endposition logisch und effizient gewählt, sodass die Aufgabe optimal gelöst werden kann?\n\n"
-
-            "### Beispiel:\n"
-            "- Veranschaulicht das Beispiel die Anforderungen der Aufgabe korrekt?\n"
-            "- Stimmt das Beispiel mit der Aufgabenstellung und den Zusatzinformationen überein?\n\n"
-
-            "### Verbesserungen:\n"
-            "- Beheben Sie Fehler, Unklarheiten oder Widersprüche.\n"
-            "- Stellen Sie sicher, dass alle Anpassungen die Qualität und Eignung der Aufgabe für Prüfungszwecke verbessern.\n"
         )
 
     @staticmethod
@@ -270,12 +297,13 @@ class PromptBuilder:
             "**Erstelle eine vollständige und präzise Zustandsübergangstabelle, die die Aufgabenstellung effizient und korrekt umsetzt!!!**\n\n"
 
             "[WICHTIG] Beachte Folgendes vor der Erstellung genau:\n"
-            "  - Plane die benötigten Zustände so, dass sie die Funktion der Aufgabe vollständig abdecken, inklusive aller Übergänge und Grenzfälle.\n"
+            "  - Plane die benötigten Zustände so, dass sie die Funktion der Aufgabe vollständig abdecken, ohne redundante oder doppelte Zustände für das gleiche Szenario.\n"
             "  - Definiere die Übergänge klar und konsistent, sodass jeder Zustand nur einmal pro gelesenem Zeichen spezifiziert ist.\n"
             "  - Vermeide doppelte Zustände für das gleiche gelesene Zeichen.\n"
-            "  - Stelle sicher, dass Start- und Endzustand korrekt nach der Aufgabenstellung definiert sind. Die Maschine muss am Ende an der spezifizierten Endposition stehen bleiben.\n"
-            "  - Beachte, dass die Rückführung der Bandposition zum gewünschten Endzustand (inkl. aller Zwischenschritte) zwingend korrekt und vollständig umgesetzt wird.\n\n"
-            "  - Vermeide unnötige Komplexität.\n\n"
+            "  - Stelle sicher, dass Start- und Endzustand korrekt nach der Aufgabenstellung definiert sind. Die Maschine muss am Ende an der spezifizierten Endposition stehen bleiben (Stelle dies auch in der Tabelle dar).\n"
+            "  - **Beachte, dass die Rückführung der Bandposition zum gewünschten Endzustand (inkl. aller Zwischenschritte) zwingend korrekt und vollständig umgesetzt wird.**\n\n"
+            # "  - Vermeide unnötige Komplexität um das Ziel zu erfüllen!\n\n"
+            "  - Falls Überträge in der Aufgabe nötig sind, arbeite mit Hilfssymbolen!\n\n"
 
             "[WICHTIG] Zusätzlich:\n"
             "  - Überprüfe gedanklich die gesamte Tabelle Schritt für Schritt, um sicherzustellen, dass alle Übergänge und Grenzfälle korrekt berücksichtigt werden.\n"
@@ -283,7 +311,7 @@ class PromptBuilder:
             "  - Teste gedanklich verschiedene Szenarien, um sicherzustellen, dass die Tabelle für alle möglichen Eingaben korrekt funktioniert.\n\n"
 
             "Stelle sicher, dass die Tabelle logisch aufgebaut, effizient und nachvollziehbar ist. Überprüfe alle Schritte vor Abschluss der Tabelle, "
-            "um sicherzustellen, dass die Aufgabenstellung vollständig erfüllt wird.\n\n"
+            "um sicherzustellen, dass die Aufgabenstellung vollständig erfüllt wird und die Tabelle als Musterlösung dient.\n\n"
         )
 
     @staticmethod
@@ -291,43 +319,6 @@ class PromptBuilder:
         return (
             f"AUFGABENSTELLUNG: {question_content[SECTION_QUESTION_CONTENT]}\n\n"
             f"BEISPIEL: {question_content[SECTION_EXAMPLE]}\n\n"
-        )
-
-    @staticmethod
-    def get_state_transition_table_quality_prompt():
-        return (
-            # "## Korrektur der von dir gerade erstellten Zustandsübergangstabelle:\n"
-            # "Stellen Sie sicher, dass die Zustandsübergangstabelle vollständig, korrekt und konsistent ist.\n"
-            # "Falls Fehler oder Unstimmigkeiten auftreten, **VERBESSERN** Sie die Tabelle!\n"
-            # "Gehen Sie davon aus, dass Fehler enthalten sind!\n\n"
-            #
-            # "# Verbessern Sie folgenden Punkte:\n\n"
-            #
-            # "### Aufgabenbezogene Korrektur:\n"
-            # "- Stimmen die Zustände und Übergänge mit der Aufgabenstellung, den Zusatzinformationen und dem Beispiel überein?\n"
-            # "- Wurden alle relevanten Anforderungen der Aufgabenstellung korrekt berücksichtigt?\n"
-            # "- Überprüfen Sie, ob die Tabelle auch andere Eingaben korrekt verarbeitet und nicht nur das gegebene Beispiel abdeckt.\n"
-            # "- Vergewissern Sie sich, dass die Tabelle vollständig konsistent mit der Aufgabenstellung ist, einschließlich der definierten Start- und Endposition.\n\n"
-            #
-            # "### Technische Korrektur:\n"
-            # "- **Vollständigkeit:** Sind alle möglichen Zustände und Übergänge abgedeckt, einschließlich Sonderzeichen wie Leerzeichen `■`?\n"
-            # "- **Logik und Effizienz:** Ist die Abfolge der Zustände logisch und effizient?\n"
-            # "- **Kopfbewegung:** Sind die Bewegungen des Lesekopfes präzise und entsprechend der Aufgabenstellung definiert?\n\n"
-            #
-            # "### Überprüfung mit Testeingaben:\n"
-            # "- Validieren Sie die Zustandsübergangstabelle mit mehreren Testeingaben, um sicherzustellen, dass sie für verschiedene Szenarien korrekte Ergebnisse liefert.\n"
-            # "- Stellen Sie sicher, dass alle möglichen Ergebnisse der Aufgabenstellung korrekt und wie vorgesehen erreicht werden.\n\n"
-            #
-            # "### Abschließende Validierung:\n"
-            # "- Überprüfen Sie, ob die Tabelle den höchsten Qualitätsstandards entspricht und für Prüfungszwecke geeignet ist.\n"
-            # "- Stellen Sie sicher, dass keine logischen Widersprüche oder Fehler vorhanden sind.\n\n"
-
-            "Überprüfen Sie die Zustandsübergangstabelle auf Basis der definierten Richlinien auf Vollständigkeit, Korrektheit und Konsistenz:\n"
-            "- Stimmen die Zustände und Übergänge mit der Aufgabenstellung und den Anforderungen überein?\n"
-            "- Sind Start- und Endposition korrekt definiert und wird die Rückführung in die Endposition korrekt durchgeführt?\n"
-            "- Sind alle Bewegungen und Zustände logisch und frei von Widersprüchen?\n"
-            "- Testen Sie die Tabelle mit verschiedenen Eingaben, um sicherzustellen, dass sie für alle Szenarien funktioniert.\n"
-            "- Entfernen Sie unnötige Zustände oder Übergänge, ohne die Funktionalität einzuschränken."
         )
 
     # example_flow_table_message ----------------------------------------------------------------------------------
@@ -394,8 +385,8 @@ class PromptBuilder:
             "**Erstellen Sie eine korrekte und allumfassende Beispielablauftabelle auf Basis der Zustandsübergangstabelle, Aufgabenstellung, Zusatzinformationen und des Beispiels!**\n\n"
             
             "[WICHTIG] Beachten Sie Folgendes bei der Erstellung:\n"
-            "  - Jede Bandänderung muss exakt der in der Zustandsübergangstabelle definierten Operation entsprechen.\n"
-            "  - Überprüfen Sie für jeden Schritt, dass das richtige Zeichen am richtigen Ort geschrieben wird und der Kopf gemäß den Vorgaben der Tabelle verschoben wird.\n"
+            "  - Jede Bandänderung muss exakt der in der Zustandsübergangstabelle definierten Operation entsprechen! Wende jede Regel des Zustands konsequent an!\n"
+            "  - Überprüfen Sie für jeden Schritt, dass das richtige Zeichen am richtigen Ort geschrieben wird und der Kopf gemäß den Vorgaben der Tabelle verschoben wird (Alle Änderungen am Band müssen klar und vollständig dokumentiert werden).\n"
             "  - Das Zeichen muss in jedem Schritt mit dem neuem Zeichen überschrieben werden, auch wenn es sich um das gleiche Zeichen handelt\n"
             "  - Der Lese-/Schreibkopf muss immer auf der definierten Startposition beginnen und am Ende der Operation korrekt im gewünschten Endzustand stehen.\n"
             "  - Achten Sie darauf, dass keine unlogischen oder redundanten Operationen stattfinden (z. B. doppelte Änderungen an derselben Bandposition).\n\n"
@@ -409,44 +400,6 @@ class PromptBuilder:
             f"AUFGABENSTELLUNG: {question_content[SECTION_QUESTION_CONTENT]}\n\n"
             f"BEISPIEL: {question_content[SECTION_EXAMPLE]}\n\n"
             f"ZUSTANDSÜBERGANGSTABELLE: {state_transition_table_content[SECTION_SOLUTION_STATE_TRANSITION_TABLE]}\n\n"
-        )
-
-    @staticmethod
-    def get_example_flow_table_quality_prompt():
-        return (
-            # "## Korrektur der von dir gerade erstellten Beispielablauftabelle:\n"
-            # "Die Beispielablauftabelle enthält immer Fehler oder Unstimmigkeiten. Ihre Aufgabe ist es, diese Fehler zu identifizieren und die Tabelle so zu korrigieren, dass sie vollständig, korrekt und konsistent ist. Gehen Sie dabei die folgenden Punkte durch:\n\n"
-            #
-            # "### Fehlerkorrektur:\n"
-            # "- Identifizieren Sie gezielt alle Fehler in der Tabelle, einschließlich logischer Widersprüche, falscher Übergänge oder inkorrekter Kopfbewegungen.\n"
-            # "- Korrigieren Sie die Tabelle so, dass sie alle Anforderungen erfüllt und das Ziel der Aufgabe präzise abbildet.\n"
-            # "- Validieren Sie die Korrekturen abschließend, um sicherzustellen, dass keine weiteren Fehler vorhanden sind.\n\n"
-            #
-            # "### Aufgabenbezogene Korrektur:\n"
-            # "- Entspricht die Tabelle den Anforderungen der Aufgabenstellung, den Zusatzinformationen und dem Beispiel?\n"
-            # "- Ist die Tabelle konsistent mit der Zustandsübergangstabelle und sind alle relevanten Übergänge, Bewegungen und Zustandsänderungen dokumentiert?\n"
-            # "- Sind Start- und Endposition korrekt und konsistent mit den Angaben in der Aufgabenstellung?\n\n"
-            #
-            # "### Technische Korrektur:\n"
-            # "- **Kopfposition:** Ist die Kopfposition korrekt nummeriert und synchron mit der tatsächlichen Position des Lesekopfes in jedem Schritt?\n"
-            # "- **Bandinhalt:** Wird der Bandinhalt in jedem Schritt korrekt aktualisiert, einschließlich der Markierung der aktiven Kopfposition durch `[ ]`?\n"
-            # "- **Übergangsregeln:** Sind alle Übergangsregeln korrekt und vollständig umgesetzt?\n"
-            # "- **Vollständigkeit:** Sind alle Zustandsänderungen und Kopfbewegungen dokumentiert, und gibt es keine Lücken oder Auslassungen?\n\n"
-            #
-            # "### Validierung des Ablaufs:\n"
-            # "- Überprüfen Sie, ob der Ablauf exakt mit den Vorgaben der Aufgabenstellung, des Beispiels und der Zustandsübergangstabelle übereinstimmt.\n"
-            # "- Validieren Sie, dass das erwartete Ergebnis des Beispiels (Ausgabe) korrekt erreicht wird.\n"
-            # "- Prüfen Sie, ob die Tabelle für alle Szenarien und mögliche Eingaben korrekt funktioniert und keine zusätzlichen Fehler auftreten.\n\n"
-            #
-            # "### Abschließende Validierung:\n"
-            # "- Stellen Sie sicher, dass die Tabelle den höchsten Qualitätsstandards entspricht und für Prüfungszwecke geeignet ist.\n"
-            # "- Überprüfen Sie, ob alle Unstimmigkeiten und Fehler beseitigt wurden.\n\n"
-
-            "Überprüfen Sie die Beispielablauftabelle auf Basis der definierten Richlinien auf Vollständigkeit, Korrektheit und Konsistenz:\n"
-            "- Stimmt der Ablauf mit der Zustandsübergangstabelle überein?\n"
-            "- Ist die Kopfposition in jedem Schritt korrekt und synchron mit der tatsächlichen Bandposition?\n"
-            "- Wurde der Bandinhalt in jedem Schritt korrekt aktualisiert, einschließlich der Markierung der aktiven Kopfposition?\n"
-            "- Korrigieren Sie alle Fehler, wie falsche Übergänge, Kopfbewegungen oder unvollständige Schritte, und stellen Sie sicher, dass der Ablauf logisch und konsistent bleibt."
         )
 
     # solution_message ----------------------------------------------------------------------------------
@@ -477,18 +430,12 @@ class PromptBuilder:
         )
 
     @staticmethod
-    def get_solution_task_prompt(validated_task_and_tables):
+    def get_solution_task_prompt(question_content, state_transition_table_content, example_flow_table_content):
         return (
-            # f"AUFGABENSTELLUNG: {validated_task_and_tables[SECTION_QUESTION_CONTENT]}\n\n"
-            # f"BEISPIEL: {validated_task_and_tables[SECTION_EXAMPLE]}\n\n"
-            # f"ZUSTANDSÜBERGANGSTABELLE: {validated_task_and_tables[SECTION_SOLUTION_STATE_TRANSITION_TABLE]}\n\n"
-            # f"BEISPIELABLAUFTABELLE: {validated_task_and_tables[SECTION_SOLUTION_EXAMPLE_FLOW_TABLE]}\n\n"
-            
-            # test ohen validierung
-            f"AUFGABENSTELLUNG:\n\n{validated_task_and_tables.question_content}\n\n"
-            f"BEISPIEL:\n\n{validated_task_and_tables.example}\n\n"
-            f"ZUSTANDSÜBERGANGSTABELLE\n\n{validated_task_and_tables.solution_state_transition_table}\n\n"
-            f"BEISPIELABLAUFTABELLE\n\n{validated_task_and_tables.solution_example_flow_table}\n\n"
+            f"AUFGABENSTELLUNG:\n\n{question_content[SECTION_QUESTION_CONTENT]}\n\n"
+            f"BEISPIEL:\n\n{question_content[SECTION_EXAMPLE]}\n\n"
+            f"ZUSTANDSÜBERGANGSTABELLE\n\n{state_transition_table_content[SECTION_SOLUTION_STATE_TRANSITION_TABLE]}\n\n"
+            f"BEISPIELABLAUFTABELLE\n\n{example_flow_table_content[SECTION_SOLUTION_EXAMPLE_FLOW_TABLE]}\n\n"
         )
 
     @staticmethod
@@ -497,23 +444,4 @@ class PromptBuilder:
             "Erstellten Sie den rest der Lösung (solution, optional_solution_additional_infos, "
             "optional_solution_step_by_step) wie angegeben auf Basis der übergebenen Inhalte und baue die Aufgabe "
             "im übergebenen Format ExamQuestion wieder zusammen!\n\n"
-        )
-
-    @staticmethod
-    def get_solution_quality_prompt():
-        return (
-            "## Überprüfung und Verbesserung der Aufgabe:\n"
-            "Stellen Sie sicher, dass die Lösung vollständig, korrekt und konsistent ist. Gehen Sie dabei die folgenden Punkte durch:\n\n"
-
-            "### Fehlerkorrektur:\n"
-            "- Falls Fehler oder Unstimmigkeiten auftreten, verbessern Sie die Lösung entsprechend und validieren Sie diese erneut.\n\n"
-
-            "### Aufgabenbezogene Überprüfung:\n"
-            "- Ist die konzeptionelle Beschreibung des Lösungsansatzes klar und nachvollziehbar?\n"
-            "- Stimmen die zusätzlichen Informationen mit der Aufgabenstellung und den anderen Elementen wie der Zustandsübergangstabelle überein?\n"
-            "- Ist der Lösungsweg logisch aufgebaut, fehlerfrei und vollständig beschrieben?\n\n"
-
-            "### Abschließende Validierung:\n"
-            "- Entspricht die gesamte Lösung den höchsten Qualitätsstandards und ist sie für Prüfungszwecke geeignet?\n"
-            "- Sind alle Abschnitte der Lösung konsistent und frei von logischen Widersprüchen?\n\n"
         )
