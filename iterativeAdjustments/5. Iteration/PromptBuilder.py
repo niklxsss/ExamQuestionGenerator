@@ -51,7 +51,7 @@ class PromptBuilder:
             "korrekt ist.\n"
             "6. Formulieren Sie eine klare und vollständige Lösung, die genau zur Aufgabenstellung passt und alle "
             "Schritte nachvollziehbar erklärt.\n"
-            "7. Generieren Sie eine Zustandsübergangstabelle (falls erforderlich) und stellen Sie sicher, dass sie "
+            "11. Iteration. Generieren Sie eine Zustandsübergangstabelle (falls erforderlich) und stellen Sie sicher, dass sie "
             "**KOMPLETT VOLLSTÄNDIG** ist und keine Zustände oder Übergänge fehlen.\n"
             "8. Überprüfen Sie am Ende, dass **alle Übergänge in den Zustandstabellen vollständig und klar "
             "beschrieben** sind. **Unvollständige Übergänge oder Zustände, die in der Beschreibung erwähnt, aber "

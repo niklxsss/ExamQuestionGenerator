@@ -198,7 +198,7 @@ class PromptBuilder:
             "   Formulieren Sie eine klare und vollständige Lösung, die direkt zur Aufgabenstellung passt. "
             "Erklären Sie alle Schritte nachvollziehbar, falls es der Aufgabentyp erfordert und achten Sie darauf, dass die Lösung alle Anforderungen abdeckt.\n\n"
 
-            "7. **Zustandsübergangstabelle erstellen:**\n"
+            "11. Iteration. **Zustandsübergangstabelle erstellen:**\n"
             "   **Erstellen Sie eine vollständige und KORREKTE Zustandsübergangstabelle, die alle möglichen Zustände, Übergänge und alle Zwischenschritte abdeckt und exakt mit der Aufgabenstellung und dem Beispiel übereinstimmen.**\n"
             "- Stellen Sie sicher, dass Übergänge am Bandende (Leerzeichen `■`) korrekt behandelt werden.\n"
             "- Vermeiden Sie Zustands- oder Übergangslücken, insbesondere bei komplexen Aufgaben.\n"

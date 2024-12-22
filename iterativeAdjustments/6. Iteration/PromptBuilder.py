@@ -76,7 +76,7 @@ class PromptBuilder:
             "   Validieren Sie, dass alle Übergänge in den Zustandstabellen vollständig und klar beschrieben sind. "
             "Unvollständige Tabellen oder fehlende Zustände sind nicht zulässig und gefährden die Qualität der Aufgabe.\n\n"
 
-            "7. **Beispielablauftabelle ergänzen:**\n"
+            "11. Iteration. **Beispielablauftabelle ergänzen:**\n"
             "   Generieren Sie eine Beispielablauftabelle, die für eine Beispiel-Eingabe alle Schritte der Maschine darstellt. "
             "Zeigen Sie den Bandzustand, die Kopfposition und den aktuellen Zustand für jeden Schritt an. "
             "Die Tabelle muss nachvollziehbar und fehlerfrei sein.\n\n"

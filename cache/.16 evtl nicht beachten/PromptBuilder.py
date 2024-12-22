@@ -78,7 +78,7 @@ class PromptBuilder:
             "keine Zustände oder Übergänge auslässt** (einschließlich der Übergänge für das Bandende ⋄) und die Lösung präzise unterstützt. "
             "Tabellen dürfen keine inkonsistenten oder unvollständigen Daten enthalten.\n\n"
 
-            "7. **Überprüfung der Zustandsübergangstabelle:**\n"
+            "11. Iteration. **Überprüfung der Zustandsübergangstabelle:**\n"
             "   Validieren Sie, dass alle Übergänge in den Zustandstabellen vollständig und klar beschrieben sind. "
             "Unvollständige Tabellen oder fehlende Zustände sind nicht zulässig und gefährden die Qualität der Aufgabe.\n\n"
 
@@ -447,7 +447,7 @@ class PromptBuilder:
             "6. **Grenzfälle validieren:**\n"
             "- Stellen Sie sicher, dass die Aufgabe alle Grenzfälle korrekt behandelt und keine undefinierten Zustände auftreten.\n\n"
 
-            "7. **Mapping-Fehler verhindern:**\n"
+            "11. Iteration. **Mapping-Fehler verhindern:**\n"
             "- Verhindern Sie, dass unveränderte Aufgaben oder Teile davon aufgrund technischer Fehler zurückgegeben werden.\n"
             "- Stellen Sie sicher, dass alle zurückgegebenen Aufgaben vollständig überarbeitet und korrekt sind.\n\n"
         )

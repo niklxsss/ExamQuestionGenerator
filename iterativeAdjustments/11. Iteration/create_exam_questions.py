@@ -59,11 +59,11 @@ def main():
         print(f"[INFO] State transition table created successfully for question {index}.")
 
         print(f"[INFO] Starting validation process for state transition table of question {index}...")
-        # state_transition_table_validation_message = MessageBuilder.create_validation_state_transition_table_message(
-        #     str(question_content) + str(state_transition_table_content))
-        #
-        # state_transition_table_content_validated = OpenAIClient.send_request(
-        #     state_transition_table_validation_message, VALIDATION_TEMPERATURE, SolutionStateTransitionTable)
+        state_transition_table_validation_message = MessageBuilder.create_validation_state_transition_table_message(
+            str(question_content) + str(state_transition_table_content))
+
+        state_transition_table_content_validated = OpenAIClient.send_request(
+            state_transition_table_validation_message, VALIDATION_TEMPERATURE, SolutionStateTransitionTable)
         print(f"[INFO] State transition table validated and corrected for question {index}.")
 
         print(f"[INFO] Creating example flow table for question {index}...")
@@ -75,15 +75,15 @@ def main():
         print(f"[INFO] Example flow table created successfully for question {index}.")
 
         print(f"[INFO] Starting validation process for example flow table of question {index}...")
-        # example_flow_table_validation_message = MessageBuilder.create_validation_example_flow_table_message(
-        #     str(question_content) + str(state_transition_table_content_validated) + str(example_flow_table_content))
-        #
-        # example_flow_table_content_validated = OpenAIClient.send_request(
-        #     example_flow_table_validation_message, VALIDATION_TEMPERATURE, SolutionExampleFlowTable)
+        example_flow_table_validation_message = MessageBuilder.create_validation_example_flow_table_message(
+            str(question_content) + str(state_transition_table_content_validated) + str(example_flow_table_content))
 
-        table_validation_message = MessageBuilder.create_validation_message(question_content, state_transition_table_content, example_flow_table_content)
-        validated_task_and_tables = OpenAIClient.send_request(
-            table_validation_message, VALIDATION_TEMPERATURE, ExamQuestionWithExampleAndTables)
+        example_flow_table_content_validated = OpenAIClient.send_request(
+            example_flow_table_validation_message, VALIDATION_TEMPERATURE, SolutionExampleFlowTable)
+
+        # table_validation_message = MessageBuilder.create_validation_message(question_content, state_transition_table_content, example_flow_table_content)
+        # validated_task_and_tables = OpenAIClient.send_request(
+        #     table_validation_message, VALIDATION_TEMPERATURE, ExamQuestionWithExampleAndTables)
         print(f"[INFO] Example flow table validated and corrected for question {index}.")
 
         print(f"[INFO] Generating complete solution for question {index}...")
@@ -91,12 +91,12 @@ def main():
         #     str(question_content) + str(state_transition_table_content_validated) +
         #     str(example_flow_table_content_validated))
 
-        # exam_question = ExamQuestionWithExampleAndTables(
-        #     question_content=question_content[SECTION_QUESTION_CONTENT],
-        #     example=question_content[SECTION_EXAMPLE],
-        #     solution_state_transition_table=state_transition_table_content_validated[SECTION_SOLUTION_STATE_TRANSITION_TABLE],
-        #     solution_example_flow_table=example_flow_table_content_validated[SECTION_SOLUTION_EXAMPLE_FLOW_TABLE]
-        # )
+        exam_question = ExamQuestionWithExampleAndTables(
+            question_content=question_content[SECTION_QUESTION_CONTENT],
+            example=question_content[SECTION_EXAMPLE],
+            solution_state_transition_table=state_transition_table_content_validated[SECTION_SOLUTION_STATE_TRANSITION_TABLE],
+            solution_example_flow_table=example_flow_table_content_validated[SECTION_SOLUTION_EXAMPLE_FLOW_TABLE]
+        )
         solution_message = MessageBuilder.create_solution_message(exam_question)
 
         complete_task = OpenAIClient.send_request(

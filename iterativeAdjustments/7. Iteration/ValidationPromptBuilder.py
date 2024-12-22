@@ -116,7 +116,7 @@ class ValidationPromptBuilder:
             "- Die korrigierte Aufgabe muss höchsten Ansprüchen genügen und bereit für den Einsatz in Prüfungen sein.\n"
             "- Fehler oder Abweichungen in der Rückgabe führen dazu, dass die Aufgabe als unbrauchbar gilt.\n\n"
         )
-# Kam erst einen commit später ----evtl seperat bzw in zwei stufen betrachten einmal mit und einmal ohne
+
     @staticmethod
     def create_refinement_validation_prompt():
         return (

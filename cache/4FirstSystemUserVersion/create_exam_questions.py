@@ -1,17 +1,9 @@
-import time
-from asyncio import wait
-
-from Const import TEMPERATURE, VALIDATION_TEMPERATURE
-from FileProcessor import FileProcessor
+from Const import TEMPERATURE
 from InputArgumentParser import InputArgumentParser
-from MessageBuilder import MessageBuilder
 from OpenAIClient import OpenAIClient
 from OutputSaver import OutputSaver
 from PromptBuilder import PromptBuilder
-from Questions import ExamQuestion, ExamQuestions
-from SplittedRequests import SplittedRequests
-from ValidationPromptBuilder import ValidationPromptBuilder
-import json
+from Questions import ExamQuestions
 
 
 def main():

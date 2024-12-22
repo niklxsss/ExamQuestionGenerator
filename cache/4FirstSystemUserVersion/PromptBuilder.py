@@ -61,7 +61,7 @@ class PromptBuilder:
         messages.append(assistant_validation)
 
 
-        # Schritt 7: Anforderungen an die Lösung
+        # Schritt 11. Iteration: Anforderungen an die Lösung
         solution_prompt = MessageBuilder.add_message(
             # "user",
             "system",
@@ -127,8 +127,8 @@ class PromptBuilder:
 
         # Assistant: Überprüfung der Lösung
         assistant_validation = MessageBuilder.add_message(
-            "assistant",
-            # "user",
+            # "assistant",
+            "user",
             [MessageBuilder.add_txt_to_content(
                 # "Prüfe die Zustandsübergangstabelle auf:\n"
                 # "- Vollständigkeit (alle Zustände und Übergänge abgedeckt)\n"
@@ -167,8 +167,8 @@ class PromptBuilder:
 
         # Assistant: Überprüfung der Lösung
         assistant_validation = MessageBuilder.add_message(
-            "assistant",
-            # "user",
+            # "assistant",
+            "user",
             [MessageBuilder.add_txt_to_content(
                 "Prüfe die gesamte Lösung auf:\n"
                 "- Konsistenz zwischen Beispiel, Zustandsübergangstabelle und Beispielablauftabelle.\n"
@@ -191,7 +191,7 @@ class PromptBuilder:
         # Assistant: Überprüfung der Qualitätssicherung
         assistant_validation = MessageBuilder.add_message(
             "assistant",
-            # "user",
+            "user",
             [MessageBuilder.add_txt_to_content(
                 "Stelle sicher, dass die Qualitätssicherungsanforderungen vollständig erfüllt sind."
             )]
@@ -364,7 +364,7 @@ class PromptBuilder:
     #         messages.append(assistant_validation)
     #
     #
-    #         # Schritt 7: Anforderungen an die Lösung
+    #         # Schritt 11. Iteration: Anforderungen an die Lösung
     #         solution_prompt = MessageBuilder.add_message(
     #             # "user",
     #             "system",
