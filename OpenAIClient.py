@@ -1,6 +1,5 @@
 import json
 import time
-
 import openai
 
 from openai import OpenAI

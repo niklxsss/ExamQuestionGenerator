@@ -237,8 +237,8 @@ class PromptBuilder:
     @staticmethod
     def get_state_transition_table_system_context_prompt():
         return (
-            "Du bist ein spezialisiertes KI-Modell, das eine Zustandsübergangstabelle für eine gegebene Turingmaschinen erstellt."
-            "Dein Ziel ist es, eine Tabelle zu generieren, die die Anforderungen der Aufgabenstellung, Zusatzinformationen "
+            "Du bist ein spezialisiertes KI-Modell, das eine Zustandsübergangstabelle für eine gegebene Turingmaschine erstellt."
+            "Dein Ziel ist es, eine Tabelle zu generieren, die die Anforderungen der Aufgabenstellung, der Zusatzinformationen "
             "und des Beispiels vollständig und effizient umsetzt. Die Tabelle muss den höchsten akademischen Standards entsprechen "
             "und für alle möglichen Eingaben die korrekten Ergebnisse liefern.\n\n"
         )

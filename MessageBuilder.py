@@ -11,7 +11,7 @@ class MessageBuilder:
         return {"type": "text", "text": text}
 
     @staticmethod
-    def add_base64_file_to_content(encoded_base64_data):
+    def add_base64_to_content(encoded_base64_data):
         """
         Erstellt ein Bildobjekt mit dem Typ 'image_url'.
         """
@@ -54,7 +54,7 @@ class MessageBuilder:
                     for encoded_base64_datum in encoded_base64_data
                     for item in [
                     MessageBuilder.add_txt_to_content(PromptBuilder.get_bas64_prompt()),
-                    MessageBuilder.add_base64_file_to_content(encoded_base64_datum)
+                    MessageBuilder.add_base64_to_content(encoded_base64_datum)
                 ]
                 ),
 

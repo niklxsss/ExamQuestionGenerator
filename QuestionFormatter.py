@@ -13,21 +13,21 @@ class QuestionFormatter:
     @staticmethod
     def format_output_for_txt(output, content_type=None):
         return "\n\n".join([
-            QuestionFormatter._format_txt_entry(q, content_type)
+            QuestionFormatter.format_txt_entry(q, content_type)
             for q in output[SECTION_QUESTIONS]
         ])
 
     @staticmethod
-    def _format_txt_entry(question, content_type):
+    def format_txt_entry(question, content_type):
         entry_text = f"{LABEL_TASK}{COLON}{question[SECTION_ID]}\n\n"
         if content_type in [None, SECTION_QUESTIONS]:
-            entry_text += QuestionFormatter._format_question_txt(question)
+            entry_text += QuestionFormatter.format_question_txt(question)
         if content_type in [None, SECTION_SOLUTIONS]:
-            entry_text += QuestionFormatter._format_solution_txt(question)
+            entry_text += QuestionFormatter.format_solution_txt(question)
         return entry_text.strip() + "\n\n\n"
 
     @staticmethod
-    def _format_question_txt(question):
+    def format_question_txt(question):
         content = f"{LABEL_QUESTION}{COLON}\n{question[SECTION_QUESTION_CONTENT][SECTION_QUESTION]}\n\n"
         additional_infos = question[SECTION_QUESTION_CONTENT].get(SECTION_QUESTION_ADDITIONAL_INFOS)
         if additional_infos:
@@ -45,7 +45,7 @@ class QuestionFormatter:
         return content
 
     @staticmethod
-    def _format_solution_txt(question):
+    def format_solution_txt(question):
         content = f"{LABEL_SOLUTION}{COLON}\n{question[SECTION_SOLUTION_CONTENT][SECTION_SOLUTION]}\n\n"
 
         additional_infos = question[SECTION_SOLUTION_CONTENT].get(SECTION_SOLUTION_ADDITIONAL_INFOS)
@@ -86,20 +86,20 @@ class QuestionFormatter:
     @staticmethod
     def format_output_for_pdf(output, content_type=None):
         doc_content = []
-        styles = QuestionFormatter._get_pdf_styles()
+        styles = QuestionFormatter.get_pdf_styles()
 
         for question in output[SECTION_QUESTIONS]:
             doc_content.append(Paragraph(f"{LABEL_TASK}{COLON}{question[SECTION_ID]}", styles['heading_style']))
             if content_type in [None, SECTION_QUESTIONS]:
-                doc_content.extend(QuestionFormatter._format_question_pdf(question, styles))
+                doc_content.extend(QuestionFormatter.format_question_pdf(question, styles))
             if content_type in [None, SECTION_SOLUTIONS]:
-                doc_content.extend(QuestionFormatter._format_solution_pdf(question, styles))
+                doc_content.extend(QuestionFormatter.format_solution_pdf(question, styles))
             doc_content.append(Spacer(1, 36))
 
         return doc_content
 
     @staticmethod
-    def _get_pdf_styles():
+    def get_pdf_styles():
         styles = getSampleStyleSheet()
         return {
             'heading_style': ParagraphStyle(name='HeadingStyle', parent=styles['Heading2'], fontSize=16, leading=20,
@@ -115,7 +115,7 @@ class QuestionFormatter:
         }
 
     @staticmethod
-    def _format_question_pdf(question, styles):
+    def format_question_pdf(question, styles):
         content = [
             Paragraph(f"{LABEL_QUESTION}{COLON}", styles['label_style']),
             Paragraph(question[SECTION_QUESTION_CONTENT][SECTION_QUESTION], styles['content_style'])
@@ -129,7 +129,7 @@ class QuestionFormatter:
         tables = question[SECTION_QUESTION_CONTENT].get(SECTION_QUESTION_TABLES)
         if tables:
             for table in tables:
-                content.extend(QuestionFormatter._format_table_pdf(table, styles))
+                content.extend(QuestionFormatter.format_table_pdf(table, styles))
 
         content.append(Paragraph(f"{LABEL_EXAMPLE}{COLON}", styles['label_style']))
         content.append(Paragraph(question[SECTION_EXAMPLE], styles['content_style']))
@@ -137,7 +137,7 @@ class QuestionFormatter:
         return content
 
     @staticmethod
-    def _format_solution_pdf(question, styles):
+    def format_solution_pdf(question, styles):
         content = [
             Paragraph(f"{LABEL_SOLUTION}{COLON}", styles['label_style']),
             Paragraph(question[SECTION_SOLUTION_CONTENT][SECTION_SOLUTION], styles['content_style'])
@@ -156,20 +156,20 @@ class QuestionFormatter:
                 content.append(Paragraph(f"{idx + 1}. {step}", styles['step_style']))
 
         state_table = question[SECTION_SOLUTION_CONTENT][SECTION_SOLUTION_STATE_TRANSITION_TABLE]
-        content.extend(QuestionFormatter._format_table_pdf(state_table, styles))
+        content.extend(QuestionFormatter.format_table_pdf(state_table, styles))
 
         example_flow_table = question[SECTION_SOLUTION_CONTENT][SECTION_SOLUTION_EXAMPLE_FLOW_TABLE]
-        content.extend(QuestionFormatter._format_table_pdf(example_flow_table, styles))
+        content.extend(QuestionFormatter.format_table_pdf(example_flow_table, styles))
 
         tables = question[SECTION_SOLUTION_CONTENT].get(SECTION_ADDITIONAL_SOLUTION_TABLES)
         if tables:
             for table in tables:
-                content.extend(QuestionFormatter._format_table_pdf(table, styles))
+                content.extend(QuestionFormatter.format_table_pdf(table, styles))
 
         return content
 
     @staticmethod
-    def _format_table_pdf(table, styles):
+    def format_table_pdf(table, styles):
         content = [Paragraph(f"{LABEL_TABLE}{COLON}{table[SECTION_TABLES_TITLE]}", styles['label_style'])]
         data = [table[SECTION_TABLES_HEADERS]] + table[SECTION_TABLES_ROWS]
         table_obj = Table(data)

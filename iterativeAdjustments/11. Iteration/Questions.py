@@ -29,6 +29,10 @@ class ExamQuestion(BaseModel):
     solution_content: SolutionContent
 
 
+class ExamQuestions(BaseModel):
+    questions: List[ExamQuestion]
+
+
 # Hilfsklassen
 
 class ExamQuestionWithExample(BaseModel):
@@ -36,8 +40,15 @@ class ExamQuestionWithExample(BaseModel):
     example: str
 
 
-class ExamQuestionsWithExamples(BaseModel):
+class ExamQuestionWithExamples(BaseModel):
     questions: List[ExamQuestionWithExample]
+
+
+class ExamQuestionWithExampleAndTables(BaseModel):
+    question_content: QuestionContent
+    example: str
+    solution_state_transition_table: TableContent
+    solution_example_flow_table: TableContent
 
 
 class SolutionStateTransitionTable(BaseModel):

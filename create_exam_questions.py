@@ -1,5 +1,3 @@
-import json
-
 from Const import TASK_GENERATION_TEMPERATURE, EXAMPLE_FLOW_TEMPERATURE, STATE_TRANSITION_TEMPERATURE, \
     SOLUTION_TEMPERATURE, SECTION_QUESTIONS
 from FileProcessor import FileProcessor
@@ -7,7 +5,7 @@ from InputArgumentParser import InputArgumentParser
 from MessageBuilder import MessageBuilder
 from OpenAIClient import OpenAIClient
 from OutputSaver import OutputSaver
-from Questions import ExamQuestion, ExamQuestionWithExamples, SolutionStateTransitionTable, \
+from Questions import ExamQuestion, ExamQuestionsWithExamples, SolutionStateTransitionTable, \
     SolutionExampleFlowTable
 
 
@@ -43,7 +41,7 @@ def main():
     print("[INFO] Task generation message created successfully.")
 
     print("[INFO] Sending request to OpenAI API for task generation...")
-    generated_tasks = OpenAIClient.send_request(message_task, TASK_GENERATION_TEMPERATURE, ExamQuestionWithExamples)
+    generated_tasks = OpenAIClient.send_request(message_task, TASK_GENERATION_TEMPERATURE, ExamQuestionsWithExamples)
     print(f"[INFO] Received {len(generated_tasks[SECTION_QUESTIONS])} generated task(s).")
 
     complete_tasks = []
@@ -86,6 +84,7 @@ if __name__ == "__main__":
 # https://github.com/openai/openai-python
 # https://platform.openai.com/docs/guides/vision
 # https://platform.openai.com/docs/guides/structured-outputs/how-to-use?context=ex2
+# https://platform.openai.com/docs/guides/text-generation
 
 # create_exam_questions --output TXT --files_pdf gie-informatik_uebung_08.pdf --num_questions 5
 
