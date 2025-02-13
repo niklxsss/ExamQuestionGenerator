@@ -5,8 +5,6 @@ from MessageBuilder import MessageBuilder
 
 
 class PromptBuilderTests:
-    # Test User und System Role zu nutzen, aber anstatt alles seperat mir eigener Role zu senden werden hier einige
-    # unter user fallende PromptPArts zusammengefasst, um eine konsistentere Generierung zu schaffen
 
     @staticmethod
     def create_prompt(num_questions, difficulty_eng):

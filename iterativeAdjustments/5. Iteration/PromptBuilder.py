@@ -377,6 +377,4 @@ class PromptBuilder:
             "**Geben Sie die validierten und ggf. verbesserten Aufgaben im ursprünglichen Format zurück.**\n\n"
         )
 
-        # validation_prompt += PromptBuilder.get_structure_instructions()
-
         return validation_prompt

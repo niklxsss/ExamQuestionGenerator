@@ -23,7 +23,6 @@ def main():
     prompt_text = PromptBuilder.create_prompt(num_questions, difficulty, task_type,info_texts, encoded_base64_data,
                                               pdf_texts)
 
-    # print(prompt_text)
 
     message = MessageBuilder.build_message(prompt_text, info_texts, encoded_base64_data, pdf_texts)
     result = OpenAIClient.send_request(message, TEMPERATURE)
@@ -40,11 +39,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# https://github.com/openai/openai-python
-# https://platform.openai.com/docs/guides/vision
-# https://platform.openai.com/docs/guides/structured-outputs/how-to-use?context=ex2
-
-# create_exam_questions --output TXT --files_pdf gie-informatik_uebung_08.pdf --num_questions 5
-
-# create_exam_questions --output PDF --files_images AblaufGrafik.png --files_txt Unit05.txt --files_pdf gie-informatik_uebung_08.pdf --num_questions 15

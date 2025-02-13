@@ -81,7 +81,9 @@ def main():
         # example_flow_table_content_validated = OpenAIClient.send_request(
         #     example_flow_table_validation_message, VALIDATION_TEMPERATURE, SolutionExampleFlowTable)
 
-        table_validation_message = MessageBuilder.create_validation_message(question_content, state_transition_table_content, example_flow_table_content)
+        table_validation_message = MessageBuilder.create_validation_message(question_content,
+                                                                            state_transition_table_content,
+                                                                            example_flow_table_content)
         validated_task_and_tables = OpenAIClient.send_request(
             table_validation_message, VALIDATION_TEMPERATURE, ExamQuestionWithExampleAndTables)
         print(f"[INFO] Example flow table validated and corrected for question {index}.")
@@ -152,15 +154,3 @@ def compare_tables_and_print_differences(table_name, original_table, validated_t
 
 if __name__ == "__main__":
     main()
-
-# https://github.com/openai/openai-python
-# https://platform.openai.com/docs/guides/vision
-# https://platform.openai.com/docs/guides/structured-outputs/how-to-use?context=ex2
-
-# create_exam_questions --output TXT --files_pdf gie-informatik_uebung_08.pdf --num_questions 5
-
-# create_exam_questions --output PDF --files_images AblaufGrafik.png --files_txt Unit05.txt --files_pdf gie-informatik_uebung_08.pdf --num_questions 15
-
-# JSON compare:
-# https://jsonviewer.stack.hu/
-# https://jsondiff.com/

@@ -149,12 +149,3 @@ class PromptBuilder:
 
             "Generieren Sie die Aufgaben und Lösungen im zuvor beschriebenen Format."
         )
-
-
-
-
-
-
-# Format definieren
-# Nutzung des Formates
-#Bei aufzählungen keine nummern angeben

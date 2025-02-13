@@ -19,7 +19,6 @@ class PromptBuilder:
 
         return prompt
 
-    # difficulty anpassen und spezifische Aufgabentypen definieren
 
     @staticmethod
     def get_base_prompt(num_questions):
@@ -28,7 +27,6 @@ class PromptBuilder:
             f"anspruchvoll Prüfungsaufgaben zu Turingmaschinen. Die Aufgaben sollen speziell "
             f"für Studierende im Bereich Informatik konzipiert sein und deren Verständnis sowie die "
             f"Anwendungskompetenz der Konzepte prüfen.\n\n"
-            #     evtl wieder anspruchvoll hinzufügen -> output war schwerer als wenn man schwer als schwierigkeitsgrad angibt
         )
 
     @staticmethod

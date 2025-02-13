@@ -1,18 +1,3 @@
-# Each exercise should be presented with the following structure:
-# 1. **Problem Description**: Describe the scenario or computational problem, including details like the initial state, tape configuration, and transitions.
-# 2. **Objective**: Specify what the student must achieve (e.g., configure a Turing Machine to perform a certain task or derive an output from a given input).
-# 3. **Requirements and Constraints**: Outline any specific requirements, such as tape alphabet limitations, head movement restrictions, or state transition limitations.
-# 4. **Expected Output**: Describe the expected outcome or the final state configuration that indicates the task was performed correctly.
-#
-# Include multiple types of exercises, such as:
-# - Configuring a Turing Machine to recognize a specific language or pattern.
-# - Designing a Turing Machine to perform arithmetic operations (e.g., addition, subtraction).
-# - Creating a Turing Machine to solve a problem involving binary numbers, such as binary counting or binary addition.
-# - Analyzing a given Turing Machine setup and predicting the output based on specific inputs.
-#
-# Make sure each exercise is sufficiently challenging and tests the student's knowledge of Turing Machine applications.
-# """
-
 class PromptBuilder:
 
     @staticmethod
@@ -52,7 +37,3 @@ class PromptBuilder:
             return f"Die angehängte(n) {datei_name} enthalten zusätzliche Inhalte zur Turingmaschine. " \
                    f"Nutzen Sie diese Inhalte, um die Übungen entsprechend zu gestalten.\n\n"
         return ""
-
-# Format definieren
-# Nutzung des Formates
-#Bei aufzählungen keine nummern angeben

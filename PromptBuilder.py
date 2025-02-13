@@ -186,7 +186,6 @@ class PromptBuilder:
             "- **Korrekte Darstellung:** Stellen Sie sicher, dass die Eingabe und der erwartete Output korrekt sind, einschließlich Leerzeichen-Symbole `■` am Anfang und Ende.\n"
             "- **Leerzeichen** Wenn Leerzeichen als Trennungszeichen genutzt werden ist dies auch mit dem Symbol `■` darzustellen.\n\n"
             "- **Formatierung des Beispiels:** Das Beispiel muss immer im folgenden Format angegeben werden: `Eingabe: <Wert> | Ausgabe: <Wert>`.\n\n"
-             # (Falls der Bandinhalt gleich bleibt und der Inhalt )
 
             "**Füge KEINE Tabellen (optional_question_tables) hinzu, außer es ist ausdrücklich verlangt!**\n\n"
         )
@@ -302,7 +301,6 @@ class PromptBuilder:
             "  - Vermeide doppelte Zustände für das gleiche gelesene Zeichen.\n"
             "  - Stelle sicher, dass Start- und Endzustand korrekt nach der Aufgabenstellung definiert sind. Die Maschine muss am Ende an der spezifizierten Endposition stehen bleiben (Stelle dies auch in der Tabelle dar).\n"
             "  - **Beachte, dass die Rückführung der Bandposition zum gewünschten Endzustand (inkl. aller Zwischenschritte) zwingend korrekt und vollständig umgesetzt wird.**\n\n"
-            # "  - Vermeide unnötige Komplexität um das Ziel zu erfüllen!\n\n"
             "  - Falls Überträge in der Aufgabe nötig sind, arbeite mit Hilfssymbolen!\n\n"
 
             "[WICHTIG] Zusätzlich:\n"

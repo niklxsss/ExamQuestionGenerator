@@ -23,10 +23,6 @@ class PromptBuilder:
 
         return prompt
 
-    # difficulty anpassen und spezifische Aufgabentypen definieren
-    # zustände in zusatndstabelle sind oft unvollständig
-    # Lösungen oft fehlerhaft
-
     @staticmethod
     def get_base_prompt(num_questions):
         return (

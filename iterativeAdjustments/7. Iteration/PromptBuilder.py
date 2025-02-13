@@ -3,11 +3,6 @@ from Const import DIFFICULTY_TRANSLATION_MAP, DIFFICULTY_EXPLANATION_MAP
 
 class PromptBuilder:
 
-    # ausgearbeiteter lange Prompt mit vielen Informationen, Anweisungen und Wiederholung
-    # Schweirigkeiten alle Anforderungen umzusetzen
-    # Overfitting
-    # Änderung zum Prompt zuvor ist die Aufteilung in prefix und suffix
-
     @staticmethod
     def create_prefix_prompt(num_questions, difficulty_eng, incorrect_task, files_txt, files_images, files_pdf):
         difficulty = DIFFICULTY_TRANSLATION_MAP.get(difficulty_eng)

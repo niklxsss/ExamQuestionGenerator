@@ -6,9 +6,6 @@ from OutputSaver import OutputSaver
 from PromptBuilder import PromptBuilder
 
 
-# https://github.com/niklxsss/ExamQuestionGenerator/blob/a23cd4021d69bb62a78f179767f7c233f51c31cc/create_exam_questions.py
-# Nov 12
-
 def main():
     args = InputArgumentParser.parse_arguments()
     num_questions = args.num_questions
@@ -31,11 +28,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# https://github.com/openai/openai-python
-# https://platform.openai.com/docs/guides/vision
-# https://platform.openai.com/docs/guides/structured-outputs/how-to-use?context=ex2
-
-# create_exam_questions --output TXT --files_pdf gie-informatik_uebung_08.pdf --num_questions 5
-
-# create_exam_questions --output PDF --files_images AblaufGrafik.png --files_txt Unit05.txt --files_pdf gie-informatik_uebung_08.pdf --num_questions 15

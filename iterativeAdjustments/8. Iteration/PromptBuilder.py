@@ -3,7 +3,7 @@ from MessageBuilder import MessageBuilder
 
 
 class PromptBuilder:
-    # test versuch: Großen Prompt zu verkleinern um overfitting zu vermeiden.... viele MEthoden wie der Reminder, Struktur und die Genaue Beschreibung der Klassenstruktur waren überflüssig 30.11
+
     @staticmethod
     def create_prefix_prompt(num_questions, difficulty_eng, incorrect_task, files_txt, files_images, files_pdf):
         difficulty = DIFFICULTY_TRANSLATION_MAP.get(difficulty_eng)
